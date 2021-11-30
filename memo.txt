@@ -1,0 +1,13 @@
+# 회원가입
+ # Server Side
+  1. Post 된 회원가입정보 DB에 저장
+ # Client Side
+  1. 회원가입정보 Post
+
+# 로그인 
+ # Server Side
+  1. Post 된 정보 DB와 대조 후, 세션 ID 넘김
+ # Client Side
+  1. 아이디, 비밀번호 Post
+  2. 세션 ID를 쿠키로 저장
+ * JWT (stateless) 고려

@@ -1,0 +1,53 @@
+.login-container{
+    margin-top:100px;
+    padding:20px;
+}
+
+
+.input-id{
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 40px;
+    margin: 0 0 8px;
+    padding: 5px 39px 5px 11px;
+    border: solid 1px #dadada;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.input-pw{
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 40px;
+    margin: 0 0 8px;
+    padding: 5px 39px 5px 11px;
+    border: solid 1px #dadada;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.login-btn{
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 49px;
+    display: block;
+    width: 100%;
+    height: 49px;
+    margin: 16px 0 7px;
+    cursor: pointer;
+    text-align: center;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    background-color: #03c75a;
+}
+
+.hidden{
+    display:none;
+}
+
+.state{
+    color:rgb(226, 83, 83);
+}
