@@ -8,7 +8,7 @@ import { useCallback } from 'react';
 import ErrorPage from './components/pages/ErrorPage';
 import {ErrorBoundary} from "react-error-boundary";
 import NotFound from './components/pages/NotFound';
-import SignIn from './components/pages/SignIn';
+import SignUp from './components/pages/SignUp';
 
 function App() {
   
@@ -23,7 +23,7 @@ function App() {
           <Route path="/" exact element={<Home/>} /> 
           <Route path="/example" exact element={<Example/>} />
           <Route path="/login" exact element={<LoginForm/>} /> 
-          <Route path="/sign-in" exact element={<SignIn/>} /> 
+          <Route path="/sign-in" exact element={<SignUp/>} /> 
           <Route path="*" element={<NotFound/>}/>
         </Routes>
         

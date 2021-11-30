@@ -2,13 +2,20 @@ package com.bookmarkmanager.bookmarkmanager.controller;
 
 
 
+import java.util.List;
+
 import com.bookmarkmanager.bookmarkmanager.configuration.CustomHeaderProvider;
-import com.bookmarkmanager.bookmarkmanager.db.login.User;
+import com.bookmarkmanager.bookmarkmanager.db.entity.User;
 import com.bookmarkmanager.bookmarkmanager.db.repository.UserRepository;
+import com.bookmarkmanager.bookmarkmanager.dto.UserDto;
+import com.bookmarkmanager.bookmarkmanager.dto.UserDto.LoginReq;
+import com.bookmarkmanager.bookmarkmanager.dto.UserDto.SignUpReq;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,30 +28,24 @@ public class LoginApi{
     private UserRepository userRepository;
 
     // login
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<String> LogIn(
-        @RequestParam String id,
-        @RequestParam String pw
+        @RequestBody LoginReq req
     ){
 
-
-        System.out.println("id : "+ id);
-        System.out.println("pw : "+ pw);
         
         //set Header to pass CORS policy
         CustomHeaderProvider CustomHeaderProvider = new CustomHeaderProvider();
         CustomHeaderProvider.setBasicCORS();
 
 
-        System.out.println("#User Repo");
-        userRepository.findAll().forEach(System.out::println);
 
         //compare requested info with saved info
         
-        User user = userRepository.findByUserId(id);
+        List<User> user = userRepository.findByUserId(req.getId());
         
-        if(user!=null){
-            if(user.getUserPw().equals(pw)){
+        if(!user.isEmpty()){
+            if(user.get(0).getUserPw().equals(req.getPw())){
                 return ResponseEntity.ok().headers(CustomHeaderProvider.getHttpHeaders()).body("true");
             }
             
@@ -55,27 +56,35 @@ public class LoginApi{
     }
 
 
-    // sign-in
-    @GetMapping("/sign-in")
-    public ResponseEntity<String> SignIn(
-        @RequestParam String id,
-        @RequestParam String email
+    // sign-up
+    @PostMapping("/sign-up")
+    public ResponseEntity<String> SignUp(
+        @RequestBody SignUpReq req
     ){
         //set Header to pass CORS policy
         CustomHeaderProvider CustomHeaderProvider = new CustomHeaderProvider();
         CustomHeaderProvider.setBasicCORS();
 
 
-        User user;
-        user = userRepository.findByUserId(id);
-        if(user!=null){
+        List<User> userById;
+        List<User> userByEmail;
+        userById = userRepository.findByUserId(req.getUserId());
+        userByEmail = userRepository.findByUserId(req.getUserEmail());
+        // 중복됬을때
+        if(!userById.isEmpty() || !userByEmail.isEmpty()){
             return ResponseEntity.ok().headers(CustomHeaderProvider.getHttpHeaders()).body("false");
+        }else{//중복되지않았을때
+            //DB 에 저장
+            User user = req.toEntity();
+            userRepository.save(user);
+
+            System.out.println("#DB check");
+            userRepository.findAll().forEach(System.out::println);
+             
+
+            return ResponseEntity.ok().headers(CustomHeaderProvider.getHttpHeaders()).body("true");
         }
-        user = userRepository.findByEmail(email);
-        if(user!=null){
-            return ResponseEntity.ok().headers(CustomHeaderProvider.getHttpHeaders()).body("false");
-        }
-        return ResponseEntity.ok().headers(CustomHeaderProvider.getHttpHeaders()).body("true");
+
 
     }
 

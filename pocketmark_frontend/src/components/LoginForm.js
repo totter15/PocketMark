@@ -18,7 +18,7 @@ const loginClick = (props)=>{
 
     // post 로 일단 보내고 get을 받아야됨????
     // http protocol은 모두 res 를 받을 수 있음 (**** 중요 ****) 
-    axios.get(`http://localhost:9090/api/login?id=${id.value}&pw=${pw.value}`)
+    axios.post(`http://localhost:9090/api/login`,{id:`${id.value}`,pw:`${pw.value}`})
     .then((res)=>{
         // console.log(res);
         if(res.data === true){
@@ -30,6 +30,8 @@ const loginClick = (props)=>{
     })
     .catch((error)=>{console.log(error);})
     .finally(()=>{});   
+
+    axios.delete('sd1',)
     
 };
 
