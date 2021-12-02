@@ -7,23 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDto {
 
     @Getter
+    @AllArgsConstructor
+    @Builder
     @NoArgsConstructor
+    @ToString
     public static class SignUpReq{
         private String userId;
         private String userPw;
         private String userEmail;
-
-        @Builder
-        public SignUpReq(String id, String pw, String email){
-            this.userId = id;
-            this.userPw = pw;
-            this.userEmail = email; 
-        }
 
         public User toEntity(){
             return User.builder()
@@ -34,24 +31,22 @@ public class UserDto {
         }
     }
 
-
-
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    @NoArgsConstructor
+    @ToString
+    public static class LoginReq{
+        private String userId;
+        private String userPw;
+    }    
 
     @Getter
-    @NoArgsConstructor
-    public static class LoginReq{
-        private String id;
-        private String pw;
-        
-        @Builder
-        public LoginReq(String id, String pw){
-            this.id=id;
-            this.pw=pw;
-        }
-    }
+    @AllArgsConstructor
+    @Builder
+    public static class UpdateReq{
+        private String userPw;
+        private String userEmail;
+    }    
 
-
-
-    
-    
 }

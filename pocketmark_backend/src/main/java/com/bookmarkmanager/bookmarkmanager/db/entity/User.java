@@ -2,8 +2,10 @@ package com.bookmarkmanager.bookmarkmanager.db.entity;
 
 import javax.persistence.Entity;
 
+import com.bookmarkmanager.bookmarkmanager.db.repository.UserRepository;
 import com.bookmarkmanager.bookmarkmanager.dto.UserDto;
 import com.bookmarkmanager.bookmarkmanager.dto.UserDto.SignUpReq;
+import com.bookmarkmanager.bookmarkmanager.dto.UserDto.UpdateReq;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,14 +31,9 @@ public class User extends DbEntity{
         this.userEmail = userEmail;
     }
 
-    public void updateUser(SignUpReq req){
-        this.userEmail = req.getUserEmail();
-        this.userPw = req.getUserPw();
+    public void userUpdate(String pw, String email){
+        this.userPw = pw;
+        this.userEmail = email;
     }
-
-    
-
-
-
 
 }

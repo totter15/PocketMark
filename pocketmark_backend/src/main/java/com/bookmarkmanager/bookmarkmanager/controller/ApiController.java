@@ -1,7 +1,9 @@
 package com.bookmarkmanager.bookmarkmanager.controller;
 
 import java.util.Enumeration;
+import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,13 +34,20 @@ public class ApiController {
     //     return;
     // }
 
-    @GetMapping("/get")
-    public ResponseEntity<String> getTest(HttpServletRequest httpServletRequest){
+    @GetMapping("/header-test")
+    public ResponseEntity<String> getTest(@RequestHeader Map<String, Object> reqHeader){
+        
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Access-Control-Allow-Origin","*");
+        httpHeaders.set("Access-Control-Allow-Origin","http://localhost:3000");
         httpHeaders.set("Access-Control-Allow-Methods","GET");
         httpHeaders.set("Access-Control-Allow-Headers","Content-Type, Authorization, Content-Length, X-Requested-With");
         
+        System.out.println("#Request Header");
+        for(String key : reqHeader.keySet()){
+            System.out.println(key + " : " + reqHeader.get(key));
+        }
+        System.out.println("# Header End");
+
         return ResponseEntity.ok().headers(httpHeaders).body("I'm responding.. with header xD");
     }
 }

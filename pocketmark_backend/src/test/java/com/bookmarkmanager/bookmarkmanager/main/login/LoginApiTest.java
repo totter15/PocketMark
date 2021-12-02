@@ -54,9 +54,9 @@ public class LoginApiTest {
                 .build();
         
         SignUpReq signUpReq = UserDto.SignUpReq.builder()
-                            .id("sim2280")
-                            .pw("1234")
-                            .email("daniel@naver.com")
+                            .userId("sim2280")
+                            .userPw("1234")
+                            .userEmail("daniel@naver.com")
                             .build();
 
         String content = objectMapper.writeValueAsString(signUpReq);
@@ -75,7 +75,7 @@ public class LoginApiTest {
         System.out.println("# 회원가입 후 DB 확인");
         userRepository.findAll().forEach(System.out::println);
         
-        LoginReq loginReq = UserDto.LoginReq.builder().id("sim2280").pw("1234").build();
+        LoginReq loginReq = UserDto.LoginReq.builder().userId("sim2280").userPw("1234").build();
         content = objectMapper.writeValueAsString(loginReq);
         log.info("#loginReq : {}",content);
 

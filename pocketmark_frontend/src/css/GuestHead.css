@@ -1,0 +1,17 @@
+a{
+    text-decoration: none;
+    color:black;
+    text-transform: uppercase;
+    font-size: 12px;
+    text-align: center;
+    font-weight: 600;
+    margin: 10px;
+}
+
+.head-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items:flex-end;
+}

@@ -1,32 +1,45 @@
+import axios from "axios";
 import {Link} from "react-router-dom";
 import '../../css/Home.css';
+import GuestHead from "../function/GuestHead";
+import LoginHead from "../function/LoginHead";
+import Logo from "../function/Logo";
+import { useLocation } from "react-router";
 
-export default function Home(){
+
+const headerTest = () =>{
+    axios.get("http://localhost:9090/api/header-test")
+    .then((res)=>console.log(res))
+    .catch().finally();
+};
+
+
+export default function Home(props){
+    const {state} = useLocation();
+    console.log(state);
+    let isLogin = false;
+    if(state!==null){
+        if(state.isLogin!==undefined){
+            isLogin = state.isLogin;
+        }
+    }
+
+
     return (
         <div id="container">
 
             <div id='first-section'>
-                <Link to="login">Login</Link>
-                <Link to="sign-in">회원가입</Link>
+                {isLogin? <LoginHead/>:<GuestHead/>}
             </div>
             <div id='second-section'>
-                <div id="app-name">
-                    <div id="blank">
-                    </div>
-                    <p id='name-b'>P</p><p id='name-y'>O</p><p id='name-g'>R</p><p id='name-r'>T</p>
-                    <p id='name-b'>A</p><p id='name-y'>B</p><p id='name-g'>L</p><p id='name-r'>E</p>
-                    <p id='name-b'>M</p><p id='name-y'>A</p><p id='name-g'>R</p><p id='name-r'>K</p>
-                    
-                    <div id="blank">
-                    </div>
-                </div>
-
+                <Logo/>
             </div>
             <div id='third-section'>
                 <div id="description">
                     <p>북마크를 모바일과 웹에서 저장하세요!</p>
                     <p>언제든지 친구에게 공유해보세요 🤗</p>
                 </div>
+                <button id="test" onClick={headerTest}>HTTP HeaderTest</button>
 
             </div>
 
