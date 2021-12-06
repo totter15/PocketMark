@@ -37,10 +37,10 @@ public class ApiController {
     @GetMapping("/header-test")
     public ResponseEntity<String> getTest(@RequestHeader Map<String, Object> reqHeader){
         
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Access-Control-Allow-Origin","http://localhost:3000");
-        httpHeaders.set("Access-Control-Allow-Methods","GET");
-        httpHeaders.set("Access-Control-Allow-Headers","Content-Type, Authorization, Content-Length, X-Requested-With");
+        // HttpHeaders httpHeaders = new HttpHeaders();
+        // httpHeaders.set("Access-Control-Allow-Origin","http://localhost:3000");
+        // httpHeaders.set("Access-Control-Allow-Methods","GET");
+        // httpHeaders.set("Access-Control-Allow-Headers","Content-Type, Authorization, Content-Length, X-Requested-With");
         
         System.out.println("#Request Header");
         for(String key : reqHeader.keySet()){
@@ -48,6 +48,6 @@ public class ApiController {
         }
         System.out.println("# Header End");
 
-        return ResponseEntity.ok().headers(httpHeaders).body("I'm responding.. with header xD");
+        return ResponseEntity.ok().body("I'm responding.. with header xD");
     }
 }

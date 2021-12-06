@@ -114,4 +114,28 @@ public class LoginApiTest {
 
     }
 
+    @Test
+    public void referenceTest(){
+        User user = User.builder()
+            .userId("q8429")
+            .userPw("252200")
+            .userEmail("www@userEmail")
+            .build();
+
+        User user2 = user;
+        System.out.println("#user1");
+        System.out.println(user);
+        System.out.println("#user2");
+        System.out.println(user2);
+
+        System.out.println("data changed");
+        user2.setDeleted(true);
+
+        System.out.println("#user1");
+        System.out.println(user);
+        System.out.println("#user2");
+        System.out.println(user2);
+
+    }
+
 }

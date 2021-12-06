@@ -16,6 +16,7 @@ import com.bookmarkmanager.bookmarkmanager.dto.UserDto.LoginReq;
 import com.bookmarkmanager.bookmarkmanager.dto.UserDto.SignUpReq;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,10 +44,12 @@ public class LoginApi{
     ){
 
         //make session
-        HttpSession session = httpServletRequest.getSession();
+        // HttpSession session = httpServletRequest.getSession();
 
         System.out.println("#Find User : "+req.getUserId());
 
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("HeaderFromlogin", "youknow");
 
         //compare requested info with saved info
         
@@ -54,15 +57,15 @@ public class LoginApi{
         
         if(!user.isEmpty()){
             if(user.get(0).getUserPw().equals(req.getUserPw())){
-                if(session.isNew()){
-                    session.setAttribute("user_id", user.get(0).getUserId());
-                }
+                // if(session.isNew()){
+                //     session.setAttribute("user_id", user.get(0).getUserId());
+                // }
                 return ResponseEntity.ok().body("true");
             }
             
         }
 
-        return ResponseEntity.ok().body("false");
+        return ResponseEntity.ok().headers(httpHeaders).body("false");
         
     }
 

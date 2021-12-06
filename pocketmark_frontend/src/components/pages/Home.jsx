@@ -5,11 +5,22 @@ import GuestHead from "../function/GuestHead";
 import LoginHead from "../function/LoginHead";
 import Logo from "../function/Logo";
 import { useLocation } from "react-router";
+import Cookies from "universal-cookie";
 
 
 const headerTest = () =>{
     axios.get("http://localhost:9090/api/header-test")
-    .then((res)=>console.log(res))
+    .then((res)=>{
+        console.log(res);
+        const cookies = new Cookies();
+        let csrfToken = cookies.get('XSRF-TOKEN');
+        console.log(csrfToken);
+        axios.defaults.xsrfCookieName ='XSRF-TOKEN';
+        axios.defaults.xsrfHeaderName ='X-XSRF-TOKEN';
+        console.log(csrfToken);
+        console.log(res["Set-Cookie"]);
+    } 
+    )
     .catch().finally();
 };
 
