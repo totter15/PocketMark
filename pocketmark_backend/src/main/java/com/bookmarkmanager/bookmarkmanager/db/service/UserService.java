@@ -18,10 +18,10 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void update(String userId, UpdateReq req){
-        List<User> user = userRepository.findByUserId(userId);
-        if(!user.isEmpty()){
-            user.get(0).userUpdate(req.getUserPw(), req.getUserEmail());
-            userRepository.save(user.get(0));
+        User user = userRepository.findByUserId(userId);
+        if(user != null){
+            user.userUpdate(req.getUserPw(), req.getUserEmail());
+            userRepository.save(user);
         }
     } 
     

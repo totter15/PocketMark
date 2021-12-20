@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import '../css/LoginForm.css';
 import axios from 'axios';
 import { useNavigate } from "react-router";
-import Home from "./pages/Home";
+import Home from "./pages/public/Home";
 import Cookies from "universal-cookie";
 
 
@@ -13,24 +13,14 @@ function LoginForm(){
     const [info, setInfo] = useState({userId:'',userPw:''});
     const [hiddenConfig, setConfig] = useState(true);
     const navigate = useNavigate();
-    const cookies = new Cookies();
-    let csrfToken = cookies.get('XSRF-TOKEN');
-    console.log("befroe req")
-    console.log(csrfToken);
-    
 
     const loginClick = (props)=>{
-        console.log("#CRSF TOKEN");
-        console.log(csrfToken);
-        // axios.defaults.headers.common['TESTHEADER']='TESTINNNNNG';
-        // axios.defaults.headers.common['Set-Cookie']=`XSRF-TOKEN=${csrfToken};`;
-        axios.defaults.xsrfCookieName ='XSRF-TOKEN';
-        axios.defaults.xsrfHeaderName ='X-XSRF-TOKEN';
         axios.post(`http://localhost:9090/api/login`,info)
         .then((res)=>{
-            console.log(res.headers);
+            console.log("Login");
+            console.log(res);
             if(res.data === true){
-                navigate('/',{state:{isLogin:true}});
+                navigate('/',{state:{isLogin:true, jwt:res.headers.authorization}});
             }else{
                 setConfig(false);
             }

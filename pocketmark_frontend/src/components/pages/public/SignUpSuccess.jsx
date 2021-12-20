@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from 'react-router-dom';
-import Logo from "../function/Logo";
+import Logo from "../../function/Logo";
 
 const style = {
     display:"flex",

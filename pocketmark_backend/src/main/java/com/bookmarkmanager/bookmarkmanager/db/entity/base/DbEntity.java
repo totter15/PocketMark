@@ -1,4 +1,4 @@
-package com.bookmarkmanager.bookmarkmanager.db.entity;
+package com.bookmarkmanager.bookmarkmanager.db.entity.base;
 
 import com.bookmarkmanager.bookmarkmanager.db.listener.Auditable;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class DbEntity implements Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long no;
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;

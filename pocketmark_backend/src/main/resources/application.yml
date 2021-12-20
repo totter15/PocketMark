@@ -15,5 +15,8 @@ logging:
           descriptor:
             sql: trace
 
+jwt:
+  secret: jwtsecret
+
 server:
   port: 9090

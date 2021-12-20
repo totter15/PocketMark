@@ -1,4 +1,4 @@
-package com.bookmarkmanager.bookmarkmanager.configuration;
+package com.bookmarkmanager.provider;
 
 import org.springframework.http.HttpHeaders;
 

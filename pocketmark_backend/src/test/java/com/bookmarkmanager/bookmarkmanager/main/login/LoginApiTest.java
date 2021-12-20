@@ -94,7 +94,7 @@ public class LoginApiTest {
 
     @Test
     public void userRepositoryTest(){
-        User user = new User("sim2626","1234","sim2727@naver.com");
+        User user = new User("sim2626","1234","sim2727@naver.com",null);
         userRepository.save(user);
         user = User.builder()
             .userId("q8429")
@@ -105,8 +105,8 @@ public class LoginApiTest {
 
         userRepository.findAll().forEach(System.out::println);
 
-        List<User> user1 = userRepository.findByUserId("hahaha");
-        List<User> user2 = userRepository.findByUserId("sim2626");
+        User user1 = userRepository.findByUserId("hahaha");
+        User user2 = userRepository.findByUserId("sim2626");
 
         
         log.info(""+user1);
@@ -137,5 +137,8 @@ public class LoginApiTest {
         System.out.println(user2);
 
     }
+
+
+    
 
 }
