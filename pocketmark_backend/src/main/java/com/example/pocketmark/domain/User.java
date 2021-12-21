@@ -1,5 +1,6 @@
 package com.example.pocketmark.domain;
 
+
 import com.example.pocketmark.util.Encryptor;
 import lombok.*;
 
