@@ -9,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import com.example.pocketmark.domain.base.BaseEntity;
 
 import org.hibernate.annotations.Where;
 
@@ -30,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Where(clause = "deleted = false")
 @Slf4j
-public class Folder extends BaseEntity{
+public class Folder extends BaseEntity {
     private Long parent;
     private Long depth;
 
@@ -40,6 +39,7 @@ public class Folder extends BaseEntity{
                          },
                 fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
+    @ToString.Exclude
     private User user;    
 
 

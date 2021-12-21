@@ -27,10 +27,11 @@ public class FolderRepositoryTest {
     @Autowired
     private FolderRepository folderRepository;
 
+    private Folder folder;
+
     @Mock
     private User user;
 
-    private Folder folder;
 
     @BeforeEach
     void init(){
@@ -45,7 +46,7 @@ public class FolderRepositoryTest {
                         .user(user)
                         .visitCount(0)
                         .build();
-
+        // System.out.println(">>> Make Folder : " + folder);
                         return folder;
     }
 
@@ -67,8 +68,8 @@ public class FolderRepositoryTest {
             .hasFieldOrPropertyWithValue("user", user)
             .hasFieldOrPropertyWithValue("visitCount", 0);
         
-        folders.forEach(System.out::println);
-
+        // folders.forEach(System.out::println);
+        // System.out.println(">>> Select : "+folders.get(0));
     }
 
     @DisplayName("DB - 폴더 Update")
@@ -78,11 +79,17 @@ public class FolderRepositoryTest {
         folderRepository.save(folder);
 
         //When
-        Folder folder = folderRepository.findById(1L).orElse(null);
-        int prev = folder.getVisitCount();
-        folder.visitCountUpdate(folder.getVisitCount()+1);
-        folderRepository.save(folder);
-        List<Folder> folders = folderRepository.findAll();
+        List<Folder> folders = folderRepository.findByUser(user);
+        assertThat(folders.isEmpty()).isFalse();
+        System.out.println(">>> Before Update : "+ folders.get(0));
+
+        Folder selectedFolder = folders.get(0);
+        int prev = selectedFolder.getVisitCount();
+        selectedFolder.visitCountUpdate(selectedFolder.getVisitCount()+1);
+        folderRepository.save(selectedFolder);
+
+        folders = folderRepository.findAll();
+        
         
 
         //Then
@@ -93,6 +100,8 @@ public class FolderRepositoryTest {
             .hasFieldOrPropertyWithValue("user", user)
             .hasFieldOrPropertyWithValue("visitCount", prev+1);
 
+        System.out.println(">>> After Update : "+ folders.get(0));
+
     }
 
     @DisplayName("DB - 폴더 Delete")
@@ -102,9 +111,12 @@ public class FolderRepositoryTest {
         folderRepository.save(folder);
 
         //When
-        Folder folder = folderRepository.findById(1L).orElse(null);
-        folderRepository.deleteById(folder.getId()); // 이것도  flush
-        List<Folder> folders = folderRepository.findAll();
+        List<Folder> folders = folderRepository.findByUser(user);
+        assertThat(folders.isEmpty()).isFalse();
+
+        Folder selectedFolder = folders.get(0);
+        folderRepository.deleteById(selectedFolder.getId()); // 이것도  flush
+        folders = folderRepository.findAll();
         
         //Then
         assertThat(folders.size()).isEqualTo(0);
