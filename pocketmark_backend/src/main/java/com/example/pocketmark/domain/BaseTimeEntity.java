@@ -1,7 +1,10 @@
 package com.example.pocketmark.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter
 @Setter
+@ToString
 public abstract class BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
