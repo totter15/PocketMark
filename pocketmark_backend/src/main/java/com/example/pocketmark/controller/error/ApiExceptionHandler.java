@@ -1,7 +1,7 @@
 package com.example.pocketmark.controller.error;
 
 import com.example.pocketmark.constant.ErrorCode;
-import com.example.pocketmark.dto.ApiErrorResponse;
+import com.example.pocketmark.dto.common.ApiErrorResponse;
 import com.example.pocketmark.exception.GeneralException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
