@@ -9,9 +9,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.example.pocketmark.dto.FolderDto;
+import com.example.pocketmark.dto.FolderDto.FolderRes;
+import com.example.pocketmark.dto.FolderDto.FolderResImpl;
+import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
+
 
 import org.hibernate.annotations.Where;
+import org.springframework.boot.jackson.JsonObjectSerializer;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +28,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Getter
@@ -32,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Folder extends BaseEntity {
     private Long parent;
     private Long depth;
+    private String name;
 
     @ManyToOne(cascade = {CascadeType.DETACH,
                          CascadeType.MERGE,
@@ -54,4 +62,24 @@ public class Folder extends BaseEntity {
             return false;
         }
     } 
+
+    public FolderResImpl toJson(){
+
+        // return new FolderResImpl(this.depth,this.parent,this.user.getId(),this.name);
+
+        return FolderResImpl.builder()
+            .name(this.name)
+            .depth(this.depth)
+            .parent(this.parent)
+            .userId(this.user.getId())
+            .visitCount(this.visitCount)
+            .build();
+    }
+
+    public void update(FolderUpdateReq req){
+        this.parent = req.getParent();
+        this.depth = req.getDepth();
+        this.name = req.getName();
+        this.visitCount = req.getVisitCount();
+    }
 }

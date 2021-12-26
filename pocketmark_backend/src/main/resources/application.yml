@@ -1,4 +1,5 @@
 spring:
+  config.activate.on-profile: default
   h2:
     console:
       enabled: true
@@ -18,6 +19,36 @@ logging:
           descriptor:
             sql: trace
 
-
 server:
   port: 9090
+
+---
+spring:
+  config.activate.on-profile: ping9
+  h2:
+    console:
+      enabled: true
+  jpa:
+    show-sql : true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+logging:
+  level:
+    org:
+      springframework.orm.jpa: DEBUG
+      springframework.transaction: DEBUG
+      # springframework.transaction.interceptor: trace
+      hibernate:
+        type:
+          descriptor:
+            sql: trace 
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
