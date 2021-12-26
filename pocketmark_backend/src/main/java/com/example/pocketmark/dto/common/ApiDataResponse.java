@@ -1,4 +1,4 @@
-package com.example.pocketmark.dto;
+package com.example.pocketmark.dto.common;
 
 import com.example.pocketmark.constant.ErrorCode;
 import lombok.EqualsAndHashCode;

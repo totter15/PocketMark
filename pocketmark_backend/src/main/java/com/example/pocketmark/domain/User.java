@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 @Builder
 public class User extends BaseTimeEntity{
 
+
     private String email;
     private String pw;
     private String nickName;

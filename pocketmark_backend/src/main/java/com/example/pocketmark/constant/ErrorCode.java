@@ -19,6 +19,8 @@ public enum ErrorCode {
     SPRING_BAD_REQUEST(10001, HttpStatus.BAD_REQUEST, "Spring-detected bad request"),
     VALIDATION_ERROR(10002, HttpStatus.BAD_REQUEST, "Validation error"),
     NOT_FOUND(10003, HttpStatus.NOT_FOUND, "Requested resource is not found"),
+    EMAIL_EXIST(1004,HttpStatus.BAD_REQUEST,"Duplicate email"),
+    NICKNAME_EXIST(1005,HttpStatus.BAD_REQUEST,"Duplicate NickName"),
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     SPRING_INTERNAL_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Spring-detected internal error"),
