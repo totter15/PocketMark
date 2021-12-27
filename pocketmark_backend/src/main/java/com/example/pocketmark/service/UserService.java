@@ -23,25 +23,12 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
+
     public User create(UserDto.signUpRequest signUpReq){
-        // userRepository
-        //         .findByEmail(signUpReq.getEmail())
-        //         .ifPresent(u->{
-        //             throw new GeneralException(ErrorCode.EMAIL_EXIST);
-        //         });
-
-        // userRepository
-        //         .findByNickName(signUpReq.getNickName())
-        //         .ifPresent(u->{
-        //             throw new GeneralException(ErrorCode.NICKNAME_EXIST);
-        //         });
-
-
         return userRepository.save(new User(
             signUpReq.getEmail(),
             encryptor.encrypt(signUpReq.getPw()),
             signUpReq.getNickName()
-        ));
-        
+        ));   
     }
 }

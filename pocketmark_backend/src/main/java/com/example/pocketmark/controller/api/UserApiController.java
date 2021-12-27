@@ -23,8 +23,10 @@ public class UserApiController {
 
     @PostMapping("/sign-up")
     public ApiDataResponse<UserDto.signUpResponse> signUp(@RequestBody UserDto.signUpRequest request){
+
         loginService.signUp(request);
         return ApiDataResponse.of(new UserDto.signUpResponse(false,"Access Token"));
+
     }
 
 }

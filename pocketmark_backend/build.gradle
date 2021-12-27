@@ -31,6 +31,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.3m'
 	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 

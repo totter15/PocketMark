@@ -15,8 +15,8 @@ public class LoginService {
     private final UserService userService;
 
     @Transactional
-    public void signUp(UserDto.signUpRequest signUpReq) {
-        userService.create(signUpReq);
+    public void signUp(UserDto.SignUpDto signUpDto){
+        userService.create(signUpDto);
     }
     
 }

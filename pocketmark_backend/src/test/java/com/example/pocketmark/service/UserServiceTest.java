@@ -7,6 +7,7 @@ import com.example.pocketmark.dto.UserDto.signUpRequest;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
+import org.apache.tomcat.jni.Error;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +53,7 @@ class UserServiceTest {
                 .willReturn(createUser(request));
 
         //When
-        User user = userService.create(request);
+        User user = userService.create(UserDto.SignUpDto.fromSignUpRequest(request));
 
 
         //Then
@@ -72,7 +73,7 @@ class UserServiceTest {
                 .willThrow(e);
 
         //When
-        Throwable thrown = catchThrowable(()->userService.create(request));
+        Throwable thrown = catchThrowable(()->userService.create(UserDto.SignUpDto.fromSignUpRequest(request)));
 
         //Then
         then(thrown)
@@ -90,6 +91,7 @@ class UserServiceTest {
         given(userRepository.save(any()))
                 .willThrow(e);
 
+
         //When
         Throwable thrown = catchThrowable(()->userService.create(request));
 
@@ -97,6 +99,27 @@ class UserServiceTest {
         then(thrown)
                 .isInstanceOf(DataIntegrityViolationException.class);
         verify(userRepository).save(any()); 
+
+    }
+
+    @DisplayName("중복뒨 이메일로 가입을 시도할때 오류를 발생시킨다.")
+    @Test
+    public void givenOverlapEmail_whenSaveUser_thenReturnException(){
+        //Given
+        GeneralException e = new GeneralException(ErrorCode.EMAIL_EXIST);
+        UserDto.signUpRequest request = createSignUpRequest();
+        given(userRepository.findByEmail(any()))
+                .willThrow(e);
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.create(UserDto.SignUpDto.fromSignUpRequest(request)));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.EMAIL_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+
     }
 
 
