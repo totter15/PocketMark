@@ -25,14 +25,6 @@ public class UserApiController {
     public ApiDataResponse<UserDto.signUpResponse> signUp(@RequestBody UserDto.signUpRequest request){
         loginService.signUp(request);
         return ApiDataResponse.of(new UserDto.signUpResponse(false,"Access Token"));
-        // try{
-        //     loginService.signUp(request);
-        //     return ApiDataResponse.of(new UserDto.signUpResponse(false,"Access Token"));
-        // }catch(Exception e){
-        //     // throw new GeneralException(); //uhm ...?
-        //     return ApiDataResponse.of(new UserDto.signUpResponse(true,"failed"));
-        // }
-
     }
 
 }
