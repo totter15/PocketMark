@@ -59,7 +59,11 @@ class UserApiControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
-                .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
+                .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
+                .andExpect(jsonPath("$.data.duplicated").value(false))
+                .andExpect(jsonPath("$.data.jwt").value("Access Token"))
+
+        ;
     }
 
 }
