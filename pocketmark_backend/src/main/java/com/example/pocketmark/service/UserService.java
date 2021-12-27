@@ -18,24 +18,24 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public User create(UserDto.signUpRequest signUpReq){
+    public User create(UserDto.SignUpDto signUpDto){
         userRepository
-                .findByEmail(signUpReq.getEmail())
+                .findByEmail(signUpDto.getEmail())
                 .ifPresent(u->{
                     throw new GeneralException(ErrorCode.EMAIL_EXIST);
                 });
 
         userRepository
-                .findByNickName(signUpReq.getNickName())
+                .findByNickName(signUpDto.getNickName())
                 .ifPresent(u->{
                     throw new GeneralException(ErrorCode.NICKNAME_EXIST);
                 });
 
 
         return userRepository.save(new User(
-                signUpReq.getEmail(),
-                encryptor.encrypt(signUpReq.getPw()),
-                signUpReq.getNickName()
+                signUpDto.getEmail(),
+                encryptor.encrypt(signUpDto.getPw()),
+                signUpDto.getNickName()
         ));
     }
 }

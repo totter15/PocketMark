@@ -1,61 +1,40 @@
 package com.example.pocketmark.controller;
 
-import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.FolderDto;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkContentUpdateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
-import com.example.pocketmark.dto.FolderDto.FolderRes;
-import com.example.pocketmark.dto.FolderDto.FolderResImpl;
-import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
 import com.example.pocketmark.repository.BookmarkRepository;
 import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.service.BookmarkService;
 import com.example.pocketmark.service.FolderService;
 import com.example.pocketmark.util.DataBaseCleanUpHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import org.junit.jupiter.api.AfterEach;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.mockito.BDDMockito.*;
-import lombok.extern.slf4j.Slf4j;
 
 
 /*
