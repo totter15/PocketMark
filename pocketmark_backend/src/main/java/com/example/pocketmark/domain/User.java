@@ -2,6 +2,9 @@ package com.example.pocketmark.domain;
 
 
 import com.example.pocketmark.util.Encryptor;
+
+import org.hibernate.annotations.Where;
+
 import lombok.*;
 
 import javax.persistence.Column;
@@ -11,6 +14,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
+@Where(clause = "deleted = false")
 public class User extends BaseTimeEntity{
 
     
