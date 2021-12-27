@@ -2,8 +2,11 @@ package com.example.pocketmark.repository;
 
 import java.util.List;
 
+import com.example.pocketmark.config.JpaConfig;
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
+import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,27 +14,48 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 //BDD mock
 import static org.mockito.BDDMockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("DB - 북마크")
 @DataJpaTest
+@Import(JpaConfig.class)
+@ActiveProfiles("ping9")
 public class BookmarkRepositoryTest {
     @Autowired
     private BookmarkRepository bookmarkRepository;
-
     @Mock
+    private FolderRepository folderRepository;
+
+    @Mock private User user;
+    
     private Folder folder;
 
     private Bookmark bookmark;
 
     @BeforeEach
     void init(){
+        folder = makeFolder(0L, 1L, "요리블로그 모음", user);
         bookmark = makeBookmark("SpringFrameWork", "www.blahblah.com", "JPA 기초",  folder);
     }
+
+    public Folder makeFolder(Long parent, Long depth, String name, User user){
+        Folder folder = Folder.builder()
+                        .parent(parent)
+                        .depth(depth)
+                        .user(user)
+                        .name(name)
+                        .visitCount(0)
+                        .build();
+        // System.out.println(">>> Make Folder : " + folder);
+                        return folder;
+    }
+    
 
     
 
@@ -133,5 +157,21 @@ public class BookmarkRepositoryTest {
         assertThat(bookmark.visitCountUpdate(-1)).isFalse();
         assertThat(bookmark.visitCountUpdate(30)).isTrue();
         
+    }
+
+    @DisplayName("DB - 조인없이 북마크 id 로 Select ")
+    @Test
+    void findFolderResByUserIdWithoutJoin(){
+        //given
+        bookmarkRepository.save(bookmark);
+
+        //when
+        List<BookmarkRes> result = bookmarkRepository.findBookmarkResByFolderIdWithoutJoin(folder.getId());
+        
+        //then
+        assertEquals(result.get(0).getName(), "SpringFrameWork");
+        assertEquals(result.get(0).getUrl(), "www.blahblah.com");
+        assertEquals(result.get(0).getComment(),"JPA 기초");
+        assertEquals(result.get(0).getFolderId(), folder.getId());
     }
 }

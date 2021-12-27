@@ -7,9 +7,12 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.example.pocketmark.dto.BookmarkDto.BookmarkContentUpdateReq;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 
 import org.hibernate.annotations.Where;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -18,7 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
@@ -38,6 +41,7 @@ public class Bookmark extends BaseEntity{
                         },
                 fetch = FetchType.LAZY)
     @JoinColumn(name="folder_id")
+    @ToString.Exclude
     private Folder folder;
 
     private int visitCount;
@@ -51,6 +55,26 @@ public class Bookmark extends BaseEntity{
             return false;
         }
     } 
+
+    
+
+    public BookmarkResImpl toJson(){
+        return BookmarkResImpl.builder()
+            .name(this.name)
+            .url(this.url)
+            .comment(this.comment)
+            .folderId(this.folder.getId())
+            .visitCount(this.visitCount)
+            .build();
+    }
+
+    public void update(BookmarkContentUpdateReq req){
+        this.name = req.getName();
+        this.url = req.getUrl();
+        this.comment = req.getComment();
+        this.visitCount = req.getVisitCount();
+    }
+
     
     
 }
