@@ -8,6 +8,7 @@ import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
 import org.apache.tomcat.jni.Error;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,6 +64,8 @@ class UserServiceTest {
         verify(userRepository).save(any());
     }
 
+    @Deprecated
+    @Disabled("DataIntegrityViolationException 추가로 인한 비활성화")
     @DisplayName("중복된 닉네임으로 가입을 시도할떄 오류를 발생시킨다.")
     @Test
     public void givenOverlapNickName_whenSaveUser_thenReturnException(){
@@ -88,12 +91,13 @@ class UserServiceTest {
         //Given
         DataIntegrityViolationException e = new DataIntegrityViolationException("...");
         UserDto.signUpRequest request = createSignUpRequest();
+        UserDto.SignUpDto dto = UserDto.SignUpDto.fromSignUpRequest(request);
         given(userRepository.save(any()))
                 .willThrow(e);
 
 
         //When
-        Throwable thrown = catchThrowable(()->userService.create(request));
+        Throwable thrown = catchThrowable(()->userService.create(dto));
 
         //Then
         then(thrown)
@@ -102,6 +106,8 @@ class UserServiceTest {
 
     }
 
+    @Deprecated
+    @Disabled("DataIntegrityViolationException 추가로 인한 비활성화")
     @DisplayName("중복뒨 이메일로 가입을 시도할때 오류를 발생시킨다.")
     @Test
     public void givenOverlapEmail_whenSaveUser_thenReturnException(){

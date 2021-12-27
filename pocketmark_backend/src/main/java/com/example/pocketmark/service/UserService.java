@@ -23,12 +23,11 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-
-    public User create(UserDto.signUpRequest signUpReq){
+    public User create(UserDto.SignUpDto signUpDto){
         return userRepository.save(new User(
-            signUpReq.getEmail(),
-            encryptor.encrypt(signUpReq.getPw()),
-            signUpReq.getNickName()
+                signUpDto.getEmail(),
+                encryptor.encrypt(signUpDto.getPw()),
+                signUpDto.getNickName()
         ));   
     }
 }

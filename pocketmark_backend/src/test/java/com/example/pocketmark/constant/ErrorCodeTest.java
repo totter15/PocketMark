@@ -100,13 +100,13 @@ class ErrorCodeTest {
                 arguments(HttpStatus.OK, ErrorCode.OK),
                 arguments(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST),
                 arguments(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_ERROR),
+                arguments(HttpStatus.CONFLICT, ErrorCode.EMAIL_OR_NICKNAME_EXIST),
 
                 // 정의되지 않은 값
                 arguments(HttpStatus.CONTINUE, ErrorCode.OK),
                 arguments(HttpStatus.ACCEPTED, ErrorCode.OK),
                 arguments(HttpStatus.MULTI_STATUS, ErrorCode.OK),
                 arguments(HttpStatus.MOVED_PERMANENTLY, ErrorCode.OK),
-                arguments(HttpStatus.CONFLICT, ErrorCode.BAD_REQUEST),
                 arguments(HttpStatus.EXPECTATION_FAILED, ErrorCode.BAD_REQUEST),
                 arguments(HttpStatus.BAD_GATEWAY, ErrorCode.INTERNAL_ERROR),
                 arguments(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, ErrorCode.INTERNAL_ERROR)
