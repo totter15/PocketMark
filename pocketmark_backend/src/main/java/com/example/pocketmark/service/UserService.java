@@ -9,6 +9,8 @@ import com.example.pocketmark.dto.UserDto;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
+import com.google.common.base.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,18 +35,13 @@ public class UserService {
         //         .ifPresent(u->{
         //             throw new GeneralException(ErrorCode.NICKNAME_EXIST);
         //         });
-        
-        try{
-            return userRepository.save(new User(
-                signUpReq.getEmail(),
-                encryptor.encrypt(signUpReq.getPw()),
-                signUpReq.getNickName()
-            ));
-        }catch(Exception e){
-            System.out.println("Unique constraint");
-            return null;
-        }
 
+
+        return userRepository.save(new User(
+            signUpReq.getEmail(),
+            encryptor.encrypt(signUpReq.getPw()),
+            signUpReq.getNickName()
+        ));
         
     }
 }

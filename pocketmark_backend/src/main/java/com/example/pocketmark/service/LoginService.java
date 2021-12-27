@@ -15,7 +15,7 @@ public class LoginService {
     private final UserService userService;
 
     @Transactional
-    public void signUp(UserDto.signUpRequest signUpReq) throws SQLException{
+    public void signUp(UserDto.signUpRequest signUpReq) {
         userService.create(signUpReq);
     }
     
