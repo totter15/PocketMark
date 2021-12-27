@@ -1,5 +1,7 @@
 package com.example.pocketmark.service;
 
+import java.sql.SQLException;
+
 import com.example.pocketmark.dto.UserDto;
 import com.example.pocketmark.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

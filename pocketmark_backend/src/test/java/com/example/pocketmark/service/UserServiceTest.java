@@ -3,6 +3,7 @@ package com.example.pocketmark.service;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.UserDto;
+import com.example.pocketmark.dto.UserDto.signUpRequest;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
@@ -14,7 +15,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -24,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DisplayName("UserService 테스트")
@@ -41,7 +45,7 @@ class UserServiceTest {
 
     @DisplayName("아무런 중복이 없는 조건을 입력하여 유저를 저장한다")
     @Test
-    public void givenNotOverlapNickNameAndEmail_whenSaveUser_thenReturnUser(){
+    public void givenNotOverlapNickNameAndEmail_whenSaveUser_thenReturnUser() throws SQLException{
         //Given
         UserDto.signUpRequest request = createSignUpRequest();
 
@@ -76,6 +80,25 @@ class UserServiceTest {
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.NICKNAME_EXIST.getMessage());
         verify(userRepository).findByNickName(any());
+    }
+
+    @DisplayName("중복된 이메일이나 닉네임을 저장하려하면 DataIntegrityViolationException 에러를 발생시킨다. - unique 제약조건 테스트")
+    @Test
+    public void givenOverlapEmailOrNickName_whenSaveUser_thenReturnException(){
+        //Given
+        DataIntegrityViolationException e = new DataIntegrityViolationException("...");
+        UserDto.signUpRequest request = createSignUpRequest();
+        given(userRepository.save(any()))
+                .willThrow(e);
+
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.create(request));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(DataIntegrityViolationException.class);
+        verify(userRepository).save(any()); 
 
     }
 
@@ -96,7 +119,9 @@ class UserServiceTest {
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.EMAIL_EXIST.getMessage());
         verify(userRepository).findByEmail(any());
+
     }
+
 
     public User createUser(UserDto.signUpRequest request){
 

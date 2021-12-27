@@ -45,6 +45,7 @@ public class UserDto {
     @Builder
     @ToString
     public static class signUpResponse{
-        private String a;
+        private boolean isDuplicated;
+        private String jwt;
     }
 }
