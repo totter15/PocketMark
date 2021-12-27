@@ -18,7 +18,7 @@ public class UserApiController {
 
     @PostMapping("/sign-up")
     public ApiDataResponse<UserDto.signUpResponse> signUp(@RequestBody UserDto.signUpRequest request){
-        loginService.signUp(request);
+        loginService.signUp(UserDto.SignUpDto.fromSignUpRequest(request));
         return ApiDataResponse.empty();
 
     }

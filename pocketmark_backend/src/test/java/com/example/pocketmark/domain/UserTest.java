@@ -53,7 +53,7 @@ class UserTest {
                 .orElseThrow(EntityNotFoundException::new);
 
 
-        then(user.getId()).isEqualTo(1L);
+//        then(user.getId()).isEqualTo(1L);
         then(user.getEmail()).isEqualTo("test@gmail.com");
         then(user.getPw()).isEqualTo("1234");
         then(user.getCreatedAt()).isBefore(LocalDateTime.now());
