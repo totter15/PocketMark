@@ -1,5 +1,7 @@
 package com.example.pocketmark.service;
 
+import java.sql.SQLException;
+
 import com.example.pocketmark.dto.UserDto;
 import com.example.pocketmark.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +15,7 @@ public class LoginService {
     private final UserService userService;
 
     @Transactional
-    public void signUp(UserDto.signUpRequest signUpReq){
+    public void signUp(UserDto.signUpRequest signUpReq) throws SQLException{
         userService.create(signUpReq);
     }
     

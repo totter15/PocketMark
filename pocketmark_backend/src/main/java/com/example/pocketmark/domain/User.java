@@ -4,6 +4,7 @@ package com.example.pocketmark.domain;
 import com.example.pocketmark.util.Encryptor;
 import lombok.*;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -12,9 +13,13 @@ import javax.persistence.Entity;
 @Builder
 public class User extends BaseTimeEntity{
 
-
+    
+    @Column(unique = true)
     private String email;
+
     private String pw;
+
+    @Column(unique = true)
     private String nickName;
 
     public User(String email, String pw, String nickName){

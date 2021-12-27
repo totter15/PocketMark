@@ -3,6 +3,7 @@ package com.example.pocketmark.service;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.UserDto;
+import com.example.pocketmark.dto.UserDto.signUpRequest;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DisplayName("UserService 테스트")
@@ -40,7 +43,7 @@ class UserServiceTest {
 
     @DisplayName("아무런 중복이 없는 조건을 입력하여 유저를 저장한다")
     @Test
-    public void givenNotOverlapNickNameAndEmail_whenSaveUser_thenReturnUser(){
+    public void givenNotOverlapNickNameAndEmail_whenSaveUser_thenReturnUser() throws SQLException{
         //Given
         UserDto.signUpRequest request = createSignUpRequest();
 
@@ -78,6 +81,15 @@ class UserServiceTest {
 
 
     }
+
+    @DisplayName("unique 제약조건 테스트")
+    @Test
+    public void uniqueTest(){
+        assertThat(userService.create(new signUpRequest("test@gmail.com","1234","JyuKa"))).isNotNull();
+        assertEquals(null, userService.create(new signUpRequest("anotehr.com","1234","JyuKa")));
+        assertEquals(null, userService.create(new signUpRequest("test@gmail.com","1234","AnotherNickname")));   
+    }
+
 
     public User createUser(UserDto.signUpRequest request){
 

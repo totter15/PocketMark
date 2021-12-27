@@ -1,6 +1,8 @@
 package com.example.pocketmark.domain;
 
+import com.example.pocketmark.dto.UserDto.signUpRequest;
 import com.example.pocketmark.repository.UserRepository;
+import com.example.pocketmark.service.UserService;
 import com.example.pocketmark.util.Encryptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,10 +12,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +39,10 @@ class UserTest {
     @PersistenceContext
     EntityManager em;
 
-    @AfterEach
-    public void deleteData(){
-        userRepository.deleteAll();
-    }
+    // @AfterEach
+    // public void deleteData(){
+    //     userRepository.deleteAll();
+    // }
 
 
     @DisplayName("createUser 테스트")
@@ -74,9 +79,14 @@ class UserTest {
         then(user.isMatch(encryptor,"1234")).isTrue();
     }
 
+    
+    
+
     public User createUser(){
         return new User("test@gmail.com","1234","JyuKa");
     }
+
+
 
 
 }

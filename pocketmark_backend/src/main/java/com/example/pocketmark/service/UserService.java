@@ -1,5 +1,8 @@
 package com.example.pocketmark.service;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.UserDto;
@@ -19,23 +22,29 @@ public class UserService {
 
     @Transactional
     public User create(UserDto.signUpRequest signUpReq){
-        userRepository
-                .findByEmail(signUpReq.getEmail())
-                .ifPresent(u->{
-                    throw new GeneralException(ErrorCode.EMAIL_EXIST);
-                });
+        // userRepository
+        //         .findByEmail(signUpReq.getEmail())
+        //         .ifPresent(u->{
+        //             throw new GeneralException(ErrorCode.EMAIL_EXIST);
+        //         });
 
-        userRepository
-                .findByNickName(signUpReq.getNickName())
-                .ifPresent(u->{
-                    throw new GeneralException(ErrorCode.NICKNAME_EXIST);
-                });
-
-
-        return userRepository.save(new User(
+        // userRepository
+        //         .findByNickName(signUpReq.getNickName())
+        //         .ifPresent(u->{
+        //             throw new GeneralException(ErrorCode.NICKNAME_EXIST);
+        //         });
+        
+        try{
+            return userRepository.save(new User(
                 signUpReq.getEmail(),
                 encryptor.encrypt(signUpReq.getPw()),
                 signUpReq.getNickName()
-        ));
+            ));
+        }catch(Exception e){
+            System.out.println("Unique constraint");
+            return null;
+        }
+
+        
     }
 }
