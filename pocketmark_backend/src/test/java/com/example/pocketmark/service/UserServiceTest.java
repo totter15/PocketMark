@@ -2,29 +2,27 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.UserDto;
-import com.example.pocketmark.dto.UserDto.signUpRequest;
+import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
-import org.apache.tomcat.jni.Error;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mindrot.jbcrypt.BCrypt;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mock.web.MockHttpSession;
 
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -44,17 +42,19 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    MockHttpSession session;
+
     @DisplayName("아무런 중복이 없는 조건을 입력하여 유저를 저장한다")
     @Test
     public void givenNotOverlapNickNameAndEmail_whenSaveUser_thenReturnUser() throws SQLException{
         //Given
-        UserDto.signUpRequest request = createSignUpRequest();
+        SignUpUserDto.signUpRequest request = createSignUpRequest();
 
         given(userRepository.save(any()))
                 .willReturn(createUser(request));
 
         //When
-        User user = userService.create(UserDto.SignUpDto.fromSignUpRequest(request));
+        User user = userService.create(SignUpUserDto.SignUpDto.fromSignUpRequest(request));
 
 
         //Then
@@ -71,12 +71,12 @@ class UserServiceTest {
     public void givenOverlapNickName_whenSaveUser_thenReturnException(){
         //Given
         GeneralException e = new GeneralException(ErrorCode.NICKNAME_EXIST);
-        UserDto.signUpRequest request = createSignUpRequest();
+        SignUpUserDto.signUpRequest request = createSignUpRequest();
         given(userRepository.findByNickName(any()))
                 .willThrow(e);
 
         //When
-        Throwable thrown = catchThrowable(()->userService.create(UserDto.SignUpDto.fromSignUpRequest(request)));
+        Throwable thrown = catchThrowable(()->userService.create(SignUpUserDto.SignUpDto.fromSignUpRequest(request)));
 
         //Then
         then(thrown)
@@ -90,8 +90,8 @@ class UserServiceTest {
     public void givenOverlapEmailOrNickName_whenSaveUser_thenReturnException(){
         //Given
         DataIntegrityViolationException e = new DataIntegrityViolationException("...");
-        UserDto.signUpRequest request = createSignUpRequest();
-        UserDto.SignUpDto dto = UserDto.SignUpDto.fromSignUpRequest(request);
+        SignUpUserDto.signUpRequest request = createSignUpRequest();
+        SignUpUserDto.SignUpDto dto = SignUpUserDto.SignUpDto.fromSignUpRequest(request);
         given(userRepository.save(any()))
                 .willThrow(e);
 
@@ -113,12 +113,12 @@ class UserServiceTest {
     public void givenOverlapEmail_whenSaveUser_thenReturnException(){
         //Given
         GeneralException e = new GeneralException(ErrorCode.EMAIL_EXIST);
-        UserDto.signUpRequest request = createSignUpRequest();
+        SignUpUserDto.signUpRequest request = createSignUpRequest();
         given(userRepository.findByEmail(any()))
                 .willThrow(e);
 
         //When
-        Throwable thrown = catchThrowable(()->userService.create(UserDto.SignUpDto.fromSignUpRequest(request)));
+        Throwable thrown = catchThrowable(()->userService.create(SignUpUserDto.SignUpDto.fromSignUpRequest(request)));
 
         //Then
         then(thrown)
@@ -128,8 +128,72 @@ class UserServiceTest {
 
     }
 
+    @DisplayName("LOGIN_SESSION_KEY 를 받아 유저정보를 조회한다.")
+    @Test
+    public void givenHttpSession_whenSelectUser_thenReturnUser(){
+        //Given
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,1L);
+        given(userRepository.findById(any()))
+                .willReturn(
+                        Optional.of(User.builder()
+                                .email("test@gmail.com")
+                                .pw("12341234")
+                                .nickName("JyuKa")
+                                .build()
+                        )
+                );
 
-    public User createUser(UserDto.signUpRequest request){
+        //When
+        User user = userService.selectUser(session);
+
+        //Then
+        then(user.getEmail()).isEqualTo("test@gmail.com");
+        then(user.getNickName()).isEqualTo("JyuKa");
+        then(user.getPw()).isEqualTo("12341234");
+        verify(userRepository).findById(any());
+    }
+
+    @DisplayName("비어있는 LOGIN_SESSION_KEY 를 받아 Exception 을 발생시킨다.")
+    @Test
+    public void givenNullHttpSession_whenSelectUser_thenReturnUnAuthorizeException(){
+        //Given
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,null);
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.selectUser(session));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.UNAUTHORIZED.getMessage());
+    }
+
+
+    @DisplayName("존재하지 않는 LOGIN_SESSION_KEY 를 받아 ENTITY_NOT_EXIST Exception 을 발생시킨다.")
+    @Test
+    public void givenNullHttpSession_whenSelectUser_thenReturnException(){
+        //Given
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+        given(userRepository.findById(any()))
+                .willReturn(Optional.empty());
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.selectUser(session));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
+        verify(userRepository).findById(any());
+    }
+
+
+
+
+    public User createUser(SignUpUserDto.signUpRequest request){
 
         return User.builder()
                 .email(request.getEmail())
@@ -138,10 +202,10 @@ class UserServiceTest {
                 .build();
     }
 
-    public UserDto.signUpRequest createSignUpRequest(){
+    public SignUpUserDto.signUpRequest createSignUpRequest(){
 
 
-        return UserDto.signUpRequest
+        return SignUpUserDto.signUpRequest
                 .builder()
                 .email("test@test.com")
                 .pw("1234")

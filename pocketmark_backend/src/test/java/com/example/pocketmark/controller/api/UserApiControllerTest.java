@@ -1,20 +1,23 @@
 package com.example.pocketmark.controller.api;
 
 import com.example.pocketmark.constant.ErrorCode;
-import com.example.pocketmark.dto.UserDto;
+import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.service.LoginService;
 import com.example.pocketmark.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.BDDAssumptions.given;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,6 +32,9 @@ class UserApiControllerTest {
     @MockBean
     private LoginService loginService;
 
+    @MockBean
+    private UserService userService;
+
     public UserApiControllerTest(
             @Autowired MockMvc mvc,
             @Autowired ObjectMapper mapper)
@@ -41,7 +47,7 @@ class UserApiControllerTest {
     @Test
     public void givenSignUpRequest_whenSignUp_thenReturnApiDataResponseEmpty() throws Exception {
         //Given
-        UserDto.signUpRequest request = UserDto.signUpRequest.builder()
+        SignUpUserDto.signUpRequest request = SignUpUserDto.signUpRequest.builder()
                 .email("test@gmail.com")
                 .nickName("JyuKa")
                 .pw("12345787845")
@@ -62,6 +68,35 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
                 .andExpect(jsonPath("$.data.duplicated").value(false))
                 .andExpect(jsonPath("$.data.jwt").value("Access Token"))
+
+        ;
+    }
+
+    @DisplayName("[API][GET] 내정보 조회 - 로그인 상태에서 내 정보 조회")
+    @Test
+    public void givenUserIdBySession_whenSelectUser_thenReturnMyPageDto() throws Exception {
+        //Given
+        given(userService.selectUser(any()))
+                .willReturn(User.builder()
+                        .email("test@gmail.com")
+                        .pw("12341234")
+                        .nickName("JyuKa")
+                        .build()
+                );
+
+        //When
+        //Then
+        mvc.perform(
+                get("/api/v1/myPage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
+                .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
+                .andExpect(jsonPath("$.data.email").value("test@gmail.com"))
+                .andExpect(jsonPath("$.data.nickName").value("JyuKa"))
 
         ;
     }
