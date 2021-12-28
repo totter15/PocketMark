@@ -18,6 +18,12 @@ public interface BookmarkRepository extends JpaRepository<Bookmark,Long>{
     +"b.comment as comment, b.visitCount as visitCount "
     +"from Bookmark b where b.folder.id = :folderId")
     List<BookmarkRes> findBookmarkResByFolderIdWithoutJoin(@Param(value="folderId") Long folderId);
+    
+    // @Query("select b.folder.id as folderId, b.name as name, b.url as url, "
+    // +"b.comment as comment, b.visitCount as visitCount "
+    // +"from Bookmark b where b.folder.id = :folderId")
+    // List<BookmarkRes> findBookmarkResByFolderDepthWithJoin(@Param(value="folderId") Long folderId);
 
+    List<BookmarkRes> findByFolder_Depth(Long depth);
 
 }

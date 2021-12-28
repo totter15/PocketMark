@@ -1,5 +1,9 @@
 package com.example.pocketmark.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
 
@@ -23,8 +27,13 @@ public class FolderDto {
     @ToString
     public static class FolderCreateReq{
         private Long parent;
-        private Long depth;
-        private Long userId;
+
+        @NotNull(message="Depth needed") private Long depth;
+        @NotNull(message="UserId needed") private Long userId;
+        
+        @NotNull(message = "FolderName needed") 
+        @NotBlank(message="FolderName needed")
+        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
         private String name;
 
         // List 로 한번에 insert 할때를 대비?
@@ -58,8 +67,13 @@ public class FolderDto {
     public static class FolderResImpl implements FolderRes{
         private Long userId;
         private Long parent;
-        private Long depth;
+        @NotNull(message="Depth needed") private Long depth;
+        
+        @NotNull(message="FolderName needed") 
+        @NotBlank(message="FolderName needed")
+        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
         private String name;
+        
         private int visitCount; 
     }
 
@@ -69,7 +83,11 @@ public class FolderDto {
     @NoArgsConstructor
     public static class FolderUpdateReq{
         private Long parent;
-        private Long depth;
+        @NotNull(message="Depth needed") private Long depth;
+
+        @NotNull(message="FolderName needed") 
+        @NotBlank(message="FolderName needed")
+        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
         private String name;
         private int visitCount;
     }

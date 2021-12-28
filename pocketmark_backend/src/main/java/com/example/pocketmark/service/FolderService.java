@@ -39,6 +39,11 @@ public class FolderService {
         return folderRepository.findFolderResByUserIdWithoutJoin(userId);
     } 
 
+    public List<FolderRes> getFoldersByDepth(Long userId, Long depth){
+        return folderRepository.findFolderResByUserIdWhereDepthWithoutJoin(userId, depth);
+    } 
+
+
 
     //u
     public FolderResImpl updateFolder(FolderUpdateReq req, Long folderId){

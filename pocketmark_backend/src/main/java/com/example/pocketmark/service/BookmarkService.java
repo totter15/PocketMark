@@ -1,5 +1,6 @@
 package com.example.pocketmark.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +39,17 @@ public class BookmarkService {
     public List<BookmarkRes> getBookmark(Long folderId){
         return bookmarkRepository.findBookmarkResByFolderIdWithoutJoin(folderId);
     } 
+
+    public List<BookmarkRes> getBoomarkByFolderDepth(Long depth){
+        // List<BookmarkResImpl> res = new ArrayList<>();
+        // List<Bookmark> bookmarks = bookmarkRepository.findByFolder_Depth(depth);
+        // System.out.println(">>>" + bookmarks);
+
+        // for(Bookmark item : bookmarks){
+        //     res.add(item.toJson());
+        // }
+        return bookmarkRepository.findByFolder_Depth(depth);
+    }
 
 
     // //u

@@ -170,7 +170,11 @@ public class FolderRepositoryTest {
         assertEquals(result.get(0).getUserId(), user.getId());
     }
 
-
+    @Test
+    void test(){
+        Folder folder = Folder.builder().depth(1L).build();
+        System.out.println(folder);
+    }
 
     
     

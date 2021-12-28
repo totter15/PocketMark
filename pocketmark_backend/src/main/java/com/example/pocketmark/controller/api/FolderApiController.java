@@ -4,16 +4,19 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
+import com.example.pocketmark.repository.BookmarkRepository;
 import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.service.FolderService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -86,26 +89,31 @@ public class FolderApiController {
     }
 
 
-
-
+    @Autowired
+    BookmarkRepository bookmarkRepository;
     @GetMapping("/folder/test")
     public List<FolderRes> test(){
-        User user = CU();
+        User user = CU("test@gmial.com","Ping91");
         userRepository.save(user);
-        userRepository.save(CU());
-        userRepository.save(CU());
+        userRepository.save(CU("test@gmial1.com","Ping92"));
+        userRepository.save(CU("test@gmial2.com","Ping93"));
         // Folder folder = Folder.builder().parent(1L).depth(1L).user(user).build();
-        folderRepository.save(Folder.builder().parent(1L).depth(1L).user(user).build());
-        folderRepository.save(Folder.builder().parent(1L).depth(1L).user(user).build());
-        folderRepository.save(Folder.builder().parent(1L).depth(1L).user(user).build());
+        Folder rootFolder = folderRepository.save(Folder.builder().name("북마크서비스").parent(0L).depth(0L).user(user).build());
+        folderRepository.save(Folder.builder().name("JPA").parent(1L).depth(1L).user(user).build());
+        folderRepository.save(Folder.builder().name("PUBG").parent(1L).depth(1L).user(user).build());
+        folderRepository.save(Folder.builder().name("MUSIC").parent(1L).depth(1L).user(user).build());
+    
+        bookmarkRepository.save(Bookmark.builder().name("영국음식레시피").folder(rootFolder).url("testUrl.com").build() );
+        bookmarkRepository.save(Bookmark.builder().name("서핑하기좋은곳").folder(rootFolder).url("testUrl.com").build() );
+        bookmarkRepository.save(Bookmark.builder().name("서울관광명소").folder(rootFolder).url("testUrl.com").build() );
 
         folderRepository.findAll().forEach(System.out::println);
     
         return folderRepository.findFolderResByUserIdWithoutJoin(user.getId());
     }
 
-    public User CU(){
-        return new User("test@gmail.com","1234","JyuKa");
+    public User CU(String email, String nickname){
+        return new User(email,"1234",nickname);
         
     }
 
