@@ -33,19 +33,24 @@ public class UserService {
     }
 
     @Transactional
-    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, HttpSession httpSession) {
-        Long userId = (Long) httpSession.getAttribute("LOGIN_SESSION_KEY");
+    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, HttpSession session) {
+        User user = selectUser(session);
 
-        Optional<User> user = userRepository.findById(userId);
-
-        if(user.isEmpty()){
-            throw new GeneralException(ErrorCode.ENTITY_NOT_EXIST);
+        if(!user.isMatch(encryptor, changePwDto.getNowPw())){
+            throw new GeneralException(ErrorCode.PASSWORD_NOT_MATCH);
         }
 
+        if(!changePwDto.getConfPw().equals(changePwDto.getNewPw())){
+            throw new GeneralException(ErrorCode.DIFFERENT_NEW_PW);
+        }
+
+        user.changePassword(encryptor.encrypt(changePwDto.getNewPw()));
     }
 
+    @Transactional
     public User selectUser(HttpSession session) {
         Long userId = (Long) session.getAttribute(LOGIN_SESSION_KEY);
+
 
         if(userId == null){
             throw new GeneralException(ErrorCode.UNAUTHORIZED);
@@ -59,4 +64,5 @@ public class UserService {
 
         return user.get();
     }
+
 }

@@ -2,6 +2,7 @@ package com.example.pocketmark.controller.api;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.service.LoginService;
 import com.example.pocketmark.service.UserService;
@@ -12,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +31,7 @@ class UserApiControllerTest {
 
     private final MockMvc mvc;
     private final ObjectMapper mapper;
+    MockHttpSession session;
 
     @MockBean
     private LoginService loginService;
@@ -98,6 +102,36 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.data.email").value("test@gmail.com"))
                 .andExpect(jsonPath("$.data.nickName").value("JyuKa"))
 
+        ;
+    }
+
+    @DisplayName("[API][POST] 회원정보 - 비밀번호 변경")
+    @Test
+    public void givenChangePwRequest_whenChangePw_thenReturnChangePwResponse() throws Exception {
+        //Given
+        ModifyPwDto.ChangePwRequest request = ModifyPwDto.ChangePwRequest
+                .builder()
+                .nowPw("1234").newPw("4321").confPw("4321")
+                .build();
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,1L);
+
+
+
+        //When
+        //Then
+        mvc.perform(
+                        post("/api/v1/changePassword")
+                                .session(session)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
+                .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
         ;
     }
 

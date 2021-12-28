@@ -1,8 +1,6 @@
 package com.example.pocketmark.controller.error;
 
 import com.example.pocketmark.constant.ErrorCode;
-import com.example.pocketmark.dto.UserDto;
-import com.example.pocketmark.dto.common.ApiDataResponse;
 import com.example.pocketmark.dto.common.ApiErrorResponse;
 import com.example.pocketmark.exception.GeneralException;
 

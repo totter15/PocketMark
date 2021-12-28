@@ -2,7 +2,7 @@ package com.example.pocketmark.dto;
 
 import lombok.*;
 
-public class UserDto {
+public class SignUpUserDto {
 
     @Getter
     @Setter

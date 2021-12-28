@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
@@ -10,12 +11,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mindrot.jbcrypt.BCrypt;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockHttpSession;
 
+import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -187,6 +190,107 @@ class UserServiceTest {
         then(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
+        verify(userRepository).findById(any());
+    }
+
+    @DisplayName("정상적인 비밀번호 변경")
+    @Test
+    public void givenChangePwDto_whenChangePw_thenReturnChangePw(){
+        //Given
+        ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
+                .nowPw("1234").newPw("4321").confPw("4321")
+                .build();
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+        Optional<User> user = Optional.of(User.builder()
+                        .email("test@gmail.com")
+                        .pw("12341234")
+                        .nickName("JyuKa")
+                        .build());
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+        String hashNewPw = BCrypt.hashpw(changePwDto.getNewPw(),BCrypt.gensalt());
+        given(encryptor.encrypt(changePwDto.getNewPw()))
+                .willReturn(hashNewPw);
+        given(encryptor.isMatch(any(),any()))
+                .willReturn(true);
+
+        //When
+        userService.modifyPassword(changePwDto,session);
+
+        //Then
+        then(user.get().getPw().equals(changePwDto.getNowPw())).isFalse();
+        verify(userRepository).findById(any());
+        verify(encryptor).encrypt(changePwDto.getNewPw());
+        verify(encryptor).isMatch(any(),any());
+    }
+
+    @DisplayName("현재 비밀번호가 불일치 할때 PASSWORD_NOT_MATCH 응답")
+    @Test
+    public void givenNotMatchPw_whenChangePw_thenReturnPasswordNotMatch(){
+        //Given
+        ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
+                .nowPw("1234").newPw("4321").confPw("4321")
+                .build();
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+        given(encryptor.isMatch(any(),any()))
+                .willReturn(false);
+
+        Optional<User> user = Optional.of(User.builder()
+                .email("test@gmail.com")
+                .pw("12341234")
+                .nickName("JyuKa")
+                .build());
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,session));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.PASSWORD_NOT_MATCH.getMessage());
+        verify(encryptor).isMatch(any(),any());
+        verify(userRepository).findById(any());
+    }
+
+    @DisplayName("새 비밀번호, 새 비밀먼호 확인이 불일치 할 때")
+    @Test
+    public void givenDifferentPws_whenChangePw_thenReturnDifferentNewPw(){
+        //Given
+        ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
+                .nowPw("1234").newPw("4321").confPw("431")
+                .build();
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+        Optional<User> user = Optional.of(User.builder()
+                .email("test@gmail.com")
+                .pw("1234")
+                .nickName("JyuKa")
+                .build());
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+        given(encryptor.isMatch(any(),any()))
+                .willReturn(true);
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,session));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.DIFFERENT_NEW_PW.getMessage());
+        verify(encryptor).isMatch(any(),any());
         verify(userRepository).findById(any());
     }
 
