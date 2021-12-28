@@ -65,3 +65,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Query-DSL
+**/src/main/generated
+**/src/test/generated
