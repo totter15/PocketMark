@@ -36,7 +36,7 @@ public class UserApiController {
 
     }
 
-    @PostMapping("/changePassword")
+    @PutMapping("/changePassword")
     public ApiDataResponse<ModifyPwDto.ChangePwResponse> changePassword(
             @RequestBody ModifyPwDto.ChangePwRequest request,
             HttpSession httpSession
@@ -47,7 +47,7 @@ public class UserApiController {
     }
 
 
-    @PostMapping("/changeNickName")
+    @PutMapping("/changeNickName")
     public ApiDataResponse<ModifyNickNameDto.ChangeNickNameResponse> changeNickName(
             @RequestBody ModifyNickNameDto.ChangeNickNameRequest request,
             HttpSession httpSession
@@ -56,7 +56,7 @@ public class UserApiController {
         return ApiDataResponse.empty();
     }
 
-    @PostMapping("/userLeave")
+    @PutMapping("/userLeave")
     public ApiDataResponse<LeaveUser.LeaveUserResponse> leaveUser(
             @RequestBody LeaveUser.LeaveUserRequest request,
             HttpSession httpSession

@@ -22,8 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -107,7 +106,7 @@ class UserApiControllerTest {
         ;
     }
 
-    @DisplayName("[API][POST] 회원정보 - 비밀번호 변경")
+    @DisplayName("[API][PUT] 회원정보 - 비밀번호 변경")
     @Test
     public void givenChangePwRequest_whenChangePw_thenReturnChangePwResponse() throws Exception {
         //Given
@@ -124,7 +123,7 @@ class UserApiControllerTest {
         //When
         //Then
         mvc.perform(
-                        post("/api/v1/changePassword")
+                        put("/api/v1/changePassword")
                                 .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
@@ -138,7 +137,7 @@ class UserApiControllerTest {
     }
 
 
-    @DisplayName("[API][POST] 회원정보 - 닉네임 변경")
+    @DisplayName("[API][PUT] 회원정보 - 닉네임 변경")
     @Test
     public void givenChangeNickNameRequest_whenChangeNickName_thenReturnChangeNickNameResponse() throws Exception {
         //Given
@@ -154,7 +153,7 @@ class UserApiControllerTest {
         //When
         //Then
         mvc.perform(
-                        post("/api/v1/changeNickName")
+                        put("/api/v1/changeNickName")
                                 .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
@@ -167,7 +166,7 @@ class UserApiControllerTest {
         ;
     }
 
-    @DisplayName("[API][POST] 회원정보 - 삭제")
+    @DisplayName("[API][PUT] 회원정보 - 삭제")
     @Test
     public void givenLeaveUserRequest_whenDeleteUser_thenReturnLeaveUserResponse() throws Exception {
         //Given
@@ -182,7 +181,7 @@ class UserApiControllerTest {
         //When
         //Then
         mvc.perform(
-                        post("/api/v1/userLeave")
+                        put("/api/v1/userLeave")
                                 .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
