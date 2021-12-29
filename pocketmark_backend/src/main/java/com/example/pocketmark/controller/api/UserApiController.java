@@ -1,12 +1,9 @@
 package com.example.pocketmark.controller.api;
 
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.ModifyNickNameDto;
-import com.example.pocketmark.dto.ModifyPwDto;
-import com.example.pocketmark.dto.MyPageDto;
+import com.example.pocketmark.dto.*;
 import com.example.pocketmark.dto.common.ApiDataResponse;
 
-import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.service.LoginService;
 import com.example.pocketmark.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -58,5 +55,15 @@ public class UserApiController {
         userService.modifyNickName(ModifyNickNameDto.ChangeNickNameDto.fromChangeNickNameRequest(request),httpSession);
         return ApiDataResponse.empty();
     }
+
+    @PostMapping("/userLeave")
+    public ApiDataResponse<LeaveUser.LeaveUserResponse> leaveUser(
+            @RequestBody LeaveUser.LeaveUserRequest request,
+            HttpSession httpSession
+    ){
+        userService.deleteUser(LeaveUser.LeaveUserDto.fromLeaveUserRequest(request),httpSession);
+        return ApiDataResponse.empty();
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.LeaveUser;
 import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
@@ -367,6 +368,36 @@ class UserServiceTest {
                 .hasMessageContaining(ErrorCode.NICKNAME_EXIST.getMessage());
         verify(userRepository).findById(any());
         verify(userRepository).existsByNickName(anyString());
+    }
+
+    @DisplayName("정상적인 닉네임 변경")
+    @Test
+    public void givenLeaveUserDto_whenDeleteUser_thenReturnDeleteUser(){
+        //Given
+        LeaveUser.LeaveUserDto dto = LeaveUser.LeaveUserDto.builder()
+                .leave(true)
+                .build();
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+        Optional<User> user = Optional.of(User.builder()
+                .email("test@gmail.com")
+                .pw("12341234")
+                .nickName("JyuKa")
+                .build());
+
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+
+
+        //When
+        userService.deleteUser(dto,session);
+
+        //Then
+        then(user.get().isDeleted()).isEqualTo(dto.isLeave());
+        verify(userRepository).findById(any());
     }
 
 

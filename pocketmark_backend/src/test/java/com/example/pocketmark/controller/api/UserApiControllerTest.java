@@ -2,6 +2,7 @@ package com.example.pocketmark.controller.api;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.LeaveUser;
 import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
@@ -154,6 +155,34 @@ class UserApiControllerTest {
         //Then
         mvc.perform(
                         post("/api/v1/changeNickName")
+                                .session(session)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
+                .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
+        ;
+    }
+
+    @DisplayName("[API][POST] 회원정보 - 삭제")
+    @Test
+    public void givenLeaveUserRequest_whenDeleteUser_thenReturnLeaveUserResponse() throws Exception {
+        //Given
+        LeaveUser.LeaveUserRequest request = LeaveUser.LeaveUserRequest.builder()
+                .leave(true)
+                .build();
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,1L);
+
+
+
+        //When
+        //Then
+        mvc.perform(
+                        post("/api/v1/userLeave")
                                 .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))

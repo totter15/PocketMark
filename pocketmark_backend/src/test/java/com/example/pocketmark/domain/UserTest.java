@@ -71,6 +71,52 @@ class UserTest {
         then(user.isMatch(encryptor,"1234")).isTrue();
     }
 
+    @DisplayName("비밀번호 변경")
+    @Test
+    public void changePassword(){
+        //Given
+        User user = createUser();
+        String newPw = "4321";
+
+        //When
+        user.changePassword(newPw);
+
+        //Then
+        then(user.getPw()).isEqualTo(newPw);
+
+    }
+
+    @DisplayName("비밀번호 변경")
+    @Test
+    public void changeNickName(){
+        //Given
+        User user = createUser();
+        String newNickName = "test";
+
+        //When
+        user.changeNickName(newNickName);
+
+        //Then
+        then(user.getNickName()).isEqualTo(newNickName);
+
+    }
+
+    @DisplayName("비밀번호 변경")
+    @Test
+    public void deleteUser(){
+        //Given
+        User user = createUser();
+        boolean modifyDeleted = true;
+
+        //When
+        user.deleteUser(modifyDeleted);
+
+        //Then
+        then(user.isDeleted()).isEqualTo(modifyDeleted);
+
+    }
+
+
     
 
     public User createUser(){

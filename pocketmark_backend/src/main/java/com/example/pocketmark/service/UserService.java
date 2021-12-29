@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.LeaveUser;
 import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
@@ -50,8 +51,8 @@ public class UserService {
 
     @Transactional
     public User selectUser(HttpSession session) {
-//        Long userId = (Long) session.getAttribute(LOGIN_SESSION_KEY);
-        Long userId = 1L;
+        Long userId = (Long) session.getAttribute(LOGIN_SESSION_KEY);
+//        Long userId = 1L;
 
 
         if(userId == null){
@@ -76,5 +77,11 @@ public class UserService {
         }
 
         user.changeNickName(changeNickNameDto.getNewNickName());
+    }
+
+    @Transactional
+    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, HttpSession session) {
+        User user = selectUser(session);
+        user.deleteUser(leaveUserDto.isLeave());
     }
 }

@@ -46,7 +46,7 @@ public class User extends BaseTimeEntity{
     }
 
     public void deleteUser(boolean deleted){
-
+        this.setDeleted(deleted);
     }
 
 }
