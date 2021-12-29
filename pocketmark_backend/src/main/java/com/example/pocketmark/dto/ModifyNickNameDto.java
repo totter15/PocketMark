@@ -2,6 +2,9 @@ package com.example.pocketmark.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
+
 public class ModifyNickNameDto {
 
     @Getter
@@ -29,6 +32,8 @@ public class ModifyNickNameDto {
     @Builder
     @ToString
     public static class ChangeNickNameRequest{
+
+        @Size(min = 2, max = 12)
         private String newNickName;
     }
 

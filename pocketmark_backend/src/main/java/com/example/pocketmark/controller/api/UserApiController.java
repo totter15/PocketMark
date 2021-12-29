@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class UserApiController {
 
     @PostMapping("/sign-up")
     public ApiDataResponse<SignUpUserDto.signUpResponse> signUp(
-            @RequestBody SignUpUserDto.signUpRequest request,
+            @Valid @RequestBody SignUpUserDto.signUpRequest request,
             HttpSession httpSession
     ){
 
@@ -38,7 +39,7 @@ public class UserApiController {
 
     @PutMapping("/changePassword")
     public ApiDataResponse<ModifyPwDto.ChangePwResponse> changePassword(
-            @RequestBody ModifyPwDto.ChangePwRequest request,
+            @Valid @RequestBody ModifyPwDto.ChangePwRequest request,
             HttpSession httpSession
     ){
 
@@ -49,7 +50,7 @@ public class UserApiController {
 
     @PutMapping("/changeNickName")
     public ApiDataResponse<ModifyNickNameDto.ChangeNickNameResponse> changeNickName(
-            @RequestBody ModifyNickNameDto.ChangeNickNameRequest request,
+            @Valid @RequestBody ModifyNickNameDto.ChangeNickNameRequest request,
             HttpSession httpSession
     ){
         userService.modifyNickName(ModifyNickNameDto.ChangeNickNameDto.fromChangeNickNameRequest(request),httpSession);
@@ -58,7 +59,7 @@ public class UserApiController {
 
     @PutMapping("/userLeave")
     public ApiDataResponse<LeaveUser.LeaveUserResponse> leaveUser(
-            @RequestBody LeaveUser.LeaveUserRequest request,
+            @Valid @RequestBody LeaveUser.LeaveUserRequest request,
             HttpSession httpSession
     ){
         userService.deleteUser(LeaveUser.LeaveUserDto.fromLeaveUserRequest(request),httpSession);

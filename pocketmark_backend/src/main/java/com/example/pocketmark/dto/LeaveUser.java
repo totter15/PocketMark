@@ -2,6 +2,8 @@ package com.example.pocketmark.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.NotNull;
+
 public class LeaveUser {
 
     @Getter
@@ -19,7 +21,6 @@ public class LeaveUser {
                     .build()
                     ;
         }
-
     }
 
     @Getter
@@ -29,6 +30,7 @@ public class LeaveUser {
     @Builder
     @ToString
     public static class LeaveUserRequest{
+        @NotNull
         private boolean leave;
     }
 

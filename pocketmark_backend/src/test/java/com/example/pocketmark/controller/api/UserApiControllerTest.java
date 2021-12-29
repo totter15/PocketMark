@@ -54,8 +54,8 @@ class UserApiControllerTest {
         //Given
         SignUpUserDto.signUpRequest request = SignUpUserDto.signUpRequest.builder()
                 .email("test@gmail.com")
-                .nickName("JyuKa")
                 .pw("12345787845")
+                .nickName("JyuKa")
                 .build()
                 ;
 
@@ -112,7 +112,7 @@ class UserApiControllerTest {
         //Given
         ModifyPwDto.ChangePwRequest request = ModifyPwDto.ChangePwRequest
                 .builder()
-                .nowPw("1234").newPw("4321").confPw("4321")
+                .nowPw("1234567800").newPw("4321432100").confPw("4321432100")
                 .build();
 
         session = new MockHttpSession();

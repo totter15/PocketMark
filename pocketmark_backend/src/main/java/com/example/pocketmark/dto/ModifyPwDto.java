@@ -2,6 +2,8 @@ package com.example.pocketmark.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.Size;
+
 public class ModifyPwDto {
 
 
@@ -33,8 +35,13 @@ public class ModifyPwDto {
     @Builder
     @ToString
     public static class ChangePwRequest{
+        @Size(min=10)
         private String nowPw;
+
+        @Size(min=10)
         private String newPw;
+
+        @Size(min=10)
         private String confPw;
     }
 
