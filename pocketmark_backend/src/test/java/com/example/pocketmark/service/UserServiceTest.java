@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.exception.GeneralException;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -294,7 +296,78 @@ class UserServiceTest {
         verify(userRepository).findById(any());
     }
 
+    @DisplayName("정상적인 닉네임 변경")
+    @Test
+    public void givenChangeNickNameDto_whenChangeNickName_thenReturnChangeNickName(){
+        //Given
+        ModifyNickNameDto.ChangeNickNameDto changeNickNameDto =
+                ModifyNickNameDto.ChangeNickNameDto.builder()
+                        .newNickName("JyuKa1")
+                        .build();
 
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+        Optional<User> user = Optional.of(User.builder()
+                .email("test@gmail.com")
+                .pw("12341234")
+                .nickName("JyuKa")
+                .build());
+
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+        given(userRepository.existsByNickName(anyString()))
+                .willReturn(false);
+
+
+        //When
+        userService.modifyNickName(changeNickNameDto,session);
+
+        //Then
+        then(user.get().getNickName()).isEqualTo(changeNickNameDto.getNewNickName());
+        verify(userRepository).findById(any());
+        verify(userRepository).existsByNickName(anyString());
+    }
+
+    @DisplayName("중복된 닉네임으로 변경을 시도할 떄 예외를 출력한다")
+    @Test
+    public void givenExistNickName_whenChangeNickName_thenReturnNickNameExistException(){
+        //Given
+        ModifyNickNameDto.ChangeNickNameDto changeNickNameDto =
+                ModifyNickNameDto.ChangeNickNameDto.builder()
+                        .newNickName("JyuKa1")
+                        .build();
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+        Optional<User> user = Optional.of(User.builder()
+                .email("test@gmail.com")
+                .pw("12341234")
+                .nickName("JyuKa")
+                .build());
+
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+        given(userRepository.existsByNickName(anyString()))
+                .willReturn(true);
+
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.modifyNickName(changeNickNameDto,session));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.NICKNAME_EXIST.getMessage());
+        verify(userRepository).findById(any());
+        verify(userRepository).existsByNickName(anyString());
+    }
 
 
     public User createUser(SignUpUserDto.signUpRequest request){

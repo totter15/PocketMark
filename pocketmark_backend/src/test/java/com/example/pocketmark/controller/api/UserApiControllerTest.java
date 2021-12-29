@@ -2,6 +2,7 @@ package com.example.pocketmark.controller.api;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.service.LoginService;
@@ -123,6 +124,36 @@ class UserApiControllerTest {
         //Then
         mvc.perform(
                         post("/api/v1/changePassword")
+                                .session(session)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
+                .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
+        ;
+    }
+
+
+    @DisplayName("[API][POST] 회원정보 - 닉네임 변경")
+    @Test
+    public void givenChangeNickNameRequest_whenChangeNickName_thenReturnChangeNickNameResponse() throws Exception {
+        //Given
+        ModifyNickNameDto.ChangeNickNameRequest request =
+                ModifyNickNameDto.ChangeNickNameRequest.builder()
+                        .newNickName("JyuKa1")
+                        .build();
+        session = new MockHttpSession();
+        session.setAttribute(LOGIN_SESSION_KEY,1L);
+
+
+
+        //When
+        //Then
+        mvc.perform(
+                        post("/api/v1/changeNickName")
                                 .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))

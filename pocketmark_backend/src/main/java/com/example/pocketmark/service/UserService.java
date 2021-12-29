@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.exception.GeneralException;
@@ -49,7 +50,8 @@ public class UserService {
 
     @Transactional
     public User selectUser(HttpSession session) {
-        Long userId = (Long) session.getAttribute(LOGIN_SESSION_KEY);
+//        Long userId = (Long) session.getAttribute(LOGIN_SESSION_KEY);
+        Long userId = 1L;
 
 
         if(userId == null){
@@ -65,4 +67,14 @@ public class UserService {
         return user.get();
     }
 
+    @Transactional
+    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, HttpSession session) {
+        User user = selectUser(session);
+
+        if(userRepository.existsByNickName(changeNickNameDto.getNewNickName())){
+            throw new GeneralException(ErrorCode.NICKNAME_EXIST);
+        }
+
+        user.changeNickName(changeNickNameDto.getNewNickName());
+    }
 }

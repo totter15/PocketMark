@@ -40,4 +40,13 @@ public class User extends BaseTimeEntity{
     public void changePassword(String newPw){
         this.pw = newPw;
     }
+
+    public void changeNickName(String newNickName){
+        this.nickName = newNickName;
+    }
+
+    public void deleteUser(boolean deleted){
+
+    }
+
 }

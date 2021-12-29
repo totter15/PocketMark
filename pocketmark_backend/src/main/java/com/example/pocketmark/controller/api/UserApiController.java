@@ -1,6 +1,7 @@
 package com.example.pocketmark.controller.api;
 
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.MyPageDto;
 import com.example.pocketmark.dto.common.ApiDataResponse;
@@ -45,6 +46,16 @@ public class UserApiController {
     ){
 
         userService.modifyPassword(ModifyPwDto.ChangePwDto.fromChangePwRequest(request),httpSession);
+        return ApiDataResponse.empty();
+    }
+
+
+    @PostMapping("/changeNickName")
+    public ApiDataResponse<ModifyNickNameDto.ChangeNickNameResponse> changeNickName(
+            @RequestBody ModifyNickNameDto.ChangeNickNameRequest request,
+            HttpSession httpSession
+    ){
+        userService.modifyNickName(ModifyNickNameDto.ChangeNickNameDto.fromChangeNickNameRequest(request),httpSession);
         return ApiDataResponse.empty();
     }
 
