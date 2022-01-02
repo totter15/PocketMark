@@ -15,12 +15,14 @@ import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.QBookmark;
 import com.example.pocketmark.domain.QFolder;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkOnlyId;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.DataDto.DataUpdateServiceReq;
+import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
@@ -72,8 +74,8 @@ public class DataService {
     public void updateData(DataUpdateServiceReq req, Long userId){
         List<FolderUpdateReq> folders;
         List<BookmarkUpdateReq> bookmarks;
-        List<Folder> dbFolders;
-        List<Bookmark> dbBookmarks;
+        List<FolderOnlyId> dbFolders;
+        List<BookmarkOnlyId> dbBookmarks;
 
         //폴더만 업데이트 (이름, 위치(parent,depth))
         if(req.getBookmarks().size()==0){
@@ -100,7 +102,7 @@ public class DataService {
 
 
             // sql 저장소에 쌓아두고
-            for(Folder dbFolder : dbFolders){
+            for(FolderOnlyId dbFolder : dbFolders){
                 FolderUpdateReq updateReq = reqMap.get(dbFolder.getId());
                 folderQueryRepository.update(updateReq);
             }
@@ -123,7 +125,7 @@ public class DataService {
             }
 
 
-            for(Bookmark dbObj : dbBookmarks){
+            for(BookmarkOnlyId dbObj : dbBookmarks){
                 BookmarkUpdateReq updateReq = reqMap.get(dbObj.getId());
                 bookmarkQueryRepository.update(updateReq);
             }
@@ -147,11 +149,11 @@ public class DataService {
                 throw new GeneralException(ErrorCode.INVALID_DATA_ACCESS_REQUEST);
             }
             
-            for(Folder dbFolder : dbFolders){
+            for(FolderOnlyId dbFolder : dbFolders){
                 FolderUpdateReq updateReq = reqFolderMap.get(dbFolder.getId());
                 folderQueryRepository.update(updateReq);
             }
-            for(Bookmark dbObj : dbBookmarks){
+            for(BookmarkOnlyId dbObj : dbBookmarks){
                 BookmarkUpdateReq updateReq = reqBookmarkMap.get(dbObj.getId());
                 bookmarkQueryRepository.update(updateReq);
             }

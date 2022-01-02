@@ -181,7 +181,7 @@ public class FolderRepositoryTest {
         folderRepository.save(folder);
 
         //when
-        List<FolderRes> result = folderRepository.findFolderResByUserIdWithoutJoin(user.getId());
+        List<FolderRes> result = folderRepository.findByUserId(user.getId());
         
         //then
         assertEquals(result.get(0).getParent(), 0L);
@@ -205,38 +205,13 @@ public class FolderRepositoryTest {
         
 
         //when
-        List<Folder> folders = folderRepository.findByIdInAndUserId(ids,1L);
+        List<Folder> folders = folderRepository.findFolderByIdInAndUserId(ids,1L);
 
         //then
         assertEquals("요리블로그 모음", folders.get(0).getName());
         assertEquals("제이슨므라즈", folders.get(1).getName());
     }
 
-    @Test
-    void updateClassBasedTest(){
-        //given
-        folderRepository.save(folder);
-        folder = makeFolder(0L, 1L, "돼지두루치기", user);
-        folderRepository.save(folder);
-        folder = makeFolder(0L, 1L, "제이슨므라즈", user);
-        folderRepository.save(folder);
-        Set<Long> ids = new HashSet<>();
-        ids.add(1L); ids.add(3L);
-        List<Folder> folders = folderRepository.findByIdInAndUserId(ids,1L);
-
-        folderRepository.findByUserId(1L);
-        // FolderUpdateReq req = FolderUpdateReq.builder().
-        
-        // //when
-        // folders.get(0).setName("요리는 무슨 블로그");
-        // folders.get(1).setName("제이슨은 무슨 므라즈");
-        // folderRepository.save(folders.get(0));
-
-
-
-        //then
-
-    }
 
     @Test
     @Transactional

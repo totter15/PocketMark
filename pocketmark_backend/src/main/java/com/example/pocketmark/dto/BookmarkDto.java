@@ -24,6 +24,15 @@ public class BookmarkDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    public static class BookmarkOnlyId{
+        Long id;
+    }
+
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     @ToString
     public static class BookmarkCreateReq{
         @NotNull(message = "BookmarkName needed") 
@@ -98,7 +107,7 @@ public class BookmarkDto {
         private String comment;
         private Long folderId;
         private Integer visitCount;
-        
+
         @QueryProjection
         public BookmarkResImpl(
             String name, String url, String comment,

@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Where(clause = "deleted = false")
 @Slf4j
-public class Folder extends BaseTimeEntity {
+public class Folder extends BaseEntity {
     private Long parent;
     private Long depth;
     private String name;

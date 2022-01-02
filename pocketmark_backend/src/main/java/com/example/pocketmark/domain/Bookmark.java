@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Where(clause = "deleted = false")
 @Slf4j
-public class Bookmark extends BaseTimeEntity {
+public class Bookmark extends BaseEntity {
     private String name;
     private String url;
     private String comment;

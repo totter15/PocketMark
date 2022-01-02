@@ -28,7 +28,8 @@ public interface FolderRepository extends JpaRepository<Folder,Long>{
     List<FolderRes> findByUser_Id(Long userId);
 
     @Transactional(readOnly = true)
-    List<Folder> findByIdInAndUserId(Collection<Long> id, Long userId);
+    List<FolderOnlyId> findByIdInAndUserId(Collection<Long> id, Long userId);
+    List<Folder> findFolderByIdInAndUserId(Collection<Long> id, Long userId);
 
 
 }
