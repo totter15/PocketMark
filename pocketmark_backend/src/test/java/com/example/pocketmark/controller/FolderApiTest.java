@@ -80,7 +80,7 @@ public class FolderApiTest {
         
         userRepository.save(new User("testEmail","testPw","Ping9"));
         userRepository.save(new User("testEmail2","testPw2","Ming9"));
-        folderService.saveByCreateReq(makeFolderReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
         objectMapper = Jackson2ObjectMapperBuilder.json()
                         .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                         .modules(new JavaTimeModule())
@@ -121,7 +121,7 @@ public class FolderApiTest {
     void readApiTest() throws Exception{
         //given
         String url = "/api/v1/folder/1";
-        folderService.saveByCreateReq(makeFolderReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
 
         //when
         mockMvc
@@ -143,8 +143,8 @@ public class FolderApiTest {
     void updateApiTest() throws Exception{
         //given
         String url = "/api/v1/folder/1";
-        folderService.saveByCreateReq(makeFolderReq());
-        FolderUpdateReq req = new FolderUpdateReq(1L,1L,"재미있는 요리공부",15);
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        FolderUpdateReq req = new FolderUpdateReq(1L, 1L,1L,"재미있는 요리공부",15);
         String content = objectMapper.writeValueAsString(req);
         
         

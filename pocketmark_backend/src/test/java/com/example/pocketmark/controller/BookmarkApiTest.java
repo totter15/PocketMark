@@ -1,10 +1,10 @@
 package com.example.pocketmark.controller;
 
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkContentUpdateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.repository.BookmarkRepository;
 import com.example.pocketmark.repository.FolderRepository;
@@ -87,10 +87,10 @@ public class BookmarkApiTest {
 
         userRepository.save(new User("test@2mail.com","1234","Ping9"));
 
-        folderService.saveByCreateReq(makeFolderReq());
-        folderService.saveByCreateReq(makeFolderReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
     
-        bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 1L));
+        bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 1L).toServiceReq());
     
 
         objectMapper = Jackson2ObjectMapperBuilder.json()
@@ -131,8 +131,8 @@ public class BookmarkApiTest {
     void readApiTest() throws Exception{
         //given
         String url = "/api/v1/bookmark/2";
-        bookmarkService.saveByCreateReq(makeBookmarkReq());
-        bookmarkService.saveByCreateReq(makeBookmarkReq());
+        bookmarkService.saveByCreateReq(makeBookmarkReq().toServiceReq());
+        bookmarkService.saveByCreateReq(makeBookmarkReq().toServiceReq());
 
         //when
         mockMvc
@@ -154,8 +154,8 @@ public class BookmarkApiTest {
     void updateApiTest() throws Exception{
         //given
         String url = "/api/v1/bookmark/1";
-        bookmarkService.saveByCreateReq(makeBookmarkReq());
-        BookmarkContentUpdateReq req = new BookmarkContentUpdateReq("바이올린연주","testUrl","최고",300);
+        bookmarkService.saveByCreateReq(makeBookmarkReq().toServiceReq());
+        BookmarkUpdateReq req = new BookmarkUpdateReq(1L,"바이올린연주","testUrl","최고",1L,300);
         String content = objectMapper.writeValueAsString(req);
 
         System.out.println( bookmarkRepository.findAll().size());
@@ -182,7 +182,7 @@ public class BookmarkApiTest {
     void deleteTest() throws Exception{
         //given
         String url = "/api/v1/bookmark/2";
-        bookmarkService.saveByCreateReq(makeBookmarkReq());
+        bookmarkService.saveByCreateReq(makeBookmarkReq().toServiceReq());
 
         //when
         mockMvc

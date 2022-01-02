@@ -1,32 +1,34 @@
 package com.example.pocketmark.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface FolderRepository extends JpaRepository<Folder,Long>{
     List<Folder> findByUser(User user);
 
 
-    List<Folder> findByParent(Long parent);
-
+    List<FolderOnlyId> findByParent(Long parent);
+    List<FolderOnlyId> findByParentIn(List<Long> parent);
     
-    @Query("select f.user.id as userId, f.parent as parent, f.depth as depth, " 
-    +"f.name as name, f.visitCount as visitCount "
-    +"from Folder f where f.user.id = :userId")
-    List<FolderRes> findFolderResByUserIdWithoutJoin(@Param(value="userId") Long userId);
 
+    List<FolderRes> findByUserIdAndDepth(Long userId, Long depth);
+    Slice<FolderRes> findByUserIdAndDepth(Long userId, Long depth, Pageable pageable);
 
-    @Query("select f.user.id as userId, f.parent as parent, f.depth as depth, " 
-    +"f.name as name, f.visitCount as visitCount "
-    +"from Folder f where f.user.id = :userId and f.depth = :depth")
-    List<FolderRes> findFolderResByUserIdWhereDepthWithoutJoin(@Param(value="userId") Long userId, @Param(value = "depth") Long depth);
-    
+    List<FolderRes> findByUserId(Long userId);
+    List<FolderRes> findByUser_Id(Long userId);
+
+    @Transactional(readOnly = true)
+    List<Folder> findByIdInAndUserId(Collection<Long> id, Long userId);
+
 
 }

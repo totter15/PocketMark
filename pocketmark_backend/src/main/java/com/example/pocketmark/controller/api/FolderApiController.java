@@ -3,20 +3,26 @@ package com.example.pocketmark.controller.api;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.validation.Valid;
 
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
+import com.example.pocketmark.dto.common.ApiDataResponse;
 import com.example.pocketmark.repository.BookmarkRepository;
 import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.UserRepository;
+import com.example.pocketmark.service.DataService;
 import com.example.pocketmark.service.FolderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,10 +53,10 @@ public class FolderApiController {
     @PostMapping("/folder")
     @CrossOrigin(origins = "*")
     public FolderResImpl createFolder(
-        @RequestBody FolderCreateReq req 
+        @Valid @RequestBody FolderCreateReq req 
     ){
         //create without any select
-        return folderService.saveByCreateReq(req);
+        return folderService.saveByCreateReq(req.toServiceReq());
     }
 
 
@@ -68,11 +74,10 @@ public class FolderApiController {
     @CrossOrigin(origins = "*")
     public ResponseEntity<String> updateFolder(
         @PathVariable("folder-id") Long folderId,
-        @RequestBody FolderUpdateReq req
+        @Valid @RequestBody FolderUpdateReq req
     ){
-        System.out.println(">>>[API] : "+req);
-        System.out.println(">>>[API] : "+folderId);
-        folderService.updateFolder(req, folderId);
+
+        folderService.updateFolder(req.toServiceReq(),folderId);
 
         return ResponseEntity.status(204).body("Update Succeed! \nBut we not yet dicide what will be returned.");
     }
@@ -82,7 +87,10 @@ public class FolderApiController {
     public ResponseEntity<String> deleteFolder(
         @PathVariable("folder-id") Long folderId
     ){
-        folderService.deleteFolderBySelfId(folderId);
+        //토큰 디코딩후 userId 넣어주면됨. 
+        Long userId = 1L; // jwt 구현이후 수정필요 
+
+        folderService.deleteFolderBySelfId(folderId,userId);
 
         return ResponseEntity.status(204).body("delete Succeed! \nBut we not yet dicide what will be returned.");
         // subordinate Bookmarks 도 지워야해 (구현필요) - Cascade 설정 나중에 하기 
@@ -91,8 +99,13 @@ public class FolderApiController {
 
     @Autowired
     BookmarkRepository bookmarkRepository;
+    @Autowired
+    DataService dataService;
     @GetMapping("/folder/test")
-    public List<FolderRes> test(){
+    public ApiDataResponse<DataRes> test(
+        @PageableDefault(size=2) Pageable pageable
+
+    ){
         User user = CU("test@gmial.com","Ping91");
         userRepository.save(user);
         userRepository.save(CU("test@gmial1.com","Ping92"));
@@ -101,15 +114,23 @@ public class FolderApiController {
         Folder rootFolder = folderRepository.save(Folder.builder().name("북마크서비스").parent(0L).depth(0L).user(user).build());
         folderRepository.save(Folder.builder().name("JPA").parent(1L).depth(1L).user(user).build());
         folderRepository.save(Folder.builder().name("PUBG").parent(1L).depth(1L).user(user).build());
-        folderRepository.save(Folder.builder().name("MUSIC").parent(1L).depth(1L).user(user).build());
-    
         bookmarkRepository.save(Bookmark.builder().name("영국음식레시피").folder(rootFolder).url("testUrl.com").build() );
         bookmarkRepository.save(Bookmark.builder().name("서핑하기좋은곳").folder(rootFolder).url("testUrl.com").build() );
         bookmarkRepository.save(Bookmark.builder().name("서울관광명소").folder(rootFolder).url("testUrl.com").build() );
 
+        user = CU("test@gmial3.com","Ping94");
+        userRepository.save(user);
+        rootFolder = folderRepository.save(Folder.builder().name("MUSIC").parent(0L).depth(0L).user(user).build());
+        folderRepository.save(Folder.builder().name("Ed Sheeran").parent(rootFolder.getId()).depth(1L).user(user).build());
+        bookmarkRepository.save(Bookmark.builder().name("J-POP").folder(rootFolder).url("testUrl.com").build() );
+        bookmarkRepository.save(Bookmark.builder().name("여행하기좋은곳").folder(rootFolder).url("testUrl.com").build() );
+        bookmarkRepository.save(Bookmark.builder().name("필리핀관광명소").folder(rootFolder).url("testUrl.com").build() );
+        
+        
+
         folderRepository.findAll().forEach(System.out::println);
     
-        return folderRepository.findFolderResByUserIdWithoutJoin(user.getId());
+        return ApiDataResponse.of(dataService.getData(1L, 1L,pageable));
     }
 
     public User CU(String email, String nickname){

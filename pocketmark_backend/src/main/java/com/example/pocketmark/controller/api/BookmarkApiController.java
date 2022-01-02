@@ -3,13 +3,15 @@ package com.example.pocketmark.controller.api;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.validation.Valid;
 
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkContentUpdateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateServiceReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
@@ -54,10 +56,10 @@ public class BookmarkApiController {
     @PostMapping("/bookmark")
     @CrossOrigin(origins = "*")
     public BookmarkResImpl createBookmark(
-        @RequestBody BookmarkCreateReq req 
+        @Valid @RequestBody BookmarkCreateReq req 
     ){
         //create without any select
-        return bookmarkService.saveByCreateReq(req);
+        return bookmarkService.saveByCreateReq(req.toServiceReq());
     }
 
 
@@ -75,9 +77,9 @@ public class BookmarkApiController {
     @CrossOrigin(origins = "*")
     public ResponseEntity<String> updateBookmark(
         @PathVariable("bookmark-id") Long bookmarkId,
-        @RequestBody BookmarkContentUpdateReq req
+        @Valid @RequestBody BookmarkUpdateReq req
     ){
-        bookmarkService.updateBookmark(req, bookmarkId);
+        bookmarkService.updateBookmark(req.toServiceReq(), bookmarkId);
 
         return ResponseEntity.status(204).body("Update Succeed! \nBut we not yet dicide what will be returned.");
     }
@@ -87,7 +89,9 @@ public class BookmarkApiController {
     public ResponseEntity<String> deleteBookmark(
         @PathVariable("bookmark-id") Long bookmarkId
     ){
-        bookmarkService.deleteBookmarkBySelfId(bookmarkId);
+        //토큰 디코딩후 userId 넣어주면됨. 
+        Long userId = 1L; // jwt 구현이후 수정필요 
+        bookmarkService.deleteBookmarkBySelfId(bookmarkId, userId);
 
         return ResponseEntity.status(204).body("delete Succeed! \nBut we not yet dicide what will be returned.");
         
@@ -100,18 +104,18 @@ public class BookmarkApiController {
     public List<BookmarkRes> test(){
         userRepository.save(new User("test@email.com","1234","Ping9"));
 
-        folderService.saveByCreateReq(makeFolderReq());
-        folderService.saveByCreateReq(makeFolderReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
         
-        bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 1L));
-        bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 2L));
-        bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 2L));
+        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 1L));
+        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 2L));
+        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 2L));
 
         userRepository.findAll().forEach(System.out::println);
         folderRepository.findAll().forEach(System.out::println);
         bookmarkRepository.findAll().forEach(System.out::println);
     
-        return bookmarkRepository.findBookmarkResByFolderIdWithoutJoin(2L);
+        return bookmarkRepository.findByFolderId(2L);
     }
 
     public FolderCreateReq makeFolderReq(){
