@@ -5,6 +5,7 @@ import com.example.pocketmark.dto.common.ApiErrorResponse;
 import com.example.pocketmark.dto.common.ValidError;
 import com.example.pocketmark.exception.GeneralException;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice(annotations = {RestController.class})
+@Qualifier("CustomExceptionHandler")
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler

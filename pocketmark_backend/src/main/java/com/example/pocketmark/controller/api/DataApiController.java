@@ -11,8 +11,10 @@ import com.example.pocketmark.service.DataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +41,7 @@ public class DataApiController {
         @PageableDefault(size=2) Pageable pageable
     )
     {
+        if(depth==null) depth=1L;
         return ApiDataResponse.of(dataService.getData(userId, depth, pageable));
     }
 
@@ -52,6 +55,20 @@ public class DataApiController {
         dataService.updateData(req.toServcieReq(), userId);
         return ApiDataResponse.empty();
 
+    }
+
+    @PostMapping(value="/data/{user-id}")
+    public ApiDataResponse<DataRes> createData(
+
+    ){
+        return ApiDataResponse.empty();
+    }
+
+    @DeleteMapping(value="/data/{user-id}")
+    public ApiDataResponse<DataRes> deleteData(
+
+    ){
+        return ApiDataResponse.empty();
     }
 
 
