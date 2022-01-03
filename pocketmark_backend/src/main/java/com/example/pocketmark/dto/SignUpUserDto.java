@@ -2,7 +2,11 @@ package com.example.pocketmark.dto;
 
 import lombok.*;
 
-public class UserDto {
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+
+public class SignUpUserDto {
 
     @Getter
     @Setter
@@ -32,8 +36,13 @@ public class UserDto {
     @Builder
     @ToString
     public static class signUpRequest{
+        @Email
         private String email;
+
+        @Size(min=10)
         private String pw;
+
+        @Size(min = 2, max = 12)
         private String nickName;
 
     }
