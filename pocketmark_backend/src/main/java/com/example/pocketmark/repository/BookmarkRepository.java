@@ -1,11 +1,15 @@
 package com.example.pocketmark.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkOnlyId;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,10 +18,9 @@ public interface BookmarkRepository extends JpaRepository<Bookmark,Long>{
     List<Bookmark> findByFolder(Folder folder);
 
 
-    @Query("select b.folder.id as folderId, b.name as name, b.url as url, "
-    +"b.comment as comment, b.visitCount as visitCount "
-    +"from Bookmark b where b.folder.id = :folderId")
-    List<BookmarkRes> findBookmarkResByFolderIdWithoutJoin(@Param(value="folderId") Long folderId);
+    List<BookmarkRes> findByFolderId(Long folderId);
 
+    Slice<BookmarkRes> findByFolder_UserIdAndFolder_Depth(Long userId,Long depth, Pageable pageable);
 
+    List<BookmarkOnlyId> findByIdIn(Collection<Long> id);
 }
