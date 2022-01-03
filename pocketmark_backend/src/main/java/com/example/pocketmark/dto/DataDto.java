@@ -30,8 +30,8 @@ public class DataDto {
     @NoArgsConstructor // for objectMapper
     public static class DataRes{
         Long depth;
-        Slice<FolderRes> folders;
-        Slice<BookmarkRes> bookmarks;
+        List<FolderRes> folders;
+        List<BookmarkRes> bookmarks;
     }
     
     @Getter

@@ -116,7 +116,7 @@ public class FolderApiController {
         folderRepository.save(Folder.builder().name("PUBG").parent(1L).depth(1L).user(user).build());
         bookmarkRepository.save(Bookmark.builder().name("영국음식레시피").folder(rootFolder).url("testUrl.com").build() );
         bookmarkRepository.save(Bookmark.builder().name("서핑하기좋은곳").folder(rootFolder).url("testUrl.com").build() );
-        bookmarkRepository.save(Bookmark.builder().name("서울관광명소").folder(rootFolder).url("testUrl.com").build() );
+        bookmarkRepository.save(Bookmark.builder().name("가을서울관광명소").folder(rootFolder).url("testUrl.com").build() );
 
         user = CU("test@gmial3.com","Ping94");
         userRepository.save(user);

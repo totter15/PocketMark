@@ -60,8 +60,8 @@ public class DataService {
     
     public DataRes getData(Long userId, Long depth, Pageable pageable){
         if(depth != null && userId != null){
-            Slice<FolderRes> folders = folderService.getFoldersByDepth(userId, depth, pageable);
-            Slice<BookmarkRes> bookmarks = bookmarkService.getBoomarkByFolderDepth(userId, depth-1L,pageable);
+            List<FolderRes> folders = folderService.getFoldersByDepth(userId, depth, pageable).getContent();
+            List<BookmarkRes> bookmarks = bookmarkService.getBoomarkByFolderDepth(userId, depth-1L,pageable).getContent();
             DataRes data = DataRes.builder().depth(depth).folders(folders).bookmarks(bookmarks).build();
             return data;
         }else{

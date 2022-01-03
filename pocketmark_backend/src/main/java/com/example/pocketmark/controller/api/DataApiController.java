@@ -2,36 +2,15 @@ package com.example.pocketmark.controller.api;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.validation.Valid;
 
-import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.DataDto;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.DataDto.DataUpdateReq;
-import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
-import com.example.pocketmark.dto.FolderDto.FolderRes;
-import com.example.pocketmark.dto.FolderDto.FolderResImpl;
-import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
-import com.example.pocketmark.repository.BookmarkRepository;
-import com.example.pocketmark.repository.FolderRepository;
-import com.example.pocketmark.repository.UserRepository;
-import com.example.pocketmark.service.BookmarkService;
 import com.example.pocketmark.service.DataService;
-import com.example.pocketmark.service.FolderService;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,6 +41,7 @@ public class DataApiController {
         @PageableDefault(size=2) Pageable pageable
     )
     {
+        if(depth==null) depth=1L;
         return ApiDataResponse.of(dataService.getData(userId, depth, pageable));
     }
 
@@ -75,6 +55,20 @@ public class DataApiController {
         dataService.updateData(req.toServcieReq(), userId);
         return ApiDataResponse.empty();
 
+    }
+
+    @PostMapping(value="/data/{user-id}")
+    public ApiDataResponse<DataRes> createData(
+
+    ){
+        return ApiDataResponse.empty();
+    }
+
+    @DeleteMapping(value="/data/{user-id}")
+    public ApiDataResponse<DataRes> deleteData(
+
+    ){
+        return ApiDataResponse.empty();
     }
 
 
