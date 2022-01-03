@@ -4,7 +4,7 @@ import javax.validation.constraints.Pattern;
 
 import lombok.*;
 
-public class UserDto {
+public class SignUpUserDto {
 
     @Getter
     @Setter
