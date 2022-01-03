@@ -67,4 +67,11 @@ class UserRepositoryTest {
 
         then(user).hasSize(2);
     }
+
+    @DisplayName("existsByNickName 검증")
+    @Test
+    public void existsByNickName(){
+        boolean nickNameExist = userRepository.existsByNickName("user1");
+        then(nickNameExist).isTrue();
+    }
 }

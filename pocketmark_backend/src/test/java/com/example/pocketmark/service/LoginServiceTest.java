@@ -1,16 +1,16 @@
 package com.example.pocketmark.service;
 
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.UserDto;
+import com.example.pocketmark.dto.SignUpUserDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpSession;
 
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -24,10 +24,14 @@ class LoginServiceTest {
     @Mock
     private UserService userService;
 
+    MockHttpSession session;
+
     @DisplayName("UserService SignUpTest")
     @Test
     public void givenSignUpDto_whenCreateUser_thenSuccess(){
         //Given
+        session = new MockHttpSession();
+
         given(userService.create(any()))
                 .willReturn(User.builder()
                         .email("test@gmail.com")
@@ -36,8 +40,8 @@ class LoginServiceTest {
                         .build()
                 );
 
-        UserDto.SignUpDto dto =
-                UserDto.SignUpDto.builder()
+        SignUpUserDto.SignUpDto dto =
+                SignUpUserDto.SignUpDto.builder()
                         .email("test@gmail.com")
                         .nickName("JyuKa")
                         .pw("1234567487")
@@ -45,7 +49,7 @@ class LoginServiceTest {
                 ;
 
         //When
-        loginService.signUp(dto);
+        loginService.signUp(dto,session);
 
         //Then
     }
