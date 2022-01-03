@@ -2,11 +2,14 @@ package com.example.pocketmark.repository;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import com.example.pocketmark.config.JpaConfig;
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,8 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BookmarkRepositoryTest {
     @Autowired
     private BookmarkRepository bookmarkRepository;
-    @Mock
+    @Autowired
     private FolderRepository folderRepository;
+    @Autowired
+    private EntityManager em;
 
     @Mock private User user;
     
@@ -71,6 +76,22 @@ public class BookmarkRepositoryTest {
                         return bookmark;
     }
 
+
+
+
+    @Test
+    void findByFolderIdTest(){
+        //given
+        folderRepository.save(folder);
+        bookmarkRepository.save(bookmark);
+
+        //when
+        List<BookmarkRes> bookmarks = bookmarkRepository.findByFolderId(1L);
+
+        //then
+        assertEquals(bookmarks.size(), 1);
+        assertEquals(bookmarks.get(0).getName(), "SpringFrameWork");
+    }
 
 
     @DisplayName("DB - 북마크 Create & Read")
@@ -166,12 +187,39 @@ public class BookmarkRepositoryTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        List<BookmarkRes> result = bookmarkRepository.findBookmarkResByFolderIdWithoutJoin(folder.getId());
+        List<BookmarkRes> result = bookmarkRepository.findByFolderId(folder.getId());
         
         //then
         assertEquals(result.get(0).getName(), "SpringFrameWork");
         assertEquals(result.get(0).getUrl(), "www.blahblah.com");
         assertEquals(result.get(0).getComment(),"JPA 기초");
         assertEquals(result.get(0).getFolderId(), folder.getId());
+    }
+
+
+
+
+    @Test
+    void bookmarkEntityUpdateTest(){
+        //given
+        folderRepository.save(folder);
+        bookmarkRepository.save(bookmark);
+        folder = makeFolder(0L, 1L, "창작의 고통 폴더", user);
+        folderRepository.save(folder);
+        Bookmark item = bookmarkRepository.findById(1L).get();
+        BookmarkUpdateReq req = new BookmarkUpdateReq(1L,"폴더id가","수정이","될까?",2L,100);
+        System.out.println(">>> : "+ req.getFolderId());
+        //when
+        item.update(req.toServiceReq());
+        bookmarkRepository.save(item);
+        em.flush();
+        em.clear();
+        
+        //then
+        folderRepository.findAll().forEach(System.out::println);
+        bookmarkRepository.findAll().forEach(System.out::println);
+
+
+
     }
 }

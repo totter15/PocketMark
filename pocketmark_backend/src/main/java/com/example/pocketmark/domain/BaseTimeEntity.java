@@ -30,7 +30,7 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @ToString.Exclude
+    // @ToString.Exclude
     private boolean deleted;
 
 }

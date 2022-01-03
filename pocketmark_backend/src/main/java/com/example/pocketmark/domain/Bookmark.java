@@ -7,8 +7,9 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.example.pocketmark.dto.BookmarkDto.BookmarkContentUpdateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateServiceReq;
 
 import org.hibernate.annotations.Where;
 
@@ -30,21 +31,20 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Where(clause = "deleted = false")
 @Slf4j
-public class Bookmark extends BaseEntity{
+public class Bookmark extends BaseEntity {
     private String name;
     private String url;
     private String comment;
     
-    @ManyToOne( cascade = {CascadeType.DETACH,
-                        CascadeType.MERGE,
-                        CascadeType.PERSIST
-                        },
-                fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="folder_id")
     @ToString.Exclude
     private Folder folder;
 
-    private int visitCount;
+    @Column(name="folder_id", insertable = false, updatable = false)
+    private Long folderId;
+
+    private Integer visitCount;
 
     public boolean visitCountUpdate(int cnt){
         if(cnt>this.visitCount){
@@ -68,10 +68,14 @@ public class Bookmark extends BaseEntity{
             .build();
     }
 
-    public void update(BookmarkContentUpdateReq req){
+    public void update(BookmarkUpdateServiceReq req){
+        Folder dummy = new Folder();
+        dummy.setId(req.getFolderId());
+
         this.name = req.getName();
         this.url = req.getUrl();
         this.comment = req.getComment();
+        this.folder = dummy;
         this.visitCount = req.getVisitCount();
     }
 

@@ -52,10 +52,10 @@ public class FolderServiceTest {
 
         //mocking
         given(userRepository.getOne(any())).willReturn(user);
-        given(folderRepository.save(any())).willReturn(req.toEntity(user)); 
+        given(folderRepository.save(any())).willReturn(req.toServiceReq().toEntity(user)); 
 
         //when
-        FolderResImpl folderRes = folderService.saveByCreateReq(req);
+        FolderResImpl folderRes = folderService.saveByCreateReq(req.toServiceReq());
         folderResList.add(folderRes);
         
         //then
@@ -63,6 +63,14 @@ public class FolderServiceTest {
         assertEquals(folderRes.getDepth(), 1L);
         assertEquals(folderRes.getParent() ,1L);
         assertEquals(folderRes.getName(), "JPA");
+    }
+
+
+    @Test
+    void getFoldersTest(){
+
+        //when
+        folderService.getFolders(1L);
     }
 
 

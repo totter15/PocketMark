@@ -29,7 +29,9 @@ public enum ErrorCode {
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     SPRING_INTERNAL_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Spring-detected internal error"),
-    DATA_ACCESS_ERROR(20002, HttpStatus.INTERNAL_SERVER_ERROR, "Data access error")
+    DATA_ACCESS_ERROR(20002, HttpStatus.INTERNAL_SERVER_ERROR, "Data access error"),
+
+    INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again.")
     ;
 
     private final Integer code;
