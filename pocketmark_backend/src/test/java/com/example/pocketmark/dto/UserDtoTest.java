@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserDtoTest {
 
@@ -12,14 +11,14 @@ class UserDtoTest {
     @Test
     public void givenSignUpRequest_whenConvertSignUpDto_thenReturnSignUpDto(){
         //Given
-        UserDto.signUpRequest request = UserDto.signUpRequest.builder()
+        SignUpUserDto.signUpRequest request = SignUpUserDto.signUpRequest.builder()
                 .email("test@gmail.com")
                 .pw("1234")
                 .nickName("JyuKa")
                 .build();
 
         //When
-        UserDto.SignUpDto dto = UserDto.SignUpDto.fromSignUpRequest(request);
+        SignUpUserDto.SignUpDto dto = SignUpUserDto.SignUpDto.fromSignUpRequest(request);
 
         //Then
         then(dto.getEmail()).isEqualTo(request.getEmail());

@@ -22,6 +22,10 @@ public enum ErrorCode {
     EMAIL_EXIST(1004,HttpStatus.BAD_REQUEST,"Duplicate email"),
     NICKNAME_EXIST(1005,HttpStatus.BAD_REQUEST,"Duplicate NickName"),
     EMAIL_OR_NICKNAME_EXIST(1006,HttpStatus.CONFLICT,"Duplicate Emial or NickName"),
+    ENTITY_NOT_EXIST(1007,HttpStatus.BAD_REQUEST,"Entity not exist"),
+    UNAUTHORIZED(1008,HttpStatus.UNAUTHORIZED,"Unauthorized. Retry Login."),
+    PASSWORD_NOT_MATCH(1009,HttpStatus.BAD_REQUEST,"Please check the current password."),
+    DIFFERENT_NEW_PW(1010,HttpStatus.BAD_REQUEST,"New password and confirm password are different"),
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     SPRING_INTERNAL_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Spring-detected internal error"),

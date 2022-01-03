@@ -1,10 +1,14 @@
 package com.example.pocketmark.dto;
 
-import javax.validation.constraints.Pattern;
 
 import lombok.*;
 
-public class UserDto {
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+
+
+public class SignUpUserDto {
 
     @Getter
     @Setter
@@ -13,9 +17,8 @@ public class UserDto {
     @Builder
     @ToString
     public static class SignUpDto{
-        @Pattern(regexp = "[A-Za-z0-9+_.-]+@[a-zA-z]+[.]+[a-zA-z]{2,3}$/")
+
         private String email;
-        @Pattern(regexp = "/^[A-Za-z0-9]{6,20}$/") // 숫자문자포함 6~20자리 비밀번호
         private String pw;
         private String nickName;
 
@@ -36,8 +39,14 @@ public class UserDto {
     @Builder
     @ToString
     public static class signUpRequest{
+
+        @Email
         private String email;
+
+        @Size(min=10)
         private String pw;
+
+        @Size(min = 2, max = 12)
         private String nickName;
 
     }

@@ -1,16 +1,11 @@
 package com.example.pocketmark.domain;
 
-import com.example.pocketmark.dto.UserDto.signUpRequest;
 import com.example.pocketmark.repository.UserRepository;
-import com.example.pocketmark.service.UserService;
 import com.example.pocketmark.util.Encryptor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -18,14 +13,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -80,6 +70,52 @@ class UserTest {
         System.out.println(user.getPw());
         then(user.isMatch(encryptor,"1234")).isTrue();
     }
+
+    @DisplayName("비밀번호 변경")
+    @Test
+    public void changePassword(){
+        //Given
+        User user = createUser();
+        String newPw = "4321";
+
+        //When
+        user.changePassword(newPw);
+
+        //Then
+        then(user.getPw()).isEqualTo(newPw);
+
+    }
+
+    @DisplayName("비밀번호 변경")
+    @Test
+    public void changeNickName(){
+        //Given
+        User user = createUser();
+        String newNickName = "test";
+
+        //When
+        user.changeNickName(newNickName);
+
+        //Then
+        then(user.getNickName()).isEqualTo(newNickName);
+
+    }
+
+    @DisplayName("비밀번호 변경")
+    @Test
+    public void deleteUser(){
+        //Given
+        User user = createUser();
+        boolean modifyDeleted = true;
+
+        //When
+        user.deleteUser(modifyDeleted);
+
+        //Then
+        then(user.isDeleted()).isEqualTo(modifyDeleted);
+
+    }
+
 
     
 
