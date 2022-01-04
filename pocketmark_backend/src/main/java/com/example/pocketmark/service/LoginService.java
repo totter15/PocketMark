@@ -2,7 +2,13 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.SignUpUserDto;
+import com.example.pocketmark.dto.LoginDto.LoginReq;
+import com.example.pocketmark.dto.common.ApiDataResponse;
+import com.example.pocketmark.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,5 +26,18 @@ public class LoginService {
         User user = userService.create(signUpDto);
         session.setAttribute(LOGIN_SESSION_KEY,user.getId());
     }
+
+
+
+    @Autowired UserRepository userRepository;
+    public Long login(LoginReq req){
+        var item = userRepository.findByEmail(req.getEmail());
+        if(item.isPresent()){
+            return item.get().getId();
+        }
+
+        return null;
+    }
+
     
 }
