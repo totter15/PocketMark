@@ -3,7 +3,6 @@ package com.example.pocketmark.config;
 
 import com.example.pocketmark.security.filter.FilterChainExceptionHandler;
 import com.example.pocketmark.security.filter.JwtAuthenticationFilter;
-import com.example.pocketmark.security.manager.UserManager;
 import com.example.pocketmark.service.UserService;
 
 import org.springframework.context.annotation.Bean;

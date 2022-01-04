@@ -1,6 +1,5 @@
 package com.example.pocketmark.controller.api;
 
-import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.*;
 import com.example.pocketmark.dto.LoginDto.LoginReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
@@ -12,17 +11,12 @@ import com.example.pocketmark.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -84,6 +78,7 @@ public class UserApiController {
         @RequestBody LoginReq req,
         HttpServletResponse res
     ){
+        System.out.println("삐빅");
         Long authId = loginService.login(req);
         if(authId!=null){
             //give jwt token
@@ -96,15 +91,7 @@ public class UserApiController {
         return ApiDataResponse.failed();
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping(value="/oauth2-login")
-    public OAuth2User oAuth2Login(
-        @AuthenticationPrincipal OAuth2User user
-    ) {
-
-        System.out.println("???");
-        return user;
-    }
+    
     
 
 
