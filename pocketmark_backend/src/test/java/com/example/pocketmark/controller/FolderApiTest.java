@@ -7,6 +7,7 @@ import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
+import com.example.pocketmark.dto.LoginDto.LoginReq;
 import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.service.FolderService;
@@ -28,6 +29,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -35,13 +38,22 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.Base64;
 import java.util.List;
+
+import javax.security.sasl.AuthenticationException;
 
 import static org.mockito.BDDMockito.*;
 import lombok.extern.slf4j.Slf4j;
@@ -183,6 +195,65 @@ public class FolderApiTest {
 
 
     }
+
+
+    private String token="";
+    @Test
+    void authorizationTest() throws Exception{
+        //given
+        String urlLogin = "/api/v1/login";
+        String urlTest = "/api/v1/folder/test";
+        userRepository.findAll().forEach(System.out::println);
+
+        LoginReq req = LoginReq.builder().email("testEmail").pw("testPw").build();
+        String content = objectMapper.writeValueAsString(req);
+
+        //when
+        MvcResult firstResult=mockMvc
+                        .perform(MockMvcRequestBuilders.post(urlLogin)
+                        .content(content)
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andReturn();
+        System.out.println(firstResult.getResponse().getContentAsString());
+        String jwt = firstResult.getResponse().getHeader(HttpHeaders.AUTHORIZATION);
+        String[] tokens = jwt.split("\\.");
+        System.out.println(jwt);
+
+        System.out.println(">> "+ Base64.getDecoder().decode(tokens[1]));
+
+        MvcResult wantedResult = mockMvc
+                                .perform(MockMvcRequestBuilders.get(urlTest)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer "+jwt)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+        System.out.println(">>> : "+wantedResult.getResponse().getContentAsString());
+
+
+        String token = Jwts.builder()
+                            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                            .setSubject("fresh")
+                            .signWith(SignatureAlgorithm.HS256, "I'm manipulating u.")
+                            .compact();
+
+        mockMvc
+            .perform(MockMvcRequestBuilders.get(urlTest)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+            .andExpect(result -> assertEquals(HttpStatus.UNAUTHORIZED.value(),result.getResponse().getStatus()))
+            .andExpect(result-> assertEquals("JWT Token Expired",result.getResponse().getErrorMessage()));
+            
+        Thread.sleep(3500);
+
+                wantedResult = mockMvc
+                                .perform(MockMvcRequestBuilders.get(urlTest)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer "+jwt)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+        System.out.println(">>> : "+wantedResult.getResponse().getContentAsString());
+
+    }
+
 
 
     public FolderCreateReq makeFolderReq(){

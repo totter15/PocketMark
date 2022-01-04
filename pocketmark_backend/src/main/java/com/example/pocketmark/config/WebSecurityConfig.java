@@ -1,6 +1,7 @@
 package com.example.pocketmark.config;
 
 
+import com.example.pocketmark.security.filter.FilterChainExceptionHandler;
 import com.example.pocketmark.security.filter.JwtAuthenticationFilter;
 import com.example.pocketmark.service.UserService;
 
@@ -26,11 +27,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
+    // private final UserManager manager;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
+                // .antMatchers("/api/v1/login**").permitAll()
+                // .antMatchers("/api/v1/oauth2-login**").permitAll()
                 .antMatchers("/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -39,12 +43,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .formLogin().disable()
                 .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .addFilterBefore(new FilterChainExceptionHandler(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 
                 ;
+                // .oauth2Login().and()
+        // http.oauth2Login();
             
     }
 
+
+
+    // @Override
+    // protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    //     // TODO Auto-generated method stub
+    //     auth.inMemoryAuthentication().withUser("Ping9").password("1234").roles("ROLE_USER");
+    //     auth.authenticationProvider(manager);
+    // }
 
     
 

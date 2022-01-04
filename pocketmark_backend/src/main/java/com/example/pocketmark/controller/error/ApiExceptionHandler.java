@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice(annotations = {RestController.class})
-@Qualifier("CustomExceptionHandler")
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler

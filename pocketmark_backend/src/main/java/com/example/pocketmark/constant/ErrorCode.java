@@ -32,7 +32,7 @@ public enum ErrorCode {
     DATA_ACCESS_ERROR(20002, HttpStatus.INTERNAL_SERVER_ERROR, "Data access error"),
 
     INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again."),
-    JWT_EXPIRED(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired")
+    JWT_UNVALID(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired")
     ;
 
     private final Integer code;

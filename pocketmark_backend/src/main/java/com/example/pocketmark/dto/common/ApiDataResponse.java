@@ -1,6 +1,8 @@
 package com.example.pocketmark.dto.common;
 
 import com.example.pocketmark.constant.ErrorCode;
+
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -25,6 +27,19 @@ public class ApiDataResponse<T> extends ApiErrorResponse {
 
     public static <T> ApiDataResponse<T> empty() {
         return new ApiDataResponse<>(null);
+    }
+    
+    public static ApiDataResponse<GeneralResponse> success(){
+        return new ApiDataResponse<>(new GeneralResponse(true));
+    }
+    public static ApiDataResponse<GeneralResponse> failed(){
+        return new ApiDataResponse<>(new GeneralResponse(false));
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class GeneralResponse{
+        private boolean success;
     }
 
 

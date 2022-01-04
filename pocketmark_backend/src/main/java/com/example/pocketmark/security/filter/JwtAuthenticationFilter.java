@@ -3,6 +3,7 @@ package com.example.pocketmark.security.filter;
 
 import java.io.IOException;
 
+import javax.security.sasl.AuthenticationException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -42,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getJwtFromRequest(HttpServletRequest req){
         String bearerToken = req.getHeader(HttpHeaders.AUTHORIZATION);
-        // log.info(HttpHeaders.AUTHORIZATION);
+
         if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")){
             return bearerToken.substring("Bearer ".length());
         }
@@ -54,43 +55,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         HttpServletRequest req = (HttpServletRequest) request;
-        log.info("req URL : {}   ----[JwtAuthFilter]", req.getRequestURI());
         
-        
-        if(req.getRequestURI().contains("api/v1/sign-up")
-            || req.getRequestURI().equals("/api/v1/login")){
+        String jwt = getJwtFromRequest(req);
+        if(jwt == null){
             filterChain.doFilter(request, response);
-            return; // to block backpropagation(not excute logic below)
+            return; // no backpropagation
         }
-        
+
+        if(StringUtils.hasText(jwt) && JwtProvider.validate(jwt)){
+            String userIdentity = JwtProvider.getClaims(jwt).getSubject();
+            
+            UserAuthentication authentication = new UserAuthentication(userIdentity, null, null); 
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
     
-        try{
-            String jwt = getJwtFromRequest(req);
-            if(StringUtils.hasText(jwt) && JwtProvider.validate(jwt)){
-                String userId = JwtProvider.getClaims(jwt).getSubject();
-                log.info("after jwt : userid = {}   ----[JwtAuthFilter]",userId);
-                //인증객체 만들기
-                UserAuthentication authentication = new UserAuthentication(userId, "test_credential",null); 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-        
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }else{
-                if(!StringUtils.hasText(jwt)){
-                    throw new GeneralException(ErrorCode.UNAUTHORIZED);
-                }
-                if(!JwtProvider.validate(jwt)){
-                    throw new GeneralException(ErrorCode.JWT_EXPIRED);
-                }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            filterChain.doFilter(request, response);
+        }else{
+            if(!StringUtils.hasText(jwt)){
+                throw new AuthenticationException(ErrorCode.UNAUTHORIZED.getMessage());
             }
-
-
-        }catch(Exception e){
-            log.error("Couldn't see user Auth in security context.");
+            if(!JwtProvider.validate(jwt)){
+                throw new AuthenticationException(ErrorCode.JWT_UNVALID.getMessage());
+            }
         }
-        
-        filterChain.doFilter(request, response);
-
-        
         
     }
     

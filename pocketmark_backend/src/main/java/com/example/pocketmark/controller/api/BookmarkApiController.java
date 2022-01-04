@@ -99,7 +99,6 @@ public class BookmarkApiController {
 
 
 
-
     @GetMapping("/bookmark/test")
     public List<BookmarkRes> test(){
         userRepository.save(new User("test@email.com","1234","Ping9"));
