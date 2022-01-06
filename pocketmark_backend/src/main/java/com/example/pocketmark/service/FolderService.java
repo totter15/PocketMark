@@ -45,11 +45,22 @@ public class FolderService {
     private QBookmark qBookmark = QBookmark.bookmark;
 
     //c
-    public FolderResImpl saveByCreateReq(FolderCreateServiceReq req){
-        User user = userRepository.getOne(req.getUserId());
+    public FolderResImpl saveByCreateReq(FolderCreateServiceReq req, Long userId){
+        User user = userRepository.getById(userId); //proxy
         Folder folder = req.toEntity(user);
-        
         return folderRepository.save(folder).toJson();
+    }
+
+    @Transactional
+    public boolean saveAllByCreateReq(List<FolderCreateReq> req, Long userId){
+        User user = userRepository.getById(userId); //proxy
+        List<Folder> folders= new ArrayList<>();
+        for(FolderCreateReq singleReq : req){
+            folders.add(singleReq.toEntity(user));
+        }
+        folderRepository.saveAll(folders);
+
+        return true;
     }
 
     //r

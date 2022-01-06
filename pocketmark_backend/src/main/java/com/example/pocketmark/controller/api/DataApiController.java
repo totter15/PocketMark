@@ -3,6 +3,8 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.example.pocketmark.dto.DataDto.DataCreateReq;
+import com.example.pocketmark.dto.DataDto.DataDeleteReq;
 import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
@@ -11,6 +13,7 @@ import com.example.pocketmark.service.DataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,43 +34,50 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class DataApiController {
 
+    public static Long getUserId(){
+        return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+    }
+
     @Autowired
     DataService dataService;
     
-    @GetMapping(value="/data/{user-id}") // /data/1?depth=1
+    @GetMapping(value="/data") // /data?depth=1
     public ApiDataResponse<DataRes> getData(
-        @PathVariable("user-id") Long userId,
-        @RequestParam("depth") Long depth,
+        @RequestParam(value ="depth", required = false, defaultValue = "1") Long depth,
         @PageableDefault(size=2) Pageable pageable
+        
     )
     {
-        if(depth==null) depth=1L;
-        return ApiDataResponse.of(dataService.getData(userId, depth, pageable));
+        return ApiDataResponse.of(dataService.getData(getUserId(), depth, pageable));
     }
 
-    @PutMapping(value="/data/{user-id}")
+    @PutMapping(value="/data")
     public ApiDataResponse<DataRes> updateData(
-        @RequestBody DataUpdateReq req,
-        @PathVariable("user-id") Long userId
+        @RequestBody DataUpdateReq req
     ){
         //validation in service
 
-        dataService.updateData(req.toServcieReq(), userId);
+        dataService.updateData(req.toServcieReq(), getUserId());
         return ApiDataResponse.empty();
 
     }
 
-    @PostMapping(value="/data/{user-id}")
+    @PostMapping(value="/data")
     public ApiDataResponse<DataRes> createData(
-
+        @RequestBody DataCreateReq req
     ){
+        //
+        System.out.println(">>> createData : "+ getUserId());
+
+        dataService.createData(req.toServiceReq(), getUserId());
         return ApiDataResponse.empty();
     }
 
-    @DeleteMapping(value="/data/{user-id}")
+    @DeleteMapping(value="/data")
     public ApiDataResponse<DataRes> deleteData(
-
+        @RequestBody DataDeleteReq req
     ){
+        dataService.deleteData(req.toServiceReq(), getUserId());
         return ApiDataResponse.empty();
     }
 

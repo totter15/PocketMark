@@ -38,8 +38,8 @@ public class FolderDto {
 
         @NotNull(message="Depth needed") 
         private Long depth;
-        @NotNull(message="UserId needed") 
-        private Long userId;
+        // @NotNull(message="UserId needed") 
+        // private Long userId;
         
         @NotNull(message = "FolderName needed") 
         @NotBlank(message="FolderName needed")
@@ -52,7 +52,23 @@ public class FolderDto {
                     .parent(parent)
                     .depth(depth)
                     .name(name)
-                    .userId(userId).build();
+                    // .userId(userId)
+                    .build();
+        }
+
+
+
+        // 흠 이거어쩌지;
+        public Folder toEntity(User user){
+
+            return Folder.builder()
+                    .parent(parent)
+                    .depth(depth)
+                    // .userId(userId)
+                    .user(user)
+                    .name(name)
+                    .visitCount(0)
+                    .build();
         }
     }
 
@@ -66,13 +82,14 @@ public class FolderDto {
         private Long parent;
         private Long depth;
         private String name;
-        private Long userId;
+        // private Long userId;
 
         public Folder toEntity(User user){
 
             return Folder.builder()
                     .parent(parent)
                     .depth(depth)
+                    // .userId(userId)
                     .user(user)
                     .name(name)
                     .visitCount(0)

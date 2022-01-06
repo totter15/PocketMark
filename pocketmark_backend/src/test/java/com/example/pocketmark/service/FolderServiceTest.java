@@ -44,7 +44,7 @@ public class FolderServiceTest {
     @Test
     void saveByCreateReqTest(){
         //given 
-        FolderCreateReq req = FolderCreateReq.builder().depth(1L).parent(1L).name("JPA").userId(2L).build();
+        FolderCreateReq req = FolderCreateReq.builder().depth(1L).parent(1L).name("JPA").build();
         User user = new User("test@gmail.com","1234","Ping9");
         user.setId(2L);
         List<FolderRes> folderResList = new ArrayList<>();
@@ -55,7 +55,7 @@ public class FolderServiceTest {
         given(folderRepository.save(any())).willReturn(req.toServiceReq().toEntity(user)); 
 
         //when
-        FolderResImpl folderRes = folderService.saveByCreateReq(req.toServiceReq());
+        FolderResImpl folderRes = folderService.saveByCreateReq(req.toServiceReq(),2L);
         folderResList.add(folderRes);
         
         //then

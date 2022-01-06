@@ -103,8 +103,8 @@ public class BookmarkApiController {
     public List<BookmarkRes> test(){
         userRepository.save(new User("test@email.com","1234","Ping9"));
 
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
         
         bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 1L));
         bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 2L));
@@ -122,7 +122,7 @@ public class BookmarkApiController {
                 .parent(1L)
                 .depth(1L)
                 .name("JPA")
-                .userId(1L).build();
+                .build();
     }
 
 

@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtProvider {
     //JWT : 이름, 만료시기, 권한, 이메일발송여부 이런거 넣어도됨 ㅇㅇ (PW는 안됨 )
     private static final String JWT_SECRET = "whoKnowsMyKey?blahblah"; //Key 털리면 끝임  
-    // private static final long JWT_EXPIRATION_MILLS = Duration.ofMinutes(20).toMillis();
-    private static final long JWT_EXPIRATION_MILLS = Duration.ofSeconds(3).toMillis();
+    private static final long JWT_EXPIRATION_MILLS = Duration.ofMinutes(60*6).toMillis();
+    // private static final long JWT_EXPIRATION_MILLS = Duration.ofSeconds(3).toMillis();
 
 
     public static String make(Authentication authentication, String dbId){

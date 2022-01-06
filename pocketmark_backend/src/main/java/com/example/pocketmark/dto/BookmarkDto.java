@@ -59,6 +59,19 @@ public class BookmarkDto {
                     .folderId(folderId)
                     .build();
         }
+
+        public Bookmark toEntity(Folder folder){
+
+            return Bookmark.builder()
+                    .name(this.name)
+                    .url(this.url)
+                    .comment(this.comment)
+                    .folder(folder)
+                    // .folderId(this.folderId)
+                    .visitCount(0)
+                    .build();
+        }
+
     }
 
 

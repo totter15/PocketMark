@@ -1,6 +1,8 @@
 package com.example.pocketmark.config;
 
 
+import java.util.Arrays;
+
 import com.example.pocketmark.security.filter.FilterChainExceptionHandler;
 import com.example.pocketmark.security.filter.JwtAuthenticationFilter;
 import com.example.pocketmark.service.UserService;
@@ -27,15 +29,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
-    // private final UserManager manager;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                // .antMatchers("/api/v1/login**").permitAll()
-                // .antMatchers("/api/v1/oauth2-login**").permitAll()
-                .antMatchers("/**").permitAll()
+                .antMatchers("/api/v1/sign-up**").permitAll()
+                .antMatchers("/api/v1/login**").permitAll()
+                .antMatchers("/api/v1/oauth2-login**").permitAll()
+                // .antMatchers("/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .cors().configurationSource(corsConfigurationSource()).and()
@@ -47,27 +48,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .addFilterAt(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 
                 ;
-                // .oauth2Login().and()
-        // http.oauth2Login();
             
     }
 
 
 
-    // @Override
-    // protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    //     // TODO Auto-generated method stub
-    //     auth.inMemoryAuthentication().withUser("Ping9").password("1234").roles("ROLE_USER");
-    //     auth.authenticationProvider(manager);
-    // }
 
-    
-
-    // 빈으로 쓰싈..?
-    // @Bean
-    // public PasswordEncoder passwordEncoder(){
-    //     return new BCryptPasswordEncoder();
-    // }
 
 
 

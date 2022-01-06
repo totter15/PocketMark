@@ -42,7 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     private String getJwtFromRequest(HttpServletRequest req){
+        System.out.println(">>> JWTFilter:: req.getHeaderNames() : "+ req.getHeaderNames().toString());
         String bearerToken = req.getHeader(HttpHeaders.AUTHORIZATION);
+        System.out.println(">>> JWTFilter:: req.getheader(AUTH): " + bearerToken);
 
         if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")){
             return bearerToken.substring("Bearer ".length());
@@ -57,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         HttpServletRequest req = (HttpServletRequest) request;
         
         String jwt = getJwtFromRequest(req);
+        System.out.println(">>> jwtFilter:: jwt : "+ jwt);
         if(jwt == null){
             filterChain.doFilter(request, response);
             return; // no backpropagation
@@ -69,6 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
     
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println(">>> jwtFilter:: Authenticatio succeed");
             filterChain.doFilter(request, response);
         }else{
             if(!StringUtils.hasText(jwt)){

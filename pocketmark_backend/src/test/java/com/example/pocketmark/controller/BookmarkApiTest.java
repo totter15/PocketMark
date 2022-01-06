@@ -85,10 +85,10 @@ public class BookmarkApiTest {
         dbCleanup.afterPropertiesSet();
         dbCleanup.execute();
 
-        userRepository.save(new User("test@2mail.com","1234","Ping9"));
+        User user=userRepository.save(new User("test@2mail.com","1234","Ping9"));
 
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),user.getId());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),user.getId());
     
         bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 1L).toServiceReq());
     
@@ -205,7 +205,7 @@ public class BookmarkApiTest {
                 .parent(1L)
                 .depth(1L)
                 .name("JPA")
-                .userId(1L).build();
+                .build();
     }
 
     public BookmarkCreateReq makeBookmarkReq(){

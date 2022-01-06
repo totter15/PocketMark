@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,26 +49,30 @@ public class FolderApiController {
     // test 후 삭제할 bean 
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
+
+    public static Long getUserId(){
+        return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+    }
     
     
     //C
+    // @PreAuthorize("isAuthenticated()")
     @PostMapping("/folder")
     @CrossOrigin(origins = "*")
     public FolderResImpl createFolder(
-        @Valid @RequestBody FolderCreateReq req 
+        @RequestBody FolderCreateReq req 
     ){
         //create without any select
-        return folderService.saveByCreateReq(req.toServiceReq());
+        return folderService.saveByCreateReq(req.toServiceReq(),getUserId());
     }
 
 
     //R
-    @GetMapping("/folder/{user-id}")
+    @GetMapping("/folder")
     public List<FolderRes> readFolder(
-        @PathVariable("user-id") Long userId
     )
     {
-        return folderService.getFolders(userId);
+        return folderService.getFolders(getUserId());
     }
 
     //U
@@ -88,10 +93,9 @@ public class FolderApiController {
     public ResponseEntity<String> deleteFolder(
         @PathVariable("folder-id") Long folderId
     ){
-        //토큰 디코딩후 userId 넣어주면됨. 
-        Long userId = 1L; // jwt 구현이후 수정필요 
+        
 
-        folderService.deleteFolderBySelfId(folderId,userId);
+        folderService.deleteFolderBySelfId(folderId,getUserId());
 
         return ResponseEntity.status(204).body("delete Succeed! \nBut we not yet dicide what will be returned.");
         // subordinate Bookmarks 도 지워야해 (구현필요) - Cascade 설정 나중에 하기 
@@ -103,7 +107,7 @@ public class FolderApiController {
     @Autowired
     DataService dataService;
 
-    @PreAuthorize("isAuthenticated()")
+    // @PreAuthorize("isAuthenticated()")
     @GetMapping("/folder/test")
     public ApiDataResponse<DataRes> test(
         @PageableDefault(size=2) Pageable pageable
