@@ -6,16 +6,20 @@ import com.example.pocketmark.util.Encryptor;
 import org.hibernate.annotations.Where;
 
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
 @Builder
 @Where(clause = "deleted = false")
-public class User extends BaseTimeEntity{
+public class User extends BaseTimeEntity implements UserDetails {
 
     
     @Column(unique = true)
@@ -26,12 +30,21 @@ public class User extends BaseTimeEntity{
     @Column(unique = true)
     private String nickName;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id")
+    @Setter
+    private Set<Authority> authorities;
+
+    private boolean enabled;
+
+
     public User(String email, String pw, String nickName){
         this.email = email;
         this.pw = pw;
         this.nickName = nickName;
         this.setDeleted(false);
     }
+
 
     public boolean isMatch(Encryptor encryptor, String password){
         return encryptor.isMatch(password,this.pw);
@@ -48,5 +61,33 @@ public class User extends BaseTimeEntity{
     public void deleteUser(boolean deleted){
         this.setDeleted(deleted);
     }
+
+
+
+    @Override
+    public String getPassword() {
+        return pw;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return enabled;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return enabled;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return enabled;
+    }
+
 
 }

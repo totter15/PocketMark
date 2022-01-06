@@ -14,6 +14,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,11 +31,6 @@ class UserTest {
 
     @PersistenceContext
     EntityManager em;
-
-    // @AfterEach
-    // public void deleteData(){
-    //     userRepository.deleteAll();
-    // }
 
 
     @DisplayName("createUser 테스트")
@@ -114,6 +110,24 @@ class UserTest {
         //Then
         then(user.isDeleted()).isEqualTo(modifyDeleted);
 
+    }
+
+
+    @DisplayName("Authority 추가")
+    @Test
+    public void addAuthority(){
+
+        User user = createUser();
+        user.setAuthorities(Set.of(Authority.USER_AUTHORITY));
+        userRepository.save(user);
+
+        em.flush();
+        em.clear();
+
+        User savedUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(EntityNotFoundException::new);
+
+        then(savedUser.getAuthorities().size()).isEqualTo(1);
     }
 
 
