@@ -40,10 +40,25 @@ public class BookmarkService {
 
     // //c
     public BookmarkResImpl saveByCreateReq(BookmarkCreateServiceReq req){
-        Folder folder = folderRepository.getOne(req.getFolderId());
+        Folder folder = folderRepository.getById(req.getFolderId());
         Bookmark bookmark= req.toEntity(folder);
         
         return bookmarkRepository.save(bookmark).toJson();
+    }
+
+    @Transactional
+    public boolean saveAllByCreateReq(List<BookmarkCreateReq> req){
+        Folder folder;
+        
+        List<Bookmark> bookmarks= new ArrayList<>();
+        for(BookmarkCreateReq singleReq : req){
+            folder = folderRepository.getById(singleReq.getFolderId());
+            // 레퍼런스참조로 하면 폴더와 같은 트랜잭션으로 묶일경우 getById 안됨.
+            bookmarks.add(singleReq.toEntity(folder));
+        }
+        bookmarkRepository.saveAll(bookmarks);
+
+        return true;
     }
 
     //r

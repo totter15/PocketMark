@@ -43,7 +43,7 @@ public class SignUpUserDto {
         @Email
         private String email;
 
-        @Size(min=10)
+        @Size(min=7)
         private String pw;
 
         @Size(min = 2, max = 12)

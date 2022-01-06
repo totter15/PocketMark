@@ -19,6 +19,10 @@ import com.example.pocketmark.dto.BookmarkDto.BookmarkOnlyId;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
+import com.example.pocketmark.dto.DataDto.DataCreateReq;
+import com.example.pocketmark.dto.DataDto.DataCreateServiceReq;
+import com.example.pocketmark.dto.DataDto.DataDeleteReq;
+import com.example.pocketmark.dto.DataDto.DataDeleteServiceReq;
 import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.DataDto.DataUpdateServiceReq;
@@ -55,9 +59,37 @@ public class DataService {
     private final BookmarkService bookmarkService;
     private final EntityManager em;
 
+    // @Transactional //같은 트랜잭션으로 못묶으면 folder 통과하고 bookmark에서 에러나면? 거참,,, 
+    // 근데 같은 트랜잭션이면 영속성 공유되지않나? 왜 못찾지? (추후 개선필요) 
+    // (나중에 시간나면 getOne 말고 findby로 실제 쿼리 날라가는지 확인할것)
+    public boolean createData(DataCreateServiceReq req,Long userId){
+        try{
+            System.out.println(">>>>CD : " + userId);
+            System.out.println(">>>>CD : " + req.getBookmarks().get(0).getFolderId());
+            folderService.saveAllByCreateReq(req.getFolders(), userId);
+            bookmarkService.saveAllByCreateReq(req.getBookmarks());
+        }catch(Exception e){//rollback..
+            return false;
+        }
+        return true;
+    }
 
 
-    
+    @Transactional(readOnly = true)
+    public boolean deleteData(DataDeleteServiceReq req, Long userId){
+        try{
+            folderService.deleteFoldersInBatch(req.getFolderIdList(), userId);
+            bookmarkService.deleteBookmarksInBatch(req.getBookmarkIdList(), userId);
+        }catch(Exception e){//rollback..
+            return false;
+        }
+
+        return true;
+        
+    }
+
+
+    @Transactional(readOnly = true)
     public DataRes getData(Long userId, Long depth, Pageable pageable){
         if(depth != null && userId != null){
             List<FolderRes> folders = folderService.getFoldersByDepth(userId, depth, pageable).getContent();

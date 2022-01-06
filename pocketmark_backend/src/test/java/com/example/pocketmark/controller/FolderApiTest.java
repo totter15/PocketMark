@@ -92,7 +92,7 @@ public class FolderApiTest {
         
         userRepository.save(new User("testEmail","testPw","Ping9"));
         userRepository.save(new User("testEmail2","testPw2","Ming9"));
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
         objectMapper = Jackson2ObjectMapperBuilder.json()
                         .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                         .modules(new JavaTimeModule())
@@ -107,6 +107,8 @@ public class FolderApiTest {
         FolderCreateReq req = makeFolderReq();
         String content = objectMapper.writeValueAsString(req);
 
+
+        
         //when
         mockMvc
         .perform(MockMvcRequestBuilders.post(url)
@@ -133,7 +135,7 @@ public class FolderApiTest {
     void readApiTest() throws Exception{
         //given
         String url = "/api/v1/folder/1";
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
 
         //when
         mockMvc
@@ -155,7 +157,7 @@ public class FolderApiTest {
     void updateApiTest() throws Exception{
         //given
         String url = "/api/v1/folder/1";
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq());
+        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
         FolderUpdateReq req = new FolderUpdateReq(1L, 1L,1L,"재미있는 요리공부",15);
         String content = objectMapper.writeValueAsString(req);
         
@@ -203,6 +205,7 @@ public class FolderApiTest {
         //given
         String urlLogin = "/api/v1/login";
         String urlTest = "/api/v1/folder/test";
+        String urlGetData = "/api/v1/data";
         userRepository.findAll().forEach(System.out::println);
 
         LoginReq req = LoginReq.builder().email("testEmail").pw("testPw").build();
@@ -221,13 +224,21 @@ public class FolderApiTest {
 
         System.out.println(">> "+ Base64.getDecoder().decode(tokens[1]));
 
+        //make test set
         MvcResult wantedResult = mockMvc
                                 .perform(MockMvcRequestBuilders.get(urlTest)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer "+jwt)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andReturn();
         System.out.println(">>> : "+wantedResult.getResponse().getContentAsString());
-
+        
+        //get List of data
+        MvcResult wantedResult2 = mockMvc
+                                .perform(MockMvcRequestBuilders.get(urlGetData)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer "+jwt)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+        System.out.println(">>>22 : "+wantedResult2.getResponse().getContentAsString());
 
         String token = Jwts.builder()
                             .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -235,6 +246,7 @@ public class FolderApiTest {
                             .signWith(SignatureAlgorithm.HS256, "I'm manipulating u.")
                             .compact();
 
+        // 위변조
         mockMvc
             .perform(MockMvcRequestBuilders.get(urlTest)
             .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
@@ -244,7 +256,7 @@ public class FolderApiTest {
             .andExpect(result-> assertEquals("JWT Token Expired",result.getResponse().getErrorMessage()));
             
         Thread.sleep(3500);
-
+        //기한만료 
                 wantedResult = mockMvc
                                 .perform(MockMvcRequestBuilders.get(urlTest)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer "+jwt)
@@ -261,7 +273,7 @@ public class FolderApiTest {
                 .parent(1L)
                 .depth(1L)
                 .name("JPA")
-                .userId(1L).build();
+                .build();
     }
 
 
