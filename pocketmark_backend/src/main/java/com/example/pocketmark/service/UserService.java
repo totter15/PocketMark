@@ -3,14 +3,11 @@ package com.example.pocketmark.service;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.Authority;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.LeaveUser;
-import com.example.pocketmark.dto.ModifyNickNameDto;
-import com.example.pocketmark.dto.ModifyPwDto;
-import com.example.pocketmark.dto.SignUpUserDto;
+import com.example.pocketmark.dto.*;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
-import com.example.pocketmark.util.Encryptor;
 
+import com.example.pocketmark.util.Encryptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +15,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -34,16 +30,20 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User create(SignUpUserDto.SignUpDto signUpDto){
-        return userRepository.save(new User(
+
+        User user = userRepository.save(new User(
                 signUpDto.getEmail(),
                 encryptor.encrypt(signUpDto.getPw()),
                 signUpDto.getNickName()
-        ));   
+        ));
+
+        user.setAuthorities(Set.of(Authority.USER_AUTHORITY));
+        return user;
     }
 
     @Transactional
-    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, HttpSession session) {
-        User user = selectUser(session);
+    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, String email) {
+        User user = selectUserByToken(email);
 
         if(!user.isMatch(encryptor, changePwDto.getNowPw())){
             throw new GeneralException(ErrorCode.PASSWORD_NOT_MATCH);
@@ -56,17 +56,21 @@ public class UserService implements UserDetailsService {
         user.changePassword(encryptor.encrypt(changePwDto.getNewPw()));
     }
 
+
     @Transactional
-    public User selectUser(HttpSession session) {
-        Long userId = (Long) session.getAttribute(LOGIN_SESSION_KEY);
-//        Long userId = 1L;
+    public User selectUserByLoginReq(LoginDto.LoginReq req){
+        Optional<User> savedUser = userRepository.findByEmail(req.getEmail());
 
-
-        if(userId == null){
-            throw new GeneralException(ErrorCode.UNAUTHORIZED);
+        if(savedUser.isPresent()){
+            return savedUser.get();
+        }else{
+            throw new GeneralException(ErrorCode.ENTITY_NOT_EXIST);
         }
+    }
 
-        Optional<User> user = userRepository.findById(userId);
+    @Transactional
+    public User selectUserByToken(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
 
         if(user.isEmpty()){
             throw new GeneralException(ErrorCode.ENTITY_NOT_EXIST);
@@ -76,8 +80,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, HttpSession session) {
-        User user = selectUser(session);
+    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, String email) {
+        User user = selectUserByToken(email);
 
         if(userRepository.existsByNickName(changeNickNameDto.getNewNickName())){
             throw new GeneralException(ErrorCode.NICKNAME_EXIST);
@@ -87,8 +91,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, HttpSession session) {
-        User user = selectUser(session);
+    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, String email) {
+        User user = selectUserByToken(email);
         user.deleteUser(leaveUserDto.isLeave());
     }
 

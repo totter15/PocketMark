@@ -1,33 +1,25 @@
 package com.example.pocketmark.controller;
 
-import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.FolderDto;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
 import com.example.pocketmark.dto.LoginDto.LoginReq;
-import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.service.FolderService;
 import com.example.pocketmark.util.DataBaseCleanUpHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,28 +27,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-
 import java.util.Base64;
 import java.util.List;
 
-import javax.security.sasl.AuthenticationException;
-
-import static org.mockito.BDDMockito.*;
-import lombok.extern.slf4j.Slf4j;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -240,11 +219,13 @@ public class FolderApiTest {
                                 .andReturn();
         System.out.println(">>>22 : "+wantedResult2.getResponse().getContentAsString());
 
-        String token = Jwts.builder()
-                            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                            .setSubject("fresh")
-                            .signWith(SignatureAlgorithm.HS256, "I'm manipulating u.")
-                            .compact();
+//        String token = Jwts.builder()
+//                            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+//                            .setSubject("fresh")
+//                            .signWith(SignatureAlgorithm.HS256, "I'm manipulating u.")
+//                            .compact();
+//
+        String token = null;
 
         // 위변조
         mockMvc

@@ -2,15 +2,12 @@ package com.example.pocketmark.domain;
 
 import com.example.pocketmark.repository.AuthorityRepository;
 import com.example.pocketmark.repository.UserRepository;
-import com.example.pocketmark.util.Encryptor;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 
 import java.util.List;
@@ -18,7 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -46,6 +42,7 @@ class AuthorityTest {
 
         then(authorities.get(0).getAuthority()).isEqualTo("ROLE_USER");
     }
+
 
     public User createUser(){
         return new User("test@gmail.com","1234","JyuKa");

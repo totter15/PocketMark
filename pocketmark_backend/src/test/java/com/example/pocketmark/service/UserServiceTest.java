@@ -3,14 +3,10 @@ package com.example.pocketmark.service;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.Authority;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.LeaveUser;
-import com.example.pocketmark.dto.ModifyNickNameDto;
-import com.example.pocketmark.dto.ModifyPwDto;
-import com.example.pocketmark.dto.SignUpUserDto;
+import com.example.pocketmark.dto.*;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,12 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockHttpSession;
 
-import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
+
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,7 +46,6 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    MockHttpSession session;
 
     @DisplayName("아무런 중복이 없는 조건을 입력하여 유저를 저장한다")
     @Test
@@ -111,7 +105,7 @@ class UserServiceTest {
         //Then
         then(thrown)
                 .isInstanceOf(DataIntegrityViolationException.class);
-        verify(userRepository).save(any()); 
+        verify(userRepository).save(any());
 
     }
 
@@ -137,13 +131,12 @@ class UserServiceTest {
 
     }
 
-    @DisplayName("LOGIN_SESSION_KEY 를 받아 유저정보를 조회한다.")
+    @DisplayName("Token(Email)정보를 받아 유저정보를 조회한다.")
     @Test
     public void givenHttpSession_whenSelectUser_thenReturnUser(){
         //Given
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
-        given(userRepository.findById(any()))
+        String email = "test@gmail.com";
+        given(userRepository.findByEmail(any()))
                 .willReturn(
                         Optional.of(User.builder()
                                 .email("test@gmail.com")
@@ -154,50 +147,32 @@ class UserServiceTest {
                 );
 
         //When
-        User user = userService.selectUser(session);
+        User user = userService.selectUserByToken(email);
 
         //Then
         then(user.getEmail()).isEqualTo("test@gmail.com");
         then(user.getNickName()).isEqualTo("JyuKa");
         then(user.getPw()).isEqualTo("12341234");
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
     }
 
-    @DisplayName("비어있는 LOGIN_SESSION_KEY 를 받아 Exception 을 발생시킨다.")
+    @DisplayName("존재하지 않는 Token(Email)를 받아 Exception 을 발생시킨다.")
     @Test
     public void givenNullHttpSession_whenSelectUser_thenReturnUnAuthorizeException(){
         //Given
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,null);
-
-        //When
-        Throwable thrown = catchThrowable(()->userService.selectUser(session));
-
-        //Then
-        then(thrown)
-                .isInstanceOf(GeneralException.class)
-                .hasMessageContaining(ErrorCode.UNAUTHORIZED.getMessage());
-    }
-
-
-    @DisplayName("존재하지 않는 LOGIN_SESSION_KEY 를 받아 ENTITY_NOT_EXIST Exception 을 발생시킨다.")
-    @Test
-    public void givenNullHttpSession_whenSelectUser_thenReturnException(){
-        //Given
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
-        given(userRepository.findById(any()))
+        String email = "test1@gmail.com";
+        given(userRepository.findByEmail(any()))
                 .willReturn(Optional.empty());
 
         //When
-        Throwable thrown = catchThrowable(()->userService.selectUser(session));
+        Throwable thrown = catchThrowable(()->userService.selectUserByToken(email));
 
         //Then
         then(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
-        verify(userRepository).findById(any());
     }
+
 
     @DisplayName("정상적인 비밀번호 변경")
     @Test
@@ -206,16 +181,15 @@ class UserServiceTest {
         ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
                 .nowPw("1234").newPw("4321").confPw("4321")
                 .build();
+        String email = "test1@gmail.com";
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
 
         Optional<User> user = Optional.of(User.builder()
                         .email("test@gmail.com")
                         .pw("12341234")
                         .nickName("JyuKa")
                         .build());
-        given(userRepository.findById(any()))
+        given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
         String hashNewPw = BCrypt.hashpw(changePwDto.getNewPw(),BCrypt.gensalt());
@@ -225,11 +199,11 @@ class UserServiceTest {
                 .willReturn(true);
 
         //When
-        userService.modifyPassword(changePwDto,session);
+        userService.modifyPassword(changePwDto,email);
 
         //Then
         then(user.get().getPw().equals(changePwDto.getNowPw())).isFalse();
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
         verify(encryptor).encrypt(changePwDto.getNewPw());
         verify(encryptor).isMatch(any(),any());
     }
@@ -241,9 +215,8 @@ class UserServiceTest {
         ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
                 .nowPw("1234").newPw("4321").confPw("4321")
                 .build();
+        String email = "test1@gmail.com";
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
 
         given(encryptor.isMatch(any(),any()))
                 .willReturn(false);
@@ -253,18 +226,18 @@ class UserServiceTest {
                 .pw("12341234")
                 .nickName("JyuKa")
                 .build());
-        given(userRepository.findById(any()))
+        given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
         //When
-        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,session));
+        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,email));
 
         //Then
         then(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.PASSWORD_NOT_MATCH.getMessage());
         verify(encryptor).isMatch(any(),any());
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
     }
 
     @DisplayName("새 비밀번호, 새 비밀먼호 확인이 불일치 할 때")
@@ -274,30 +247,29 @@ class UserServiceTest {
         ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
                 .nowPw("1234").newPw("4321").confPw("431")
                 .build();
+        String email = "test1@gmail.com";
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
 
         Optional<User> user = Optional.of(User.builder()
                 .email("test@gmail.com")
                 .pw("1234")
                 .nickName("JyuKa")
                 .build());
-        given(userRepository.findById(any()))
+        given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
         given(encryptor.isMatch(any(),any()))
                 .willReturn(true);
 
         //When
-        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,session));
+        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,email));
 
         //Then
         then(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.DIFFERENT_NEW_PW.getMessage());
         verify(encryptor).isMatch(any(),any());
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
     }
 
     @DisplayName("정상적인 닉네임 변경")
@@ -309,8 +281,7 @@ class UserServiceTest {
                         .newNickName("JyuKa1")
                         .build();
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
+        String email = "test@gmail.com";
 
         Optional<User> user = Optional.of(User.builder()
                 .email("test@gmail.com")
@@ -318,7 +289,7 @@ class UserServiceTest {
                 .nickName("JyuKa")
                 .build());
 
-        given(userRepository.findById(any()))
+        given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
         given(userRepository.existsByNickName(anyString()))
@@ -326,11 +297,11 @@ class UserServiceTest {
 
 
         //When
-        userService.modifyNickName(changeNickNameDto,session);
+        userService.modifyNickName(changeNickNameDto,email);
 
         //Then
         then(user.get().getNickName()).isEqualTo(changeNickNameDto.getNewNickName());
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
         verify(userRepository).existsByNickName(anyString());
     }
 
@@ -343,8 +314,7 @@ class UserServiceTest {
                         .newNickName("JyuKa1")
                         .build();
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
+        String email = "test1@gmail.com";
 
         Optional<User> user = Optional.of(User.builder()
                 .email("test@gmail.com")
@@ -352,24 +322,23 @@ class UserServiceTest {
                 .nickName("JyuKa")
                 .build());
 
-        given(userRepository.findById(any()))
+        given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
         given(userRepository.existsByNickName(anyString()))
                 .willReturn(true);
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
+
 
 
         //When
-        Throwable thrown = catchThrowable(()->userService.modifyNickName(changeNickNameDto,session));
+        Throwable thrown = catchThrowable(()->userService.modifyNickName(changeNickNameDto,email));
 
         //Then
         then(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.NICKNAME_EXIST.getMessage());
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
         verify(userRepository).existsByNickName(anyString());
     }
 
@@ -381,8 +350,7 @@ class UserServiceTest {
                 .leave(true)
                 .build();
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,3L);
+        String email = "test1@gmail.com";
 
         Optional<User> user = Optional.of(User.builder()
                 .email("test@gmail.com")
@@ -390,17 +358,17 @@ class UserServiceTest {
                 .nickName("JyuKa")
                 .build());
 
-        given(userRepository.findById(any()))
+        given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
 
 
         //When
-        userService.deleteUser(dto,session);
+        userService.deleteUser(dto,email);
 
         //Then
         then(user.get().isDeleted()).isEqualTo(dto.isLeave());
-        verify(userRepository).findById(any());
+        verify(userRepository).findByEmail(any());
     }
 
     @DisplayName("[Success] Security Filter : loadUserByUsername")
@@ -605,6 +573,41 @@ class UserServiceTest {
     }
 
 
+    @DisplayName("옳바른 이메일과 비밀번호를 입력하였을떄 유저 정보를 리턴한다.")
+    @Test
+    public void givenLoginReq_whenSelectUserByReq_thenReturnOptionalUser(){
+        //Given
+        LoginDto.LoginReq req = createLoginRequest();
+        given(userRepository.findByEmail(any()))
+                .willReturn(createOptionalUser());
+
+        //When
+        User user = userService.selectUserByLoginReq(req);
+
+        //Then
+        then(user.getEmail()).isEqualTo("test@gmail.com");
+        then(user.getPw()).isEqualTo("1234");
+        verify(userRepository).findByEmail(any());
+    }
+
+    @DisplayName("옳바른 이메일과 틀린 비밀번호를 입력하였을떄 EMAIL_OR_PASSWORD_NOT_MATCH 가 발생한다")
+    @Test
+    public void givenWrongPw_whenSelectUserByReq_thenEmailOrPasswordNotMatchException(){
+        //Given
+        LoginDto.LoginReq req = createLoginRequest();
+        given(userRepository.findByEmail(any()))
+                .willReturn(Optional.empty());
+
+        //When
+        Throwable thrown = catchThrowable(()->
+                userService.selectUserByLoginReq(req));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+    }
 
 
 
@@ -638,5 +641,10 @@ class UserServiceTest {
                 .build();
     }
 
-
+    public LoginDto.LoginReq createLoginRequest(){
+        return LoginDto.LoginReq.builder()
+                .email("test@gmail.com")
+                .pw("1234")
+                .build();
+    }
 }

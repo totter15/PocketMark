@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.SignUpUserDto;
+import com.example.pocketmark.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,14 +26,14 @@ class LoginServiceTest {
     @Mock
     private UserService userService;
 
-    MockHttpSession session;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
 
     @DisplayName("UserService SignUpTest")
     @Test
     public void givenSignUpDto_whenCreateUser_thenSuccess(){
         //Given
-        session = new MockHttpSession();
-
         given(userService.create(any()))
                 .willReturn(User.builder()
                         .email("test@gmail.com")
@@ -48,10 +50,14 @@ class LoginServiceTest {
                         .build()
                 ;
 
-        //When
-        loginService.signUp(dto,session);
+        //When & Then
+        loginService.signUp(dto);
+    }
 
-        //Then
+    @DisplayName("UserService loginTest")
+    @Test
+    public void givenLoginReq_whenLogin_thenReturnTokenBox(){
+//        given(user)
     }
 
 }

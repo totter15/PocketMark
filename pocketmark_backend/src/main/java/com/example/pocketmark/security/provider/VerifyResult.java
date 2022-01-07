@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class VerifyResult {
     private boolean success;
-    private String username;
+    private String email;
 }

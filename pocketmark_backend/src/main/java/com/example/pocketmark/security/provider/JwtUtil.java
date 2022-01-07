@@ -31,11 +31,11 @@ public class JwtUtil {
         try {
             DecodedJWT verify = JWT.require(ALGORITHM).build().verify(token);
             return VerifyResult.builder().success(true)
-                    .username(verify.getSubject()).build();
+                    .email(verify.getSubject()).build();
         }catch(Exception ex){
             DecodedJWT decode = JWT.decode(token);
             return VerifyResult.builder().success(false)
-                    .username(decode.getSubject()).build();
+                    .email(decode.getSubject()).build();
         }
     }
 }

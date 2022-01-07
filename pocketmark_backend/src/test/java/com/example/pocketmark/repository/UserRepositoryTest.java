@@ -74,4 +74,12 @@ class UserRepositoryTest {
         boolean nickNameExist = userRepository.existsByNickName("user1");
         then(nickNameExist).isTrue();
     }
+
+    @DisplayName("이메일과 비밀번호 일치 여부 확인")
+    @Test
+    public void findByEmailAndPw(){
+        Optional<User> user = userRepository.findByEmailAndPw("test3@gmail.com","password3");
+        then(user.isPresent()).isTrue();
+        then(user.get().getNickName()).isEqualTo("user3");
+    }
 }

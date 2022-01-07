@@ -19,7 +19,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 
-import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,7 +32,6 @@ class UserApiControllerTest {
 
     private final MockMvc mvc;
     private final ObjectMapper mapper;
-    MockHttpSession session;
 
     @MockBean
     private LoginService loginService;
@@ -47,6 +46,8 @@ class UserApiControllerTest {
         this.mvc = mvc;
         this.mapper = mapper;
     }
+
+    String email = "test@gmail.com";
 
     @DisplayName("[API][POST] 일반 유저 가입 - 정상 입력하면 회원정보를 추가")
     @Test
@@ -81,7 +82,7 @@ class UserApiControllerTest {
     @Test
     public void givenUserIdBySession_whenSelectUser_thenReturnMyPageDto() throws Exception {
         //Given
-        given(userService.selectUser(any()))
+        given(userService.selectUserByToken(any()))
                 .willReturn(User.builder()
                         .email("test@gmail.com")
                         .pw("12341234")
@@ -115,8 +116,6 @@ class UserApiControllerTest {
                 .nowPw("1234567800").newPw("4321432100").confPw("4321432100")
                 .build();
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
 
 
 
@@ -124,7 +123,6 @@ class UserApiControllerTest {
         //Then
         mvc.perform(
                         put("/api/v1/changePassword")
-                                .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
                 )
@@ -145,8 +143,6 @@ class UserApiControllerTest {
                 ModifyNickNameDto.ChangeNickNameRequest.builder()
                         .newNickName("JyuKa1")
                         .build();
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
 
 
 
@@ -154,7 +150,6 @@ class UserApiControllerTest {
         //Then
         mvc.perform(
                         put("/api/v1/changeNickName")
-                                .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
                 )
@@ -173,16 +168,12 @@ class UserApiControllerTest {
         LeaveUser.LeaveUserRequest request = LeaveUser.LeaveUserRequest.builder()
                 .leave(true)
                 .build();
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
-
 
 
         //When
         //Then
         mvc.perform(
                         put("/api/v1/userLeave")
-                                .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
                 )
