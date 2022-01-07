@@ -1,7 +1,9 @@
 package com.example.pocketmark.domain;
 
+import com.example.pocketmark.repository.AuthorityRepository;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +29,19 @@ class UserTest {
     UserRepository userRepository;
 
     @Autowired
+    AuthorityRepository authorityRepository;
+
+    @Autowired
     Encryptor encryptor;
 
     @PersistenceContext
     EntityManager em;
 
+    @AfterEach
+    void deleteAll(){
+        userRepository.deleteAll();
+        authorityRepository.deleteAll();
+    }
 
     @DisplayName("createUser 테스트")
     @Test
@@ -120,9 +130,6 @@ class UserTest {
         User user = createUser();
         user.setAuthorities(Set.of(Authority.USER_AUTHORITY));
         userRepository.save(user);
-
-        em.flush();
-        em.clear();
 
         User savedUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(EntityNotFoundException::new);

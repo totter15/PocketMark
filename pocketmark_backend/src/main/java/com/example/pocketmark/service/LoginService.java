@@ -25,7 +25,6 @@ import javax.servlet.http.HttpSession;
 public class LoginService {
 
     private final UserService userService;
-    private final UserRepository userRepository;
     private final Encryptor encryptor;
 
     @Transactional
