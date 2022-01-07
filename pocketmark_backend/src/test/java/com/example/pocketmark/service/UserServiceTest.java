@@ -1,6 +1,7 @@
 package com.example.pocketmark.service;
 
 import com.example.pocketmark.constant.ErrorCode;
+import com.example.pocketmark.domain.Authority;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.LeaveUser;
 import com.example.pocketmark.dto.ModifyNickNameDto;
@@ -9,6 +10,7 @@ import com.example.pocketmark.dto.SignUpUserDto;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import org.springframework.mock.web.MockHttpSession;
 import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -400,6 +403,220 @@ class UserServiceTest {
         verify(userRepository).findById(any());
     }
 
+    @DisplayName("[Success] Security Filter : loadUserByUsername")
+    @Test
+    public void givenEmail_whenLoadUser_returnUser(){
+        //Given
+        Optional<User> user = createOptionalUser();
+
+        given(userRepository.findByEmail(any()))
+                .willReturn(user);
+
+        //When
+        User savedUser = (User) userService.loadUserByUsername(user.get().getEmail());
+
+        //Then
+        then(savedUser.getNickName()).isEqualTo(user.get().getNickName());
+        verify(userRepository).findByEmail(any());
+    }
+
+
+    @DisplayName("[Fail] Security Filter : loadUserByUsername")
+    @Test
+    public void givenEmail_whenLoadUser_returnException(){
+        //Given
+        given(userRepository.findByEmail(any()))
+                .willThrow(new GeneralException(ErrorCode.ENTITY_NOT_EXIST));
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.loadUserByUsername(any()));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+    }
+
+    @DisplayName("User 권한 추가 - 아무런 권한이 없는 경우")
+    @Test
+    public void givenAnyAuthority_whenAddFirstAuthority_thenAddSuccess(){
+        //Given
+        Optional<User> savedUser = createOptionalUser();
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+        Authority authority = new Authority("ROLE_TEST");
+
+        //When
+        userService.addAuthority(savedUser.get().getEmail(), "ROLE_TEST");
+
+        //Then
+        then(savedUser.get().getAuthorities().size()).isEqualTo(1);
+        then(savedUser.get().getAuthorities().contains(authority)).isTrue();
+        verify(userRepository).findByEmail(any());
+
+    }
+
+    @DisplayName("User 권한 추가 - 기존권한이 있는 경우")
+    @Test
+    public void givenAnyAuthority_whenAddAuthority_thenAddSuccess(){
+        //Given
+        Optional<User> savedUser = createOptionalUser();
+        Authority authority = new Authority("ROLE_USER");
+        savedUser.get().setAuthorities(Set.of(authority));
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        userService.addAuthority(savedUser.get().getEmail(), "ROLE_TEST");
+
+        //Then
+        then(savedUser.get().getAuthorities().size()).isEqualTo(2);
+        then(savedUser.get().getAuthorities().contains(authority)).isTrue();
+        then(savedUser.get().getAuthorities().contains(new Authority("ROLE_TEST"))).isTrue();
+        verify(userRepository).findByEmail(any());
+
+    }
+
+    @DisplayName("User 권한 추가 - 이미 존재하는 권한을 추가 하는 경우")
+    @Test
+    public void givenExistAuthority_whenAddAuthority_thenRoleExistException(){
+        //Given
+        Optional<User> savedUser = createOptionalUser();
+        Authority authority = new Authority("ROLE_USER");
+        savedUser.get().setAuthorities(Set.of(authority));
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        Throwable thrown = catchThrowable(()->
+                userService.addAuthority(savedUser.get().getEmail(), "ROLE_USER"));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ROLE_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+    }
+
+
+    @DisplayName("User 권한 추가 - email 이 존재하지 않을 경우")
+    @Test
+    public void givenNotExistEmail_whenAddAuthority_thenEntityNotExistException(){
+        //Given
+        Optional<User> savedUser = Optional.empty();
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        Throwable thrown = catchThrowable(()->
+                userService.addAuthority("test@gmail.com", "ROLE_USER"));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+    }
+
+    @DisplayName("User 권한 삭제 - email 이 존재하지 않을 경우")
+    @Test
+    public void givenNotExistEmail_whenRemoveAuthority_thenEntityNotExistException(){
+        //Given
+        Optional<User> savedUser = Optional.empty();
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        Throwable thrown = catchThrowable(()->
+                userService.removeAuthority("test@gmail.com", "ROLE_USER"));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+    }
+
+    @DisplayName("User 권한 삭제 - 존재하는 권한을 삭제 하는 경우")
+    @Test
+    public void givenExistAuthority_whenRemoveAuthority_thenSuccessRemove(){
+        //Given
+        Optional<User> savedUser = createOptionalUser();
+        Authority userAuthority = new Authority("ROLE_USER");
+        Authority testAuthority = new Authority("ROLE_TEST");
+        savedUser.get().setAuthorities(Set.of(userAuthority,testAuthority));
+
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        userService.removeAuthority(savedUser.get().getEmail(),"ROLE_TEST");
+
+        //Then
+        then(savedUser.get().getAuthorities().size()).isEqualTo(1);
+        then(savedUser.get().getAuthorities().contains(userAuthority)).isTrue();
+        then(savedUser.get().getAuthorities().contains(testAuthority)).isFalse();
+        verify(userRepository).findByEmail(any());
+    }
+
+    @DisplayName("User 권한 삭제 - 존재하지 않는 권한을 삭제 하는 경우")
+    @Test
+    public void givenNotExistAuthority_whenRemoveAuthority_thenRoleNotExistException(){
+        //Given
+        Optional<User> savedUser = createOptionalUser();
+        Authority userAuthority = new Authority("ROLE_USER");
+        savedUser.get().setAuthorities(Set.of(userAuthority));
+
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        Throwable thrown = catchThrowable(()->
+                userService.removeAuthority(savedUser.get().getEmail(), "ROLE_TEST"));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ROLE_NOT_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+
+    }
+
+    @DisplayName("User 권한 삭제 - 아무런 권한이 없는 유저를 대상으로 권한 삭제를 시도")
+    @Test
+    public void givenNotExistAuthorityAndUserAuthorityEmpty_whenRemoveAuthority_thenRoleNotExistException(){
+        //Given
+        Optional<User> savedUser = createOptionalUser();
+
+        given(userRepository.findByEmail(any()))
+                .willReturn(savedUser);
+
+        //When
+        Throwable thrown = catchThrowable(()->
+                userService.removeAuthority(savedUser.get().getEmail(), "ROLE_TEST"));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.ROLE_NOT_EXIST.getMessage());
+        verify(userRepository).findByEmail(any());
+
+    }
+
+
+
+
+
+    public Optional<User> createOptionalUser(){
+        return Optional.of(
+                User.builder()
+                        .email("test@gmail.com")
+                        .nickName("JyuKa")
+                        .pw("1234")
+                        .build()
+        );
+    }
 
     public User createUser(SignUpUserDto.signUpRequest request){
 
