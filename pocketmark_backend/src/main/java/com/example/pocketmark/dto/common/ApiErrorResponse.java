@@ -1,6 +1,8 @@
 package com.example.pocketmark.dto.common;
 
 import com.example.pocketmark.constant.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 @Getter

@@ -1,10 +1,12 @@
 package com.example.pocketmark.config;
 
 
+import com.example.pocketmark.security.filter.JwtCheckExceptionHandler;
 import com.example.pocketmark.security.filter.JwtCheckFilter;
 import com.example.pocketmark.security.filter.JwtLoginFilter;
 import com.example.pocketmark.service.UserService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,12 +26,13 @@ import lombok.RequiredArgsConstructor;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         JwtLoginFilter loginFilter = new JwtLoginFilter(authenticationManager(), userService);
         JwtCheckFilter checkFilter = new JwtCheckFilter(authenticationManager(), userService);
-
+        JwtCheckExceptionHandler checkExceptionHandler = new JwtCheckExceptionHandler(authenticationManager(),objectMapper);
         http
                 .cors()
                 .and()
@@ -46,6 +49,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .addFilterAt(loginFilter,UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(checkFilter, BasicAuthenticationFilter.class)
         ;
+
+        http
+                .addFilterBefore(checkExceptionHandler,JwtCheckFilter.class);
 
     }
 

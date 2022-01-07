@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    public final static String LOGIN_SESSION_KEY = "USER_ID";
     private final Encryptor encryptor;
     private final UserRepository userRepository;
 
@@ -37,7 +36,7 @@ public class UserService implements UserDetailsService {
                 signUpDto.getNickName()
         ));
 
-        user.setAuthorities(Set.of(Authority.USER_AUTHORITY));
+        user.setAuthorities(Set.of(new Authority(Authority.ROLE_USER)));
         return user;
     }
 
