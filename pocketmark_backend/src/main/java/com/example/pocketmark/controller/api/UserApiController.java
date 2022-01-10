@@ -4,6 +4,7 @@ import com.example.pocketmark.dto.*;
 import com.example.pocketmark.dto.LoginDto.LoginReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
 import com.example.pocketmark.dto.common.ApiDataResponse.GeneralResponse;
+import com.example.pocketmark.dto.common.ApiDataResponse.JwtTempResponse;
 import com.example.pocketmark.security.authentication.UserAuthentication;
 import com.example.pocketmark.security.provider.JwtProvider;
 import com.example.pocketmark.service.LoginService;
@@ -74,21 +75,20 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    public ApiDataResponse<GeneralResponse> login(
+    public ApiDataResponse<JwtTempResponse> login(
         @RequestBody LoginReq req,
         HttpServletResponse res
     ){
-        System.out.println("삐빅");
         Long authId = loginService.login(req);
         if(authId!=null){
             //give jwt token
             UserAuthentication authentication = new UserAuthentication(String.valueOf(authId), null, null); 
             String token = JwtProvider.make(authentication,String.valueOf(authId));
-            res.setHeader(HttpHeaders.AUTHORIZATION, token);
-            return ApiDataResponse.success();
+            // res.setHeader(HttpHeaders.AUTHORIZATION, token);
+            return ApiDataResponse.of(new JwtTempResponse(true, token));
         }
 
-        return ApiDataResponse.failed();
+        return ApiDataResponse.of(new JwtTempResponse(false, null));
     }
 
     
