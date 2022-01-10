@@ -62,6 +62,7 @@ public class DataService {
     // @Transactional //같은 트랜잭션으로 못묶으면 folder 통과하고 bookmark에서 에러나면? 거참,,, 
     // 근데 같은 트랜잭션이면 영속성 공유되지않나? 왜 못찾지? (추후 개선필요) 
     // (나중에 시간나면 getOne 말고 findby로 실제 쿼리 날라가는지 확인할것)
+    @Transactional
     public boolean createData(DataCreateServiceReq req,Long userId){
         try{
             System.out.println(">>>>CD : " + userId);
