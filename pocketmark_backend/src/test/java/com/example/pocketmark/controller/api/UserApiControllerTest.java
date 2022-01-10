@@ -1,11 +1,14 @@
 package com.example.pocketmark.controller.api;
 
+import com.example.pocketmark.config.WebMvcConfig;
+import com.example.pocketmark.config.WebSecurityConfig;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.LeaveUser;
 import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
+import com.example.pocketmark.security.provider.JwtUtil;
 import com.example.pocketmark.service.LoginService;
 import com.example.pocketmark.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,12 +17,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 
-import static com.example.pocketmark.controller.api.UserApiController.LOGIN_SESSION_KEY;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -27,12 +33,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @DisplayName("API 컨트롤러 - User")
-@WebMvcTest(UserApiController.class)
+@WebMvcTest(
+        controllers = UserApiController.class,
+        excludeAutoConfiguration = {WebSecurityConfig.class, WebMvcConfig.class},
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {WebSecurityConfig.class,WebMvcConfig.class})
+)
+
+//@WebMvcTest(UserApiController.class)
 class UserApiControllerTest {
 
     private final MockMvc mvc;
     private final ObjectMapper mapper;
-    MockHttpSession session;
 
     @MockBean
     private LoginService loginService;
@@ -47,6 +58,13 @@ class UserApiControllerTest {
         this.mvc = mvc;
         this.mapper = mapper;
     }
+
+    String email = "test@gmail.com";
+
+    public String getToken(User user){
+        return JwtUtil.makeRefreshToken(user);
+    }
+
 
     @DisplayName("[API][POST] 일반 유저 가입 - 정상 입력하면 회원정보를 추가")
     @Test
@@ -65,15 +83,13 @@ class UserApiControllerTest {
                 post("/api/v1/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
+//                        .header(HttpHeaders.AUTHORIZATION,)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()))
-                .andExpect(jsonPath("$.data.duplicated").value(false))
-                .andExpect(jsonPath("$.data.jwt").value("Access Token"))
-
         ;
     }
 
@@ -81,7 +97,7 @@ class UserApiControllerTest {
     @Test
     public void givenUserIdBySession_whenSelectUser_thenReturnMyPageDto() throws Exception {
         //Given
-        given(userService.selectUser(any()))
+        given(userService.selectUserByToken(any()))
                 .willReturn(User.builder()
                         .email("test@gmail.com")
                         .pw("12341234")
@@ -115,8 +131,6 @@ class UserApiControllerTest {
                 .nowPw("1234567800").newPw("4321432100").confPw("4321432100")
                 .build();
 
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
 
 
 
@@ -124,7 +138,6 @@ class UserApiControllerTest {
         //Then
         mvc.perform(
                         put("/api/v1/changePassword")
-                                .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
                 )
@@ -145,8 +158,6 @@ class UserApiControllerTest {
                 ModifyNickNameDto.ChangeNickNameRequest.builder()
                         .newNickName("JyuKa1")
                         .build();
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
 
 
 
@@ -154,7 +165,6 @@ class UserApiControllerTest {
         //Then
         mvc.perform(
                         put("/api/v1/changeNickName")
-                                .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
                 )
@@ -173,16 +183,12 @@ class UserApiControllerTest {
         LeaveUser.LeaveUserRequest request = LeaveUser.LeaveUserRequest.builder()
                 .leave(true)
                 .build();
-        session = new MockHttpSession();
-        session.setAttribute(LOGIN_SESSION_KEY,1L);
-
 
 
         //When
         //Then
         mvc.perform(
                         put("/api/v1/userLeave")
-                                .session(session)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))
                 )

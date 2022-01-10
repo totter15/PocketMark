@@ -1,7 +1,9 @@
 package com.example.pocketmark.domain;
 
+import com.example.pocketmark.repository.AuthorityRepository;
 import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.util.Encryptor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,16 +29,19 @@ class UserTest {
     UserRepository userRepository;
 
     @Autowired
+    AuthorityRepository authorityRepository;
+
+    @Autowired
     Encryptor encryptor;
 
     @PersistenceContext
     EntityManager em;
 
-    // @AfterEach
-    // public void deleteData(){
-    //     userRepository.deleteAll();
-    // }
-
+    @AfterEach
+    void deleteAll(){
+        userRepository.deleteAll();
+        authorityRepository.deleteAll();
+    }
 
     @DisplayName("createUser 테스트")
     @Test
@@ -114,6 +120,21 @@ class UserTest {
         //Then
         then(user.isDeleted()).isEqualTo(modifyDeleted);
 
+    }
+
+
+    @DisplayName("Authority 추가")
+    @Test
+    public void addAuthority(){
+
+        User user = createUser();
+        user.setAuthorities(Set.of(Authority.USER_AUTHORITY));
+        userRepository.save(user);
+
+        User savedUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(EntityNotFoundException::new);
+
+        then(savedUser.getAuthorities().size()).isEqualTo(1);
     }
 
 

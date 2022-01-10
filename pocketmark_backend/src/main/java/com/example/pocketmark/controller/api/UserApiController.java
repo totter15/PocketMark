@@ -3,55 +3,50 @@ package com.example.pocketmark.controller.api;
 import com.example.pocketmark.dto.*;
 import com.example.pocketmark.dto.LoginDto.LoginReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
-import com.example.pocketmark.dto.common.ApiDataResponse.GeneralResponse;
-import com.example.pocketmark.dto.common.ApiDataResponse.JwtTempResponse;
-import com.example.pocketmark.security.authentication.UserAuthentication;
-import com.example.pocketmark.security.provider.JwtProvider;
+
+
 import com.example.pocketmark.service.LoginService;
 import com.example.pocketmark.service.UserService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
 public class UserApiController {
-    public final static String LOGIN_SESSION_KEY = "USER_ID";
+
     private final LoginService loginService;
     private final UserService userService;
 
     @PostMapping("/sign-up")
     public ApiDataResponse<SignUpUserDto.signUpResponse> signUp(
-            @Valid @RequestBody SignUpUserDto.signUpRequest request,
-            HttpSession httpSession
+            @Valid @RequestBody SignUpUserDto.signUpRequest request
     ){
 
-        loginService.signUp(SignUpUserDto.SignUpDto.fromSignUpRequest(request),httpSession);
-        return ApiDataResponse.of(new SignUpUserDto.signUpResponse(false,"Access Token"));
+        loginService.signUp(SignUpUserDto.SignUpDto.fromSignUpRequest(request));
+        return ApiDataResponse.empty();
 
     }
 
     @GetMapping("/myPage")
-    public ApiDataResponse<MyPageDto> myPage(HttpSession session){
-        return ApiDataResponse.of(MyPageDto.fromUser(userService.selectUser(session)));
+    public ApiDataResponse<MyPageDto> myPage(@AuthenticationPrincipal String email){
+        return ApiDataResponse.of(MyPageDto.fromUser(userService.selectUserByToken(email)));
 
     }
 
     @PutMapping("/changePassword")
     public ApiDataResponse<ModifyPwDto.ChangePwResponse> changePassword(
             @Valid @RequestBody ModifyPwDto.ChangePwRequest request,
-            HttpSession httpSession
+            @AuthenticationPrincipal String email
     ){
 
-        userService.modifyPassword(ModifyPwDto.ChangePwDto.fromChangePwRequest(request),httpSession);
+        userService.modifyPassword(ModifyPwDto.ChangePwDto.fromChangePwRequest(request),email);
         return ApiDataResponse.empty();
     }
 
@@ -59,40 +54,36 @@ public class UserApiController {
     @PutMapping("/changeNickName")
     public ApiDataResponse<ModifyNickNameDto.ChangeNickNameResponse> changeNickName(
             @Valid @RequestBody ModifyNickNameDto.ChangeNickNameRequest request,
-            HttpSession httpSession
+            @AuthenticationPrincipal String email
     ){
-        userService.modifyNickName(ModifyNickNameDto.ChangeNickNameDto.fromChangeNickNameRequest(request),httpSession);
+        userService.modifyNickName(ModifyNickNameDto.ChangeNickNameDto.fromChangeNickNameRequest(request),email);
         return ApiDataResponse.empty();
     }
 
     @PutMapping("/userLeave")
     public ApiDataResponse<LeaveUser.LeaveUserResponse> leaveUser(
             @Valid @RequestBody LeaveUser.LeaveUserRequest request,
-            HttpSession httpSession
+            @AuthenticationPrincipal String email
     ){
-        userService.deleteUser(LeaveUser.LeaveUserDto.fromLeaveUserRequest(request),httpSession);
+        userService.deleteUser(LeaveUser.LeaveUserDto.fromLeaveUserRequest(request),email);
         return ApiDataResponse.empty();
     }
 
     @PostMapping("/login")
-    public ApiDataResponse<JwtTempResponse> login(
+
+    public ApiDataResponse<LoginDto.LoginRes> login(
         @RequestBody LoginReq req,
         HttpServletResponse res
     ){
-        Long authId = loginService.login(req);
-        if(authId!=null){
-            //give jwt token
-            UserAuthentication authentication = new UserAuthentication(String.valueOf(authId), null, null); 
-            String token = JwtProvider.make(authentication,String.valueOf(authId));
-            // res.setHeader(HttpHeaders.AUTHORIZATION, token);
-            return ApiDataResponse.of(new JwtTempResponse(true, token));
-        }
 
-        return ApiDataResponse.of(new JwtTempResponse(false, null));
+        return ApiDataResponse.of(LoginDto.LoginRes.builder()
+                .tokenBox(loginService.login(req))
+                .build());
+
     }
 
     
-    
+   
 
 
 }

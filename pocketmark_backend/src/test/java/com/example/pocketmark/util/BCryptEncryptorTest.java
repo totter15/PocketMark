@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Encryptor 검증 테스트")
 class BCryptEncryptorTest {
@@ -13,7 +12,7 @@ class BCryptEncryptorTest {
     public void givenAnyString_whenEncrypt_thenIsMatchTrue(){
         //Given
         String origin = "test";
-        Encryptor encryptor = new BCryptEncryptor();
+        Encryptor encryptor = new Encryptor();
 
         //When
         String hashPw = encryptor.encrypt(origin);
@@ -27,7 +26,7 @@ class BCryptEncryptorTest {
     public void givenAnyString_whenEncrypt_thenIsMatchFalse(){
         //Given
         String origin = "test";
-        Encryptor encryptor = new BCryptEncryptor();
+        Encryptor encryptor = new Encryptor();
 
         //When
         String hashPw = encryptor.encrypt(origin);

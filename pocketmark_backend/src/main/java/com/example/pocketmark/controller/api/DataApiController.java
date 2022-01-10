@@ -10,6 +10,7 @@ import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
 import com.example.pocketmark.service.DataService;
 
+import com.example.pocketmark.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -34,12 +35,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class DataApiController {
 
-    public static Long getUserId(){
-        return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+    private final DataService dataService;
+    private final UserService userService;
+
+    private Long getUserId(){
+        String userEmail = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal()
+                .toString();
+
+        return userService.selectUserByToken(userEmail).getId();
     }
 
-    @Autowired
-    DataService dataService;
+
+
+
     
     @GetMapping(value="/data") // /data?depth=1
     public ApiDataResponse<DataRes> getData(

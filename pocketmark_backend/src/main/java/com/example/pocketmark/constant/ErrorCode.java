@@ -26,12 +26,18 @@ public enum ErrorCode {
     UNAUTHORIZED(1008,HttpStatus.UNAUTHORIZED,"Unauthorized. Retry Login."),
     PASSWORD_NOT_MATCH(1009,HttpStatus.BAD_REQUEST,"Please check the current password."),
     DIFFERENT_NEW_PW(1010,HttpStatus.BAD_REQUEST,"New password and confirm password are different"),
+    ROLE_EXIST(1011,HttpStatus.BAD_REQUEST,"Role is Exist"),
+    ROLE_NOT_EXIST(1012,HttpStatus.BAD_REQUEST,"Role is not Exist"),
+    EMAIL_OR_PASSWORD_NOT_MATCH(1013,HttpStatus.BAD_REQUEST,"Email or Password not match"),
+    ACCESS_DENIED(1014,HttpStatus.FORBIDDEN,"Access Denied"),
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     SPRING_INTERNAL_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Spring-detected internal error"),
     DATA_ACCESS_ERROR(20002, HttpStatus.INTERNAL_SERVER_ERROR, "Data access error"),
 
     INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again."),
+
+
     JWT_UNVALID(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired")
     ;
 
