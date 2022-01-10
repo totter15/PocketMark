@@ -39,12 +39,11 @@ public class DataApiController {
     private final UserService userService;
 
     private Long getUserId(){
-        String userEmail = SecurityContextHolder.getContext()
+        Long userId = (Long) SecurityContextHolder.getContext()
                 .getAuthentication()
-                .getPrincipal()
-                .toString();
+                .getPrincipal();
 
-        return userService.selectUserByToken(userEmail).getId();
+        return userService.selectUserByToken(userId).getId();
     }
 
 

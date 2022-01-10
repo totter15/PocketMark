@@ -38,7 +38,11 @@ public enum ErrorCode {
     INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again."),
 
 
-    JWT_UNVALID(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired")
+    JWT_UNVALID(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired"),
+    USER_INACTIVE(50001, HttpStatus.UNAUTHORIZED, "User inactive error"),
+    USER_BAD_CREDENTIALS(50002,HttpStatus.UNAUTHORIZED,"User bad credentials"),
+    ACCESS_TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Access token not valid"),
+    REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid")
     ;
 
     private final Integer code;

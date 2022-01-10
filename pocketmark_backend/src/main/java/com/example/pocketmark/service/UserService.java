@@ -7,6 +7,7 @@ import com.example.pocketmark.dto.*;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 
+import com.example.pocketmark.security.provider.UserPrincipal;
 import com.example.pocketmark.util.Encryptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,7 +42,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, String email) {
+    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, Long email) {
         User user = selectUserByToken(email);
 
         if(!user.isMatch(encryptor, changePwDto.getNowPw())){
@@ -68,8 +69,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User selectUserByToken(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
+    public User selectUserByToken(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
 
         if(user.isEmpty()){
             throw new GeneralException(ErrorCode.ENTITY_NOT_EXIST);
@@ -79,7 +80,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, String email) {
+    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, Long email) {
         User user = selectUserByToken(email);
 
         if(userRepository.existsByNickName(changeNickNameDto.getNewNickName())){
@@ -90,16 +91,18 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, String email) {
+    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, Long email) {
         User user = selectUserByToken(email);
         user.deleteUser(leaveUserDto.isLeave());
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByEmail(email).orElseThrow(
                 ()->new GeneralException(ErrorCode.ENTITY_NOT_EXIST)
         );
+
+        return new UserPrincipal(user);
     }
 
 

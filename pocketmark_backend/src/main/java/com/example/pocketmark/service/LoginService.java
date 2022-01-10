@@ -32,21 +32,4 @@ public class LoginService {
         return userService.create(signUpDto);
     }
 
-
-
-    @Transactional
-    public TokenBox login(LoginReq req){
-        User user = userService.selectUserByLoginReq(req);
-
-        if(encryptor.isMatch(req.getPw(),user.getPassword())){
-            return TokenBox.builder()
-                    .authToken(JwtUtil.makeAuthToken(user))
-                    .refreshToken(JwtUtil.makeRefreshToken(user))
-                    .build();
-        }
-
-        throw new GeneralException(ErrorCode.EMAIL_OR_PASSWORD_NOT_MATCH);
-    }
-
-    
 }

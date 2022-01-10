@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.security.Principal;
 
 
 @RestController
@@ -35,15 +36,16 @@ public class UserApiController {
     }
 
     @GetMapping("/myPage")
-    public ApiDataResponse<MyPageDto> myPage(@AuthenticationPrincipal String email){
-        return ApiDataResponse.of(MyPageDto.fromUser(userService.selectUserByToken(email)));
+    public ApiDataResponse<MyPageDto> myPage(Principal principal){
+        System.out.println(principal.getName());
+        return ApiDataResponse.of(MyPageDto.fromUser(userService.selectUserByToken(1L)));
 
     }
 
     @PutMapping("/changePassword")
     public ApiDataResponse<ModifyPwDto.ChangePwResponse> changePassword(
             @Valid @RequestBody ModifyPwDto.ChangePwRequest request,
-            @AuthenticationPrincipal String email
+            @AuthenticationPrincipal Long email
     ){
 
         userService.modifyPassword(ModifyPwDto.ChangePwDto.fromChangePwRequest(request),email);
@@ -54,7 +56,7 @@ public class UserApiController {
     @PutMapping("/changeNickName")
     public ApiDataResponse<ModifyNickNameDto.ChangeNickNameResponse> changeNickName(
             @Valid @RequestBody ModifyNickNameDto.ChangeNickNameRequest request,
-            @AuthenticationPrincipal String email
+            @AuthenticationPrincipal Long email
     ){
         userService.modifyNickName(ModifyNickNameDto.ChangeNickNameDto.fromChangeNickNameRequest(request),email);
         return ApiDataResponse.empty();
@@ -63,27 +65,11 @@ public class UserApiController {
     @PutMapping("/userLeave")
     public ApiDataResponse<LeaveUser.LeaveUserResponse> leaveUser(
             @Valid @RequestBody LeaveUser.LeaveUserRequest request,
-            @AuthenticationPrincipal String email
+            @AuthenticationPrincipal Long email
     ){
         userService.deleteUser(LeaveUser.LeaveUserDto.fromLeaveUserRequest(request),email);
         return ApiDataResponse.empty();
     }
-
-    @PostMapping("/login")
-
-    public ApiDataResponse<LoginDto.LoginRes> login(
-        @RequestBody LoginReq req,
-        HttpServletResponse res
-    ){
-
-        return ApiDataResponse.of(LoginDto.LoginRes.builder()
-                .tokenBox(loginService.login(req))
-                .build());
-
-    }
-
-    
-   
 
 
 }

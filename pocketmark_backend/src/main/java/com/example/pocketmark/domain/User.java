@@ -16,7 +16,7 @@ import java.util.Set;
 @Getter
 @Builder
 @Where(clause = "deleted = false")
-public class User extends BaseTimeEntity implements UserDetails {
+public class User extends BaseTimeEntity{
 
     
     @Column(unique = true)
@@ -32,13 +32,14 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Setter
     private Set<Authority> authorities;
 
-    private boolean enabled;
+    private boolean active;
 
 
     public User(String email, String pw, String nickName){
         this.email = email;
         this.pw = pw;
         this.nickName = nickName;
+        this.active = true;
         this.setDeleted(false);
     }
 
@@ -57,33 +58,6 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void deleteUser(boolean deleted){
         this.setDeleted(deleted);
-    }
-
-
-
-    @Override
-    public String getPassword() {
-        return pw;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return enabled;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return enabled;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return enabled;
     }
 
 
