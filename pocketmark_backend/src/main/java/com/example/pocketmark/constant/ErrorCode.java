@@ -38,11 +38,12 @@ public enum ErrorCode {
     INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again."),
 
 
-    JWT_UNVALID(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired"),
+    IS_NOT_JWT(50000, HttpStatus.UNAUTHORIZED, "Is not Jwt"),
     USER_INACTIVE(50001, HttpStatus.UNAUTHORIZED, "User inactive error"),
     USER_BAD_CREDENTIALS(50002,HttpStatus.UNAUTHORIZED,"User bad credentials"),
-    ACCESS_TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Access token not valid"),
-    REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid")
+    TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Token not valid"),
+    REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid"),
+    NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt")
     ;
 
     private final Integer code;

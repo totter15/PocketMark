@@ -52,7 +52,7 @@ public class AuthenticationService {
         }catch (DisabledException e){
             throw new GeneralException(ErrorCode.USER_INACTIVE);
         }catch (BadCredentialsException e){
-            throw new GeneralException(ErrorCode.USER_BAD_CREDENTIALS);
+            throw new GeneralException(ErrorCode.EMAIL_OR_PASSWORD_NOT_MATCH);
         }catch (Exception e){
             throw new GeneralException(ErrorCode.UNAUTHORIZED);
         }

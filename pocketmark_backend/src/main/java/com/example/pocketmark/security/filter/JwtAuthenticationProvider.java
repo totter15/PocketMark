@@ -5,20 +5,15 @@ import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.security.provider.JwtAuthenticationToken;
 import com.example.pocketmark.security.provider.JwtUtil;
 import com.example.pocketmark.security.provider.UserPrincipal;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import io.jsonwebtoken.*;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
@@ -36,20 +31,30 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         JwtAuthenticationToken jwtAuthenticationToken = null;
 
 
-        String tokenType = jwtUtil.getTokenTypeFromJWT(jwt);
+        String tokenType = null;
         boolean tokenValid = false;
+
+
         try {
+            tokenType = jwtUtil.getTokenTypeFromJWT(jwt);
             tokenValid = jwtUtil.validateToken(jwt);
-        } catch (Exception e) {
-            if(tokenType.equals(JwtUtil.TokenType.REFRESH_TOKEN.toString())) {
-                throw new GeneralException(ErrorCode.REFRESH_TOKEN_NOT_VALID);
-            } else {
-                throw new GeneralException(ErrorCode.ACCESS_TOKEN_NOT_VALID);
-            }
+        }catch (MalformedJwtException | UnsupportedJwtException e){
+            throw new GeneralException(ErrorCode.IS_NOT_JWT);
+        }catch (SignatureException e){
+            throw new GeneralException(ErrorCode.NOT_FOUND_SIGNATURE);
+        } catch (ExpiredJwtException e) {
+            throw new GeneralException(ErrorCode.TOKEN_NOT_VALID);
+        }catch (Exception e){
+            throw new GeneralException(ErrorCode.INTERNAL_ERROR);
         }
 
         String userId = jwtUtil.getUsernameFromJWT(jwt);
-        List<GrantedAuthority> authorities = jwtUtil.getAuthoritiesFromJWT(jwt);
+        List<GrantedAuthority> authorities = null;
+
+        if(tokenType.equals(JwtUtil.TokenType.ACCESS_TOKEN.toString())){
+            authorities = jwtUtil.getAuthoritiesFromJWT(jwt);
+            authorities.forEach(i-> System.out.println(i.getAuthority()));
+        }
 
         UserPrincipal principal = new UserPrincipal(userId, authorities);
 

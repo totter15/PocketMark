@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 public class JwtCheckExceptionHandler extends BasicAuthenticationFilter {
 
@@ -32,14 +33,14 @@ public class JwtCheckExceptionHandler extends BasicAuthenticationFilter {
         try{
             chain.doFilter(request,response);
         }catch (GeneralException e){
-            setErrorResponse(HttpStatus.FORBIDDEN,response,e);
+            setErrorResponse(e.getErrorCode(), response);
         }
     }
 
-    public void setErrorResponse(HttpStatus status, HttpServletResponse response, Throwable ex){
-        response.setStatus(status.value());
+    public void setErrorResponse(ErrorCode errorCode, HttpServletResponse response){
+        response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json");
-        ApiErrorResponse apiErrorResponse = ApiErrorResponse.of(false, ErrorCode.ACCESS_DENIED);
+        ApiErrorResponse apiErrorResponse = ApiErrorResponse.of(false, errorCode);
 
         try{
             String json = objectMapper.writeValueAsString(apiErrorResponse);

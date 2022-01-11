@@ -5,7 +5,6 @@ import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.LoginDto;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.security.provider.JwtUtil;
-import com.example.pocketmark.security.provider.VerifyResult;
 import com.example.pocketmark.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -57,7 +56,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
                         user, user.getAuthorities()
                 );
             }else{
-                throw new GeneralException(ErrorCode.JWT_UNVALID);
+                throw new GeneralException(ErrorCode.IS_NOT_JWT);
             }
         }
     }

@@ -1,10 +1,7 @@
 package com.example.pocketmark.config;
 
 
-import com.example.pocketmark.security.filter.JwtAuthenticationProvider;
-import com.example.pocketmark.security.filter.JwtCheckExceptionHandler;
-import com.example.pocketmark.security.filter.JwtCheckFilter;
-import com.example.pocketmark.security.filter.JwtLoginFilter;
+import com.example.pocketmark.security.filter.*;
 import com.example.pocketmark.security.provider.JwtUtil;
 import com.example.pocketmark.service.UserService;
 
@@ -56,8 +53,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/v1/sign-up","/api/v1/login").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().hasAuthority("ROLE_USER")
         ;
+
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper));
 
         http
                 .addFilterAt(loginFilter,UsernamePasswordAuthenticationFilter.class)
