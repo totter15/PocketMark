@@ -1,6 +1,9 @@
 package com.example.pocketmark.repository;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.QFolder;
@@ -41,8 +44,24 @@ public class FolderQueryRepository {
             .offset(offset)
             .limit(size)
             .fetch();
+    }
+
+    public Map<Long,Long> getFoldersIdMapByFolderId(
+        Long userId, Set<Long> folderIdSet
+    ){
+        return queryFactory
+            .select(new QFolderDto_FolderResImpl(qFolder.id, qFolder.folderId))
+            .from(qFolder)
+            .where(qFolder.userId.eq(userId).and(qFolder.folderId.in(folderIdSet)))
+            .fetch()
+            .stream().collect(Collectors.toMap(it->it.getFolderId(), it->it.getId()));
             
     }
+
+
+
+
+
 
     public boolean isExist(Long id){
         Folder fetchOne = queryFactory.selectFrom(qFolder)

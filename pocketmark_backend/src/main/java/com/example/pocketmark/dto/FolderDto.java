@@ -28,22 +28,24 @@ public class FolderDto {
         private Long id;
     }
 
+
+    
+
+
     @Getter
     @AllArgsConstructor
     @Builder
     @NoArgsConstructor
     @ToString
     public static class FolderCreateReq{
+        private Long folderId;
         private Long parent;
 
-        @NotNull(message="Depth needed") 
+        @NotNull 
         private Long depth;
-        // @NotNull(message="UserId needed") 
-        // private Long userId;
         
-        @NotNull(message = "FolderName needed") 
-        @NotBlank(message="FolderName needed")
-        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
+        @NotNull @NotBlank
+        @Size(max=50)
         private String name;
 
         // List 로 한번에 insert 할때를 대비?
@@ -52,6 +54,7 @@ public class FolderDto {
                     .parent(parent)
                     .depth(depth)
                     .name(name)
+                    .folderId(folderId)
                     // .userId(userId)
                     .build();
         }
@@ -62,11 +65,11 @@ public class FolderDto {
         public Folder toEntity(User user){
 
             return Folder.builder()
+                    .folderId(folderId)
+                    .name(name)
                     .parent(parent)
                     .depth(depth)
-                    // .userId(userId)
                     .user(user)
-                    .name(name)
                     .visitCount(0)
                     .build();
         }
@@ -79,6 +82,7 @@ public class FolderDto {
     @NoArgsConstructor
     @ToString
     public static class FolderCreateServiceReq{
+        private Long folderId;
         private Long parent;
         private Long depth;
         private String name;
@@ -87,6 +91,7 @@ public class FolderDto {
         public Folder toEntity(User user){
 
             return Folder.builder()
+                    .folderId(folderId)
                     .parent(parent)
                     .depth(depth)
                     // .userId(userId)
@@ -125,6 +130,7 @@ public class FolderDto {
     public static class FolderResImpl implements FolderRes{
         private boolean deleted;
         private Long id;
+        private Long folderId;
         private Long userId;
         private Long parent;
         private Long depth;
@@ -141,6 +147,13 @@ public class FolderDto {
             this.depth=depth;
             this.name=name;
             this.visitCount=visitCount;
+        }
+        @QueryProjection
+        public FolderResImpl(
+            Long id, Long folderId
+        ){
+            this.id=id;
+            this.folderId=folderId;
         }
     }
 

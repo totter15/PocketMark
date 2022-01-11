@@ -1,8 +1,11 @@
 package com.example.pocketmark.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -44,6 +47,7 @@ public class FolderService {
     private QFolder qFolder = QFolder.folder;
     private QBookmark qBookmark = QBookmark.bookmark;
 
+
     //c
     public FolderResImpl saveByCreateReq(FolderCreateServiceReq req, Long userId){
         User user = userRepository.getById(userId); //proxy
@@ -51,17 +55,48 @@ public class FolderService {
         return folderRepository.save(folder).toJson();
     }
 
+    // @Transactional
+    // public boolean saveAllByCreateReq(List<FolderCreateReq> req, Long userId){
+    //     if(req.size()==0) return true;
+
+    //     User user = userRepository.getById(userId); //proxy
+    //     List<Folder> folders= new ArrayList<>();
+
+    //     for(FolderCreateReq singleReq : req){
+    //         folders.add(singleReq.toEntity(user));
+    //     }
+    //     folderRepository.saveAll(folders);
+    //     return true;
+    // }
+
+
+
+
+    // it has tempParent, tempFolderId ...... 와 이거 temp 안에 temp 안에 temp 인 경우는 어케해야하냐 ㅋㅋㅋㅋ
+    // 일일이 save 하면 1만건기준 약 2초, saveall()은 약 0.3초 (트랜잭션 생성 오버헤드때문)
+    // 일일이 save 하면서 generatedId 받아오는거밖에 방법이없나????.........
+    // null 인채로 insert 하고 update 치는건? 너무 비효율적인거같고 
+    // 필드를 하나 더 추가해서 유저별 폴더id로 관리하면 리액트단에서도 db의 폴더 id와 싱크를 맞출수있음..!
+    // 하 내일하자 ......................
     @Transactional
-    public boolean saveAllByCreateReq(List<FolderCreateReq> req, Long userId){
+    public Map<Long,Long> saveAllByCreateReq(
+        List<FolderCreateReq> req,
+        Long userId
+    ){
+        if(req.size()==0) return null;
+
         User user = userRepository.getById(userId); //proxy
         List<Folder> folders= new ArrayList<>();
+
         for(FolderCreateReq singleReq : req){
             folders.add(singleReq.toEntity(user));
         }
-        folderRepository.saveAll(folders);
 
-        return true;
+        // (Key,Value) - (tempFolderId, DBFolderId) should be returned
+        return folderRepository.saveAll(folders)       
+                    .stream().collect(Collectors.toMap(it->it.getFolderId(), it->it.getId()));
     }
+
 
     //r
     public List<FolderRes> getFolders(Long userId){

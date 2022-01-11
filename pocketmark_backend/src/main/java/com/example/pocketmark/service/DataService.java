@@ -20,12 +20,12 @@ import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.DataDto.DataCreateReq;
-import com.example.pocketmark.dto.DataDto.DataCreateServiceReq;
 import com.example.pocketmark.dto.DataDto.DataDeleteReq;
 import com.example.pocketmark.dto.DataDto.DataDeleteServiceReq;
 import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.DataDto.DataUpdateServiceReq;
+import com.example.pocketmark.dto.DataDto.DataCreateReq.DataCreateServiceReq;
 import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
@@ -64,14 +64,9 @@ public class DataService {
     // (나중에 시간나면 getOne 말고 findby로 실제 쿼리 날라가는지 확인할것)
     @Transactional
     public boolean createData(DataCreateServiceReq req,Long userId){
-        try{
-            System.out.println(">>>>CD : " + userId);
-            System.out.println(">>>>CD : " + req.getBookmarks().get(0).getFolderId());
-            folderService.saveAllByCreateReq(req.getFolders(), userId);
-            bookmarkService.saveAllByCreateReq(req.getBookmarks());
-        }catch(Exception e){//rollback..
-            return false;
-        }
+        //error 나면 롤백 
+        Map<Long,Long> map = folderService.saveAllByCreateReq(req.getFolders(), userId);
+        bookmarkService.saveAllByCreateReq(req.getBookmarks(),userId);
         return true;
     }
 

@@ -90,7 +90,7 @@ public class BookmarkApiTest {
         folderService.saveByCreateReq(makeFolderReq().toServiceReq(),user.getId());
         folderService.saveByCreateReq(makeFolderReq().toServiceReq(),user.getId());
     
-        bookmarkService.saveByCreateReq(new BookmarkCreateReq("JPA 영속성", "testUrl", "유익함", 1L).toServiceReq());
+        bookmarkService.saveByCreateReq(new BookmarkCreateReq(1L,"JPA 영속성", "testUrl", "유익함").toServiceReq());
     
 
         objectMapper = Jackson2ObjectMapperBuilder.json()
@@ -209,7 +209,7 @@ public class BookmarkApiTest {
     }
 
     public BookmarkCreateReq makeBookmarkReq(){
-        return new BookmarkCreateReq("캐럴", "testUrl", "유익함", 2L);
+        return new BookmarkCreateReq(2L, "캐럴", "testUrl", "유익함");
     }
 
     

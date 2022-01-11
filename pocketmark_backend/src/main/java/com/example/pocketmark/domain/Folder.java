@@ -6,15 +6,19 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.example.pocketmark.dto.FolderDto;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateServiceReq;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Where;
@@ -38,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Where(clause = "deleted = false")
 @Slf4j
+@Table(indexes = @Index(name="i_folder_id", columnList = "folder_id"))
 public class Folder extends BaseEntity {
     private Long parent;
     private Long depth;
@@ -56,8 +61,27 @@ public class Folder extends BaseEntity {
     @Column(name="user_id", insertable = false, updatable = false)
     private Long userId;
 
-
     private Integer visitCount;
+
+    // //non-column field (DB와 동기화 되지 않은 새폴더에 하위로 생기는 폴더들을 위한 필드)
+    // @Transient
+    // private Long tempParent;
+
+    // BatchInsert 를 위한 필드
+    @Column(name="folder_id")
+    private Long folderId;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public boolean visitCountUpdate(int cnt){

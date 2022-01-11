@@ -8,10 +8,10 @@ import javax.validation.Valid;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateServiceReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq.BookmarkCreateServiceReq;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
@@ -59,7 +59,7 @@ public class BookmarkApiController {
         @Valid @RequestBody BookmarkCreateReq req 
     ){
         //create without any select
-        return bookmarkService.saveByCreateReq(req.toServiceReq());
+        return bookmarkService.saveByCreateReq(req.toServiceReq(req.getTempFolderId()));
     }
 
 
@@ -106,9 +106,9 @@ public class BookmarkApiController {
         folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
         folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
         
-        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 1L));
-        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 2L));
-        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq("JPA 영속성", "testUrl", "유익함", 2L));
+        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq(1L,"JPA 영속성", "testUrl", "유익함"));
+        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq(2L,"JPA 영속성", "testUrl", "유익함"));
+        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq(2L,"JPA 영속성", "testUrl", "유익함"));
 
         userRepository.findAll().forEach(System.out::println);
         folderRepository.findAll().forEach(System.out::println);

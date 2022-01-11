@@ -78,17 +78,20 @@ public class DataDto {
                     .bookmarks(this.bookmarks)
                     .build();
         }
+
+
+        @Getter
+        @AllArgsConstructor
+        @Builder
+        @NoArgsConstructor 
+        public static class DataCreateServiceReq{
+            List<FolderCreateReq> folders;
+            List<BookmarkCreateReq> bookmarks;
+        }
     }
 
 
-    @Getter
-    @AllArgsConstructor
-    @Builder
-    @NoArgsConstructor 
-    public static class DataCreateServiceReq{
-        List<FolderCreateReq> folders;
-        List<BookmarkCreateReq> bookmarks;
-    }
+    
 
 
     @Getter

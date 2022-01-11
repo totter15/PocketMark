@@ -2,7 +2,10 @@ package com.example.pocketmark.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -11,14 +14,16 @@ import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.QBookmark;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateServiceReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateServiceReq;
+import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq.BookmarkCreateServiceReq;
+import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.BookmarkQueryRepository;
 import com.example.pocketmark.repository.BookmarkRepository;
+import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
@@ -36,6 +41,7 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final BookmarkQueryRepository BookmarkQueryRepository;
     private final FolderRepository folderRepository;
+    private final FolderQueryRepository folderQueryRepository;
     private final EntityManager em;
 
     // //c
@@ -46,19 +52,49 @@ public class BookmarkService {
         return bookmarkRepository.save(bookmark).toJson();
     }
 
-    @Transactional
-    public boolean saveAllByCreateReq(List<BookmarkCreateReq> req){
-        Folder folder;
+    // @Transactional
+    // public boolean saveAllByCreateReq(List<BookmarkCreateReq> req){
+    //     Folder folder;
         
+    //     List<Bookmark> bookmarks= new ArrayList<>();
+    //     for(BookmarkCreateReq singleReq : req){
+    //         folder = folderRepository.getById(singleReq.getTempFolderId());
+    //         bookmarks.add(singleReq.toEntity(folder));
+    //     }
+    //     bookmarkRepository.saveAll(bookmarks);
+
+    //     return true;
+    // }
+    @Transactional
+    public boolean saveAllByCreateReq(
+        List<BookmarkCreateReq> req,
+        Long userId
+    ){
+        if(req.size() ==0) return true;
+        
+        Set<Long> folderIdSet = req.stream()
+                            .map(BookmarkCreateReq::getTempFolderId)
+                            .collect(Collectors.toSet());
+
+        // (Key,Value) - (tempFolderId, DBFolderId)
+        // 눈물의 select......
+        // folder Persist 이후 
+        Map<Long,Long> map =folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdSet);
+
+        
+        Folder folder;
         List<Bookmark> bookmarks= new ArrayList<>();
         for(BookmarkCreateReq singleReq : req){
-            folder = folderRepository.getById(singleReq.getFolderId());
-            bookmarks.add(singleReq.toEntity(folder));
+            folder = folderRepository.getById(map.get(singleReq.getTempFolderId()));
+            bookmarks.add(singleReq.toEntity(folder));            
         }
+        
         bookmarkRepository.saveAll(bookmarks);
-
         return true;
     }
+
+
+
 
     //r
     public List<BookmarkRes> getBookmark(Long folderId){
