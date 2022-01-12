@@ -6,6 +6,7 @@ import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.*;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
+import com.example.pocketmark.security.provider.UserPrincipal;
 import com.example.pocketmark.util.Encryptor;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -25,9 +26,9 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -178,7 +179,7 @@ class UserServiceTest {
     public void givenChangePwDto_whenChangePw_thenReturnChangePw(){
         //Given
         ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
-                .nowPw("1234").newPw("4321").confPw("4321")
+                .nowPw("12341234").newPw("4321").confPw("4321")
                 .build();
         Long userId = 1L;
 
@@ -194,8 +195,12 @@ class UserServiceTest {
         String hashNewPw = BCrypt.hashpw(changePwDto.getNewPw(),BCrypt.gensalt());
         given(encryptor.encrypt(changePwDto.getNewPw()))
                 .willReturn(hashNewPw);
-        given(encryptor.isMatch(any(),any()))
+
+        given(encryptor.isMatch(eq(changePwDto.getNowPw()),any()))
                 .willReturn(true);
+
+        given(encryptor.isMatch(eq(changePwDto.getNewPw()),any()))
+                .willReturn(false);
 
         //When
         userService.modifyPassword(changePwDto,userId);
@@ -204,7 +209,8 @@ class UserServiceTest {
         then(user.get().getPw().equals(changePwDto.getNowPw())).isFalse();
         verify(userRepository).findById(any());
         verify(encryptor).encrypt(changePwDto.getNewPw());
-        verify(encryptor).isMatch(any(),any());
+        verify(encryptor).isMatch(eq(changePwDto.getNowPw()),any());
+        verify(encryptor).isMatch(eq(changePwDto.getNewPw()),any());
     }
 
     @DisplayName("현재 비밀번호가 불일치 할때 PASSWORD_NOT_MATCH 응답")
@@ -257,8 +263,11 @@ class UserServiceTest {
         given(userRepository.findById(any()))
                 .willReturn(user);
 
-        given(encryptor.isMatch(any(),any()))
+        given(encryptor.isMatch(eq(changePwDto.getNowPw()),any()))
                 .willReturn(true);
+
+        given(encryptor.isMatch(eq(changePwDto.getNewPw()),any()))
+                .willReturn(false);
 
         //When
         Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,userId));
@@ -267,7 +276,42 @@ class UserServiceTest {
         then(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.DIFFERENT_NEW_PW.getMessage());
-        verify(encryptor).isMatch(any(),any());
+        verify(encryptor).isMatch(eq(changePwDto.getNowPw()),any());
+        verify(encryptor).isMatch(eq(changePwDto.getNewPw()),any());
+        verify(userRepository).findById(any());
+    }
+
+
+    @DisplayName("현재 비밀번호와 새 비밀번호가 일치할 경우")
+    @Test
+    public void givenNowPwEqualsNewPw_whenChangePw_thenReturnPassWordMatchException(){
+        //Given
+        ModifyPwDto.ChangePwDto changePwDto = ModifyPwDto.ChangePwDto.builder()
+                .nowPw("1234").newPw("1234").confPw("1234")
+                .build();
+        Long userId = 1L;
+
+
+        Optional<User> user = Optional.of(User.builder()
+                .email("test@gmail.com")
+                .pw("1234")
+                .nickName("JyuKa")
+                .build());
+        given(userRepository.findById(any()))
+                .willReturn(user);
+
+        given(encryptor.isMatch(eq(changePwDto.getNowPw()),any()))
+                .willReturn(true);
+
+
+        //When
+        Throwable thrown = catchThrowable(()->userService.modifyPassword(changePwDto,userId));
+
+        //Then
+        then(thrown)
+                .isInstanceOf(GeneralException.class)
+                .hasMessageContaining(ErrorCode.PASSWORD_MATCH.getMessage());
+        verify(encryptor,times(2)).isMatch(eq(changePwDto.getNowPw()),any());
         verify(userRepository).findById(any());
     }
 
@@ -375,15 +419,19 @@ class UserServiceTest {
     public void givenEmail_whenLoadUser_returnUser(){
         //Given
         Optional<User> user = createOptionalUser();
+        user.get().setId(1L);
+        user.get().setAuthorities(Set.of(Authority.USER_AUTHORITY));
+
 
         given(userRepository.findByEmail(any()))
                 .willReturn(user);
 
         //When
-        User savedUser = (User) userService.loadUserByUsername(user.get().getEmail());
+        UserPrincipal savedUser = (UserPrincipal) userService.loadUserByUsername(user.get().getEmail());
 
         //Then
-        then(savedUser.getNickName()).isEqualTo(user.get().getNickName());
+        then(savedUser.getUsername()).isEqualTo("1");
+        then(savedUser.getAuthorities().size()).isEqualTo(1);
         verify(userRepository).findByEmail(any());
     }
 
@@ -606,6 +654,85 @@ class UserServiceTest {
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.ENTITY_NOT_EXIST.getMessage());
         verify(userRepository).findByEmail(any());
+    }
+
+
+    @DisplayName("이메일 중복검사 - 사용가능")
+    @Test
+    public void givenNotDuplicateEmail_whenCheckAvailableEmail_thenReturnTrue(){
+        //Given
+        EmailCheck.EmailCheckDto dto = EmailCheck.EmailCheckDto.builder()
+                .email("test@gmail.com")
+                .build();
+
+        given(userRepository.existsByEmail(any()))
+                .willReturn(false);
+
+        //When
+        boolean result = userService.checkAvailableEmail(dto);
+
+        //Then
+        then(result).isTrue();
+        verify(userRepository).existsByEmail(any());
+    }
+
+    @DisplayName("이메일 중복검사 - 사용불가")
+    @Test
+    public void givenDuplicateEmail_whenCheckAvailableEmail_thenReturnFalse(){
+        //Given
+        EmailCheck.EmailCheckDto dto = EmailCheck.EmailCheckDto.builder()
+                .email("test@gmail.com")
+                .build();
+
+        given(userRepository.existsByEmail(any()))
+                .willReturn(true);
+
+        //When
+        boolean result = userService.checkAvailableEmail(dto);
+
+        //Then
+        then(result).isFalse();
+        verify(userRepository).existsByEmail(any());
+    }
+
+
+    @DisplayName("닉네임 중복검사 - 사용가능")
+    @Test
+    public void givenNotDuplicateNickName_whenCheckAvailableNickName_thenReturnTrue(){
+        //Given
+        NickNameCheck.NickNameCheckDto dto = NickNameCheck.NickNameCheckDto.builder()
+                .nickName("JyuKa")
+                .build();
+
+        given(userRepository.existsByNickName(any()))
+                .willReturn(false);
+
+        //When
+        boolean result = userService.checkAvailableNickName(dto);
+
+        //Then
+        then(result).isTrue();
+        verify(userRepository).existsByNickName(any());
+    }
+
+
+    @DisplayName("닉네임 중복검사 - 사용불가")
+    @Test
+    public void givenDuplicateNickName_whenCheckAvailableNickName_thenReturnFalse(){
+        //Given
+        NickNameCheck.NickNameCheckDto dto = NickNameCheck.NickNameCheckDto.builder()
+                .nickName("JyuKa")
+                .build();
+
+        given(userRepository.existsByNickName(any()))
+                .willReturn(true);
+
+        //When
+        boolean result = userService.checkAvailableNickName(dto);
+
+        //Then
+        then(result).isFalse();
+        verify(userRepository).existsByNickName(any());
     }
 
 
