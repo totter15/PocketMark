@@ -13,7 +13,7 @@ import static java.util.Objects.hash;
 @Entity
 @Getter
 public class Authority extends BaseTimeEntity implements GrantedAuthority {
-    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_USER = "USER";
 
     public static final Authority USER_AUTHORITY = Authority.builder().authority(ROLE_USER).build();
 

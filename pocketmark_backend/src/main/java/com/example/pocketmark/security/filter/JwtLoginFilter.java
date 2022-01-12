@@ -5,7 +5,6 @@ import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.LoginDto;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.security.provider.JwtUtil;
-import com.example.pocketmark.security.provider.VerifyResult;
 import com.example.pocketmark.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -27,10 +26,12 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private UserService userService;
+    private JwtUtil jwtUtil;
 
-    public JwtLoginFilter(AuthenticationManager authenticationManager, UserService userService) {
+    public JwtLoginFilter(AuthenticationManager authenticationManager, UserService userService, JwtUtil jwtUtil) {
         super(authenticationManager);
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/login");
     }
 
@@ -48,14 +49,14 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             // user details...
             return getAuthenticationManager().authenticate(token);
         }else{
-            VerifyResult verify = JwtUtil.verify(loginReq.getRefreshToken());
-            if(verify.isSuccess()){
-                User user = (User) userService.loadUserByUsername(verify.getEmail());
+            boolean verify = jwtUtil.validateToken(loginReq.getRefreshToken());
+            if(verify){
+                User user = (User) userService.loadUserByUsername(jwtUtil.getUsernameFromJWT(loginReq.getRefreshToken()));
                 return new UsernamePasswordAuthenticationToken(
                         user, user.getAuthorities()
                 );
             }else{
-                throw new GeneralException(ErrorCode.JWT_UNVALID);
+                throw new GeneralException(ErrorCode.IS_NOT_JWT);
             }
         }
     }
@@ -68,8 +69,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult) throws IOException, ServletException
     {
         User user = (User) authResult.getPrincipal();
-        response.setHeader("auth_token", JwtUtil.makeAuthToken(user));
-        response.setHeader("refresh_token", JwtUtil.makeRefreshToken(user));
+        response.setHeader("auth_token", jwtUtil.generateAccessToken(user));
+        response.setHeader("refresh_token", jwtUtil.generateRefreshToken(user,"sample"));
         response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(objectMapper.writeValueAsBytes(user));
     }

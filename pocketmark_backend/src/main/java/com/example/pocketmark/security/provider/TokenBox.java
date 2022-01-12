@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TokenBox {
 
-    private String authToken;
+    private String accessToken;
     private String refreshToken;
 
 }

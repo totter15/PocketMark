@@ -30,6 +30,7 @@ public enum ErrorCode {
     ROLE_NOT_EXIST(1012,HttpStatus.BAD_REQUEST,"Role is not Exist"),
     EMAIL_OR_PASSWORD_NOT_MATCH(1013,HttpStatus.BAD_REQUEST,"Email or Password not match"),
     ACCESS_DENIED(1014,HttpStatus.FORBIDDEN,"Access Denied"),
+    PASSWORD_MATCH(1015,HttpStatus.BAD_REQUEST,"Now password equals new password"),
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     SPRING_INTERNAL_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Spring-detected internal error"),
@@ -38,7 +39,12 @@ public enum ErrorCode {
     INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again."),
 
 
-    JWT_UNVALID(50000, HttpStatus.UNAUTHORIZED, "JWT Token Expired")
+    IS_NOT_JWT(50000, HttpStatus.UNAUTHORIZED, "Is not Jwt"),
+    USER_INACTIVE(50001, HttpStatus.UNAUTHORIZED, "User inactive error"),
+    USER_BAD_CREDENTIALS(50002,HttpStatus.UNAUTHORIZED,"User bad credentials"),
+    TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Token not valid"),
+    REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid"),
+    NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt")
     ;
 
     private final Integer code;

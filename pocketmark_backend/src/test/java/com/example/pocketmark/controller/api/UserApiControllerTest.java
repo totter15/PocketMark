@@ -8,7 +8,6 @@ import com.example.pocketmark.dto.LeaveUser;
 import com.example.pocketmark.dto.ModifyNickNameDto;
 import com.example.pocketmark.dto.ModifyPwDto;
 import com.example.pocketmark.dto.SignUpUserDto;
-import com.example.pocketmark.security.provider.JwtUtil;
 import com.example.pocketmark.service.LoginService;
 import com.example.pocketmark.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,9 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 
@@ -61,9 +58,6 @@ class UserApiControllerTest {
 
     String email = "test@gmail.com";
 
-    public String getToken(User user){
-        return JwtUtil.makeRefreshToken(user);
-    }
 
 
     @DisplayName("[API][POST] 일반 유저 가입 - 정상 입력하면 회원정보를 추가")
@@ -97,7 +91,7 @@ class UserApiControllerTest {
     @Test
     public void givenUserIdBySession_whenSelectUser_thenReturnMyPageDto() throws Exception {
         //Given
-        given(userService.selectUserByToken(any()))
+        given(userService.selectUserByUserId(any()))
                 .willReturn(User.builder()
                         .email("test@gmail.com")
                         .pw("12341234")
