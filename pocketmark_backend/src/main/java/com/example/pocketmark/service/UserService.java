@@ -42,16 +42,23 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, Long email) {
-        User user = selectUserByToken(email);
+    public void modifyPassword(ModifyPwDto.ChangePwDto changePwDto, Long userId) {
+        User user = selectUserByUserId(userId);
 
         if(!user.isMatch(encryptor, changePwDto.getNowPw())){
             throw new GeneralException(ErrorCode.PASSWORD_NOT_MATCH);
         }
 
+        if(user.isMatch(encryptor, changePwDto.getNewPw())){
+            throw new GeneralException(ErrorCode.PASSWORD_MATCH);
+        }
+
+
         if(!changePwDto.getConfPw().equals(changePwDto.getNewPw())){
             throw new GeneralException(ErrorCode.DIFFERENT_NEW_PW);
         }
+
+
 
         user.changePassword(encryptor.encrypt(changePwDto.getNewPw()));
     }
@@ -69,7 +76,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User selectUserByToken(Long userId) {
+    public User selectUserByUserId(Long userId) {
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isEmpty()){
@@ -80,8 +87,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, Long email) {
-        User user = selectUserByToken(email);
+    public void modifyNickName(ModifyNickNameDto.ChangeNickNameDto changeNickNameDto, Long userId) {
+        User user = selectUserByUserId(userId);
 
         if(userRepository.existsByNickName(changeNickNameDto.getNewNickName())){
             throw new GeneralException(ErrorCode.NICKNAME_EXIST);
@@ -91,10 +98,22 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, Long email) {
-        User user = selectUserByToken(email);
+    public void deleteUser(LeaveUser.LeaveUserDto leaveUserDto, Long userId) {
+        User user = selectUserByUserId(userId);
         user.deleteUser(leaveUserDto.isLeave());
     }
+
+
+    @Transactional
+    public boolean checkAvailableEmail(EmailCheck.EmailCheckDto emailCheckDto){
+        return !userRepository.existsByEmail(emailCheckDto.getEmail());
+    }
+
+    @Transactional
+    public boolean checkAvailableNickName(NickNameCheck.NickNameCheckDto nickNameCheckDto){
+        return !userRepository.existsByNickName(nickNameCheckDto.getNickName());
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

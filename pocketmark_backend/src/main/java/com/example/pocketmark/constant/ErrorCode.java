@@ -30,6 +30,7 @@ public enum ErrorCode {
     ROLE_NOT_EXIST(1012,HttpStatus.BAD_REQUEST,"Role is not Exist"),
     EMAIL_OR_PASSWORD_NOT_MATCH(1013,HttpStatus.BAD_REQUEST,"Email or Password not match"),
     ACCESS_DENIED(1014,HttpStatus.FORBIDDEN,"Access Denied"),
+    PASSWORD_MATCH(1015,HttpStatus.BAD_REQUEST,"Now password equals new password"),
 
     INTERNAL_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
     SPRING_INTERNAL_ERROR(20001, HttpStatus.INTERNAL_SERVER_ERROR, "Spring-detected internal error"),

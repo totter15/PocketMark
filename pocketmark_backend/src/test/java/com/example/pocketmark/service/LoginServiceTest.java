@@ -56,34 +56,4 @@ class LoginServiceTest {
         loginService.signUp(dto);
     }
 
-    @DisplayName("UserService loginTest")
-    @Test
-    public void givenLoginReq_whenLogin_thenReturnTokenBox(){
-        //Given
-        LoginDto.LoginReq req = LoginDto.LoginReq.builder()
-                .email("test@gmail.com")
-                .pw("12345678")
-                .build();
-
-        given(userService.selectUserByLoginReq(req))
-                .willReturn(User.builder()
-                        .email("test@gmail.com")
-                        .pw("12345678")
-                        .nickName("JyuKa")
-                        .build());
-
-        given(encryptor.isMatch(any(),any()))
-                .willReturn(true);
-
-        //When
-        TokenBox tokenBox = loginService.login(req);
-
-        //Then
-        then(tokenBox.getAuthToken()).isNotEmpty();
-        then(tokenBox.getRefreshToken()).isNotEmpty();
-        verify(userService).selectUserByLoginReq(req);
-        verify(encryptor).isMatch(any(),any());
-
-    }
-
 }
