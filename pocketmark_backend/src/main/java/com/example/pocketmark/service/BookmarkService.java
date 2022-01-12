@@ -102,14 +102,10 @@ public class BookmarkService {
     } 
 
     public Slice<BookmarkRes> getBoomarkByFolderDepth(Long userId, Long depth, Pageable pageable){
-        // List<BookmarkResImpl> res = new ArrayList<>();
-        // List<Bookmark> bookmarks = bookmarkRepository.findByFolder_Depth(depth);
-        // System.out.println(">>>" + bookmarks);
-
-        // for(Bookmark item : bookmarks){
-        //     res.add(item.toJson());
-        // }
         return bookmarkRepository.findByFolder_UserIdAndFolder_Depth(userId, depth, pageable);
+    }
+    public Slice<BookmarkRes> getBoomarkByFolderId(Long userId, Long folderId, Pageable pageable){
+        return bookmarkRepository.findByFolder_UserIdAndFolder_Depth(userId, folderId, pageable);
     }
 
 

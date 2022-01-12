@@ -24,6 +24,8 @@ public interface FolderRepository extends JpaRepository<Folder,Long>{
 
     List<FolderRes> findByUserIdAndDepth(Long userId, Long depth);
     Slice<FolderRes> findByUserIdAndDepth(Long userId, Long depth, Pageable pageable);
+    Slice<FolderRes> findByUserIdAndParent(Long userId, Long parent, Pageable pageable);
+
 
     List<FolderRes> findByUserId(Long userId);
     List<FolderRes> findByUser_Id(Long userId);

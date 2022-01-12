@@ -79,16 +79,27 @@ public class DataService {
 
 
     @Transactional(readOnly = true)
-    public DataRes getData(Long userId, Long depth, Pageable pageable){
-        if(depth != null && userId != null){
-            List<FolderRes> folders = folderService.getFoldersByDepth(userId, depth, pageable).getContent();
-            List<BookmarkRes> bookmarks = bookmarkService.getBoomarkByFolderDepth(userId, depth-1L,pageable).getContent();
-            DataRes data = DataRes.builder().depth(depth).folders(folders).bookmarks(bookmarks).build();
+    public DataRes getData(Long userId, Long folderId, Pageable pageable){
+        if(folderId != null && userId != null){
+            List<FolderRes> folders = folderService.getFoldersByParent(userId, folderId, pageable).getContent();
+            List<BookmarkRes> bookmarks = bookmarkService.getBoomarkByFolderDepth(userId, folderId, pageable).getContent();
+            DataRes data = DataRes.builder().folderId(folderId).folders(folders).bookmarks(bookmarks).build();
             return data;
         }else{
             return null;
         }
     }
+    // @Transactional(readOnly = true)
+    // public DataRes getData(Long userId, Long depth, Pageable pageable){
+    //     if(depth != null && userId != null){
+    //         List<FolderRes> folders = folderService.getFoldersByDepth(userId, depth, pageable).getContent();
+    //         List<BookmarkRes> bookmarks = bookmarkService.getBoomarkByFolderDepth(userId, depth-1L,pageable).getContent();
+    //         DataRes data = DataRes.builder().depth(depth).folders(folders).bookmarks(bookmarks).build();
+    //         return data;
+    //     }else{
+    //         return null;
+    //     }
+    // }
 
 
     @Transactional(readOnly = true)

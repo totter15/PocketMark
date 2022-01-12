@@ -21,6 +21,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark,Long>{
     List<BookmarkRes> findByFolderId(Long folderId);
 
     Slice<BookmarkRes> findByFolder_UserIdAndFolder_Depth(Long userId,Long depth, Pageable pageable);
+    Slice<BookmarkRes> findByFolder_UserIdAndFolderId(Long userId,Long folderId, Pageable pageable);
 
     List<OnlyBookmarkId> findByIdIn(Collection<Long> id);
 }

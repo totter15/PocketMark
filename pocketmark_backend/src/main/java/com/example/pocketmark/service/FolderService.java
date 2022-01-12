@@ -114,6 +114,10 @@ public class FolderService {
         return folderRepository.findByUserIdAndDepth(userId, depth, pageable);
     } 
 
+    public Slice<FolderRes> getFoldersByParent(Long userId, Long folderId, Pageable pageable){
+        return folderRepository.findByUserIdAndParent(userId, folderId, pageable);
+    }
+
 
 
     //u
