@@ -20,13 +20,17 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FolderDto {
     
-    @Getter
-    @AllArgsConstructor
-    @Builder
-    @NoArgsConstructor
-    public static class FolderOnlyId{
-        private Long id;
+
+    public static interface OnlyFolderId{
+        Long getFolderId();
     }
+    public static interface OnlyId{
+        Long getId();
+    }
+
+
+    
+
 
     @Getter
     @AllArgsConstructor
@@ -34,16 +38,14 @@ public class FolderDto {
     @NoArgsConstructor
     @ToString
     public static class FolderCreateReq{
+        private Long folderId;
         private Long parent;
 
-        @NotNull(message="Depth needed") 
+        @NotNull 
         private Long depth;
-        // @NotNull(message="UserId needed") 
-        // private Long userId;
         
-        @NotNull(message = "FolderName needed") 
-        @NotBlank(message="FolderName needed")
-        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
+        @NotNull @NotBlank
+        @Size(max=50)
         private String name;
 
         // List 로 한번에 insert 할때를 대비?
@@ -52,6 +54,7 @@ public class FolderDto {
                     .parent(parent)
                     .depth(depth)
                     .name(name)
+                    .folderId(folderId)
                     // .userId(userId)
                     .build();
         }
@@ -62,11 +65,11 @@ public class FolderDto {
         public Folder toEntity(User user){
 
             return Folder.builder()
+                    .folderId(folderId)
+                    .name(name)
                     .parent(parent)
                     .depth(depth)
-                    // .userId(userId)
                     .user(user)
-                    .name(name)
                     .visitCount(0)
                     .build();
         }
@@ -79,6 +82,7 @@ public class FolderDto {
     @NoArgsConstructor
     @ToString
     public static class FolderCreateServiceReq{
+        private Long folderId;
         private Long parent;
         private Long depth;
         private String name;
@@ -87,6 +91,7 @@ public class FolderDto {
         public Folder toEntity(User user){
 
             return Folder.builder()
+                    .folderId(folderId)
                     .parent(parent)
                     .depth(depth)
                     // .userId(userId)
@@ -107,13 +112,11 @@ public class FolderDto {
 
 
     public interface FolderRes{
-        Long getId();
+        Long getFolderId();
         Long getParent();
         Long getDepth();
         String getName();
-        Long getUserId();
         Integer getVisitCount();
-        boolean isDeleted();
     }
 
 
@@ -123,24 +126,29 @@ public class FolderDto {
     @NoArgsConstructor
     @ToString
     public static class FolderResImpl implements FolderRes{
-        private boolean deleted;
         private Long id;
-        private Long userId;
+        private Long folderId;
         private Long parent;
         private Long depth;
         private String name;
         private Integer visitCount; 
         @QueryProjection
         public FolderResImpl(
-            Long id, Long userId, Long parent, Long depth,
+            Long id,  Long parent, Long depth,
             String name, Integer visitCount
         ){
             this.id=id;
-            this.userId=userId;
             this.parent=parent;
             this.depth=depth;
             this.name=name;
             this.visitCount=visitCount;
+        }
+        @QueryProjection
+        public FolderResImpl(
+            Long id, Long folderId
+        ){
+            this.id=id;
+            this.folderId=folderId;
         }
     }
 
@@ -150,20 +158,18 @@ public class FolderDto {
     @NoArgsConstructor
     @Builder
     public static class FolderUpdateReq{
-        private Long id;
-        private Long parent;
-        @NotNull(message="Depth needed") 
+        private Long folderId;
+        @Size(max=50)
+        private String name;
+        private Long parent; 
         private Long depth;
 
-        @NotNull(message="FolderName needed") 
-        @NotBlank(message="FolderName needed")
-        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
-        private String name;
         private Integer visitCount;
 
-        public FolderUpdateServiceReq toServiceReq(){
+        public FolderUpdateServiceReq toServiceReq(Long id){
             return FolderUpdateServiceReq.builder()
-                    .id(this.id)
+                    .id(id)
+                    .folderId(this.folderId)
                     .parent(this.parent)
                     .depth(this.depth)
                     .name(this.name)
@@ -179,6 +185,7 @@ public class FolderDto {
     @Builder
     public static class FolderUpdateServiceReq{
         private Long id;
+        private Long folderId;
         private Long parent;
         private Long depth;
         private String name;

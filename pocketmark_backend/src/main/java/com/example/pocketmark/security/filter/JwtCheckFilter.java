@@ -46,11 +46,13 @@ public class JwtCheckFilter extends BasicAuthenticationFilter {
         }
         String token = bearer.substring("Bearer ".length());
 
+
         JwtAuthenticationToken jwtAuthenticationToken = new JwtAuthenticationToken(token);
         Authentication authentication = getAuthenticationManager().authenticate(jwtAuthenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         chain.doFilter(request, response);
+        return;
     }
 
 }

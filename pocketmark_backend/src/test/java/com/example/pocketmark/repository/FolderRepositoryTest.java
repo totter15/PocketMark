@@ -187,7 +187,7 @@ public class FolderRepositoryTest {
         assertEquals(result.get(0).getParent(), 0L);
         assertEquals(result.get(0).getDepth(), 1L);
         assertEquals(result.get(0).getName(),"요리블로그 모음");
-        assertEquals(result.get(0).getUserId(), user.getId());
+        // assertEquals(result.get(0).get(), user.getId());
     }
 
 
@@ -213,86 +213,86 @@ public class FolderRepositoryTest {
     }
 
 
-    @Test
-    @Transactional
-    void findAllPersistenceTest(){
-        folderRepository.save(folder);
-        folder = makeFolder(0L, 1L, "돼지두루치기", user);
-        folderRepository.save(folder);
-        folder = makeFolder(0L, 1L, "돼지두루치기2", user);
-        folderRepository.save(folder);
+    // @Test
+    // @Transactional
+    // void findAllPersistenceTest(){
+    //     folderRepository.save(folder);
+    //     folder = makeFolder(0L, 1L, "돼지두루치기", user);
+    //     folderRepository.save(folder);
+    //     folder = makeFolder(0L, 1L, "돼지두루치기2", user);
+    //     folderRepository.save(folder);
 
-        // folder = folderRepository.findAll().get(0);
+    //     // folder = folderRepository.findAll().get(0);
 
-        FolderUpdateReq req = new FolderUpdateReq(1L,2L,2L,"변경된제목",0);
-        folder.update(req.toServiceReq());
+    //     FolderUpdateReq req = new FolderUpdateReq(1L,2L,2L,"변경된제목",0);
+    //     folder.update(req.toServiceReq());
 
-        folderRepository.findAll().get(0);
+    //     folderRepository.findAll().get(0);
 
 
         
-    }
+    // }
 
 
-    @Test
-    void querydslPersistenceSelectTest(){
-        folderRepository.save(folder);
-        folder = makeFolder(0L, 1L, "돼지두루치기", user);
-        folderRepository.save(folder);
-        folder = makeFolder(0L, 1L, "돼지두루치기2", user);
-        folderRepository.save(folder);
-        FolderUpdateReq req = new FolderUpdateReq(1L,2L,2L,"persist 호출 후",0);
-        folder.update(req.toServiceReq());
-        folderRepository.save(folder); //merge
-        folder = folderRepository.findById(3L).get();
-        System.out.println(folder);
-        req = new FolderUpdateReq(1L,2L,2L,"merge 호출 후 ",0);
-        folder.update(req.toServiceReq());
+    // @Test
+    // void querydslPersistenceSelectTest(){
+    //     folderRepository.save(folder);
+    //     folder = makeFolder(0L, 1L, "돼지두루치기", user);
+    //     folderRepository.save(folder);
+    //     folder = makeFolder(0L, 1L, "돼지두루치기2", user);
+    //     folderRepository.save(folder);
+    //     FolderUpdateReq req = new FolderUpdateReq(1L,2L,2L,"persist 호출 후",0);
+    //     folder.update(req.toServiceReq());
+    //     folderRepository.save(folder); //merge
+    //     folder = folderRepository.findById(3L).get();
+    //     System.out.println(folder);
+    //     req = new FolderUpdateReq(1L,2L,2L,"merge 호출 후 ",0);
+    //     folder.update(req.toServiceReq());
         
         
 
-        QFolder qFolder = QFolder.folder;
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+    //     QFolder qFolder = QFolder.folder;
+    //     JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         
-        // folder = folderRepository.findAll().get(0);
+    //     // folder = folderRepository.findAll().get(0);
 
-        // FolderUpdateReq req = new FolderUpdateReq(1L,2L,2L,"queryDSL 전",0);
-        // folder.update(req);
+    //     // FolderUpdateReq req = new FolderUpdateReq(1L,2L,2L,"queryDSL 전",0);
+    //     // folder.update(req);
 
-        Folder findFolder = queryFactory
-                        .selectFrom(qFolder)
-                        .where(qFolder.id.eq(1L)).fetchOne();
+    //     Folder findFolder = queryFactory
+    //                     .selectFrom(qFolder)
+    //                     .where(qFolder.id.eq(1L)).fetchOne();
 
-        req = new FolderUpdateReq(1L,2L,2L,"변경된제목",0);
-        findFolder.update(req.toServiceReq());
+    //     req = new FolderUpdateReq(1L,2L,2L,"변경된제목",0);
+    //     findFolder.update(req.toServiceReq());
 
-        //JPQL 이었음 ㄷㄷㄷ flush... 
-        folderRepository.findAll().forEach(System.out::println);
-
-        
-        queryFactory.update(qFolder)
-            .set(qFolder.name, "오리두루치기")
-            .where(qFolder.id.eq(1L))
-            .execute();
-
-        folderRepository.findAll().forEach(System.out::println);
-        // System.out.println(">>>>");
-        // // em.getEntityManagerFactory().getCache().contains(cls, primaryKey);
-        // // System.out.println(  em.getReference(QFolder.class, 1L).name.toString());
-        // System.out.println( em.getMetamodel().getEntities().size());
-        // em.getMetamodel().getEntities().forEach(System.out::println);
+    //     //JPQL 이었음 ㄷㄷㄷ flush... 
+    //     folderRepository.findAll().forEach(System.out::println);
 
         
+    //     queryFactory.update(qFolder)
+    //         .set(qFolder.name, "오리두루치기")
+    //         .where(qFolder.id.eq(1L))
+    //         .execute();
 
-        // System.out.println("key set>>>>");
-        // em.getProperties().keySet().forEach(System.out::println);
-        // System.out.println("values >>>>");
-        // em.getProperties().values().forEach(System.out::println);
+    //     folderRepository.findAll().forEach(System.out::println);
+    //     // System.out.println(">>>>");
+    //     // // em.getEntityManagerFactory().getCache().contains(cls, primaryKey);
+    //     // // System.out.println(  em.getReference(QFolder.class, 1L).name.toString());
+    //     // System.out.println( em.getMetamodel().getEntities().size());
+    //     // em.getMetamodel().getEntities().forEach(System.out::println);
+
         
-        // em.getEntityManagerFactory().getCache().contains(cls, primaryKey);
+
+    //     // System.out.println("key set>>>>");
+    //     // em.getProperties().keySet().forEach(System.out::println);
+    //     // System.out.println("values >>>>");
+    //     // em.getProperties().values().forEach(System.out::println);
+        
+    //     // em.getEntityManagerFactory().getCache().contains(cls, primaryKey);
 
 
-    }
+    // }
 
     @Test
     void querydslPersistenceUpdateTest(){
@@ -342,7 +342,7 @@ public class FolderRepositoryTest {
 
         folderRepository.findByUserId(1L).forEach(System.out::println);
         folderRepository.findByUser_Id(1L).forEach(System.out::println);
-        folderRepository.findByIdInAndUserId(ids,1L).forEach(System.out::println);
+        folderRepository.findOnlyIdByFolderIdInAndUserId(ids,1L).forEach(System.out::println);
     }
 
     @Test

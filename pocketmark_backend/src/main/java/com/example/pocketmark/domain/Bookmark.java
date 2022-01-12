@@ -4,8 +4,11 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
@@ -31,20 +34,36 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Where(clause = "deleted = false")
 @Slf4j
+
 public class Bookmark extends BaseEntity {
     private String name;
     private String url;
     private String comment;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="folder_id")
+    @JoinColumn(name="folder_pk")
     @ToString.Exclude
     private Folder folder;
 
-    @Column(name="folder_id", insertable = false, updatable = false)
+    @Column(name="folder_pk", insertable = false, updatable = false)
+    private Long folderPk;
+
+    
+    private Integer visitCount;
+    
     private Long folderId;
 
-    private Integer visitCount;
+    //non-column field (DB와 동기화 되지 않은 새폴더에 하위로 생기는 북마크들을 위한 필드)
+    // @Transient
+    // private Long tempFolderId;
+
+
+
+
+
+
+
+
 
     public boolean visitCountUpdate(int cnt){
         if(cnt>this.visitCount){

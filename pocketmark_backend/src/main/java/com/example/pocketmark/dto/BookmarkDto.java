@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AccessLevel;
@@ -20,13 +21,12 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookmarkDto {
     
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class BookmarkOnlyId{
-        Long id;
+
+    public static interface OnlyBookmarkId{
+        Long getId();
     }
+
+    
 
 
     @Getter
@@ -35,21 +35,43 @@ public class BookmarkDto {
     @Builder
     @ToString
     public static class BookmarkCreateReq{
-        @NotNull(message = "BookmarkName needed") 
-        @NotBlank(message="BookmarkName couldn't be blank")
-        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
+        @NotNull
+        //this is temp folderId
+        // @JsonProperty("folderId")
+        private Long folderId;
+
+        @NotNull @NotBlank
+        @Size(max=50)
         private String name;
         
-        @NotNull(message = "Url needed") 
-        @NotBlank(message="Url couldn't be blank")
+        @NotNull @NotBlank
         private String url;
-
         
-        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
+        @Size(max=50)
         private String comment;
 
-        @NotNull(message = "FolderId needed")
-        private Long folderId;
+        @Getter
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Builder
+        @ToString
+        public static class BookmarkCreateServiceReq{
+            private Long folderId;
+            private String name;
+            private String url;
+            private String comment;
+
+            public Bookmark toEntity(Folder folder){
+
+                return Bookmark.builder()
+                        .folder(folder)
+                        .name(this.name)
+                        .url(this.url)
+                        .comment(this.comment)
+                        .visitCount(0)
+                        .build();
+            }       
+        }
 
         public BookmarkCreateServiceReq toServiceReq(){
             return BookmarkCreateServiceReq.builder()
@@ -60,35 +82,11 @@ public class BookmarkDto {
                     .build();
         }
 
-        public Bookmark toEntity(Folder folder){
-
-            return Bookmark.builder()
-                    .name(this.name)
-                    .url(this.url)
-                    .comment(this.comment)
-                    .folder(folder)
-                    // .folderId(this.folderId)
-                    .visitCount(0)
-                    .build();
-        }
-
-    }
-
-
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    @ToString
-    public static class BookmarkCreateServiceReq{
-        private String name;
-        private String url;
-        private String comment;
-        private Long folderId;
 
         public Bookmark toEntity(Folder folder){
 
             return Bookmark.builder()
+                    .folderId(this.folderId)
                     .name(this.name)
                     .url(this.url)
                     .comment(this.comment)
@@ -96,12 +94,17 @@ public class BookmarkDto {
                     .visitCount(0)
                     .build();
         }
+
     }
+
+
+    
 
 
 
 
     public interface BookmarkRes{
+        Long getId();
         String getName();
         String getUrl();
         String getComment();
@@ -111,10 +114,11 @@ public class BookmarkDto {
 
     @Getter
     @ToString
-    // @AllArgsConstructor
+    @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     public static class BookmarkResImpl implements BookmarkRes{
+        private Long id;
         private String name;
         private String url;
         private String comment;

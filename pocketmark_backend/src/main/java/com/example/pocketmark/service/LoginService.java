@@ -3,6 +3,7 @@ package com.example.pocketmark.service;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.SignUpUserDto;
+import com.example.pocketmark.dto.FolderDto.FolderCreateServiceReq;
 import com.example.pocketmark.dto.LoginDto.LoginReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
 import com.example.pocketmark.exception.GeneralException;
@@ -26,10 +27,18 @@ public class LoginService {
 
     private final UserService userService;
     private final Encryptor encryptor;
+    private final FolderService folderService;
 
     @Transactional
     public User signUp(SignUpUserDto.SignUpDto signUpDto){
-        return userService.create(signUpDto);
+        User user = userService.create(signUpDto);
+
+        //root 폴더 생성
+        folderService.saveByCreateReq(
+            FolderCreateServiceReq.builder().name("Root").depth(0L).parent(0L).folderId(0L).build(),
+            user.getId());
+
+        return user;
     }
 
 }

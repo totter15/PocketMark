@@ -1,8 +1,13 @@
 package com.example.pocketmark.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -12,11 +17,12 @@ import com.example.pocketmark.domain.QBookmark;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderCreateServiceReq;
-import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateServiceReq;
+import com.example.pocketmark.dto.FolderDto.OnlyFolderId;
+import com.example.pocketmark.dto.FolderDto.OnlyId;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
@@ -44,6 +50,7 @@ public class FolderService {
     private QFolder qFolder = QFolder.folder;
     private QBookmark qBookmark = QBookmark.bookmark;
 
+
     //c
     public FolderResImpl saveByCreateReq(FolderCreateServiceReq req, Long userId){
         User user = userRepository.getById(userId); //proxy
@@ -51,17 +58,48 @@ public class FolderService {
         return folderRepository.save(folder).toJson();
     }
 
+    // @Transactional
+    // public boolean saveAllByCreateReq(List<FolderCreateReq> req, Long userId){
+    //     if(req.size()==0) return true;
+
+    //     User user = userRepository.getById(userId); //proxy
+    //     List<Folder> folders= new ArrayList<>();
+
+    //     for(FolderCreateReq singleReq : req){
+    //         folders.add(singleReq.toEntity(user));
+    //     }
+    //     folderRepository.saveAll(folders);
+    //     return true;
+    // }
+
+
+
+
+    // it has tempParent, tempFolderId ...... 와 이거 temp 안에 temp 안에 temp 인 경우는 어케해야하냐 ㅋㅋㅋㅋ
+    // 일일이 save 하면 1만건기준 약 2초, saveall()은 약 0.3초 (트랜잭션 생성 오버헤드때문)
+    // 일일이 save 하면서 generatedId 받아오는거밖에 방법이없나????.........
+    // null 인채로 insert 하고 update 치는건? 너무 비효율적인거같고 
+    // 필드를 하나 더 추가해서 유저별 폴더id로 관리하면 리액트단에서도 db의 폴더 id와 싱크를 맞출수있음..!
+    // 하 내일하자 ......................
     @Transactional
-    public boolean saveAllByCreateReq(List<FolderCreateReq> req, Long userId){
+    public Map<Long,Long> saveAllByCreateReq(
+        List<FolderCreateReq> req,
+        Long userId
+    ){
+        if(req.size()==0) return null;
+
         User user = userRepository.getById(userId); //proxy
         List<Folder> folders= new ArrayList<>();
+
         for(FolderCreateReq singleReq : req){
             folders.add(singleReq.toEntity(user));
         }
-        folderRepository.saveAll(folders);
 
-        return true;
+        // (Key,Value) - (tempFolderId, DBFolderId) should be returned
+        return folderRepository.saveAll(folders)       
+                    .stream().collect(Collectors.toMap(it->it.getFolderId(), it->it.getId()));
     }
+
 
     //r
     public List<FolderRes> getFolders(Long userId){
@@ -115,11 +153,11 @@ public class FolderService {
                 .where(qFolder.parent.eq(folderId).or(qFolder.id.eq(folderId)))
                 .execute();
 
-            List<FolderOnlyId> folders = folderRepository.findByParent(folderId);
+            List<OnlyFolderId> folders = folderRepository.findByParent(folderId);
             List<Long> idList = new ArrayList<>();
             idList.add(folderId);
-            for(FolderOnlyId item : folders){
-                idList.add(item.getId());
+            for(OnlyFolderId item : folders){
+                idList.add(item.getFolderId());
             }
 
             update = new JPAUpdateClause(em, qBookmark);
@@ -136,25 +174,35 @@ public class FolderService {
 
     @Transactional(readOnly=true)
     public void deleteFoldersInBatch(List<Long> folderIdList, Long userId){
-        if(folderQueryRepository.isAllExistWithUserId(folderIdList,userId)){ // no count query
+        Map<Long,Long> idMap = folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdList);
+
+
+        if(folderQueryRepository.isAllExistWithUserId(idMap.values(),userId)){ // no count query
 
             //QueryDSL update는 영속성 컨텍스트 무시함 
+            // 폴더들은 DB Id 로 지움
             JPAUpdateClause update = new JPAUpdateClause(em, qFolder);
             update
                 .set(qFolder.deleted, true)
-                .where(qFolder.parent.in(folderIdList).or(qFolder.id.in(folderIdList)))
+                // parent 는 FolderId 기준이고 , id 는 실제 db 아이디
+                // 인덱스 설정했기때문에 folderId로 차라리 검색을 하면 어떤지 성능테스트를 해봐야 함
+                // 그러면 idMap 호출비용을 줄일 수 있음
+                .where(qFolder.parent.in(idMap.keySet()).or(qFolder.id.in(idMap.values())))
                 .execute();
 
-            List<FolderOnlyId> folders = folderRepository.findByParentIn(folderIdList);
-            List<Long> idList = folderIdList;
-            for(FolderOnlyId item : folders){
+            // parent로 연계된 북마크를 지움
+            // parent로 연결된 폴더
+            List<OnlyId> folders = folderRepository.findByParentIn(idMap.keySet());
+            // 기존 폴더 pk
+            Collection<Long> idList = idMap.values();
+            for(OnlyId item : folders){
                 idList.add(item.getId());
             }
 
             update = new JPAUpdateClause(em, qBookmark);
             update
                 .set(qBookmark.deleted, true)
-                .where(qBookmark.folder.id.in(idList))
+                .where(qBookmark.folderPk.in(idList))
                 .execute();
 
             //영속성 무시하고 쿼리를 날리기때문에 동기화해줘야함

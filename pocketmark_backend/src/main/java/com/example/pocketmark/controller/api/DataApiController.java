@@ -70,14 +70,11 @@ public class DataApiController {
     public ApiDataResponse<DataRes> createData(
         @RequestBody DataCreateReq req
     ){
-        //
-        System.out.println(">>> createData : "+ getUserId());
-
         dataService.createData(req.toServiceReq(), getUserId());
         return ApiDataResponse.empty();
     }
 
-    @DeleteMapping(value="/data")
+    @PutMapping(value="/data/delete")
     public ApiDataResponse<DataRes> deleteData(
         @RequestBody DataDeleteReq req
     ){
