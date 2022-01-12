@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
         ;
 
         http
-                .addFilterAt(loginFilter,UsernamePasswordAuthenticationFilter.class)
+                // .addFilterAt(loginFilter,UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(checkFilter, BasicAuthenticationFilter.class)
         ;
 

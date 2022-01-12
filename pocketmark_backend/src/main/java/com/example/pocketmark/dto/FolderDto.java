@@ -20,12 +20,12 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FolderDto {
     
-    @Getter
-    @AllArgsConstructor
-    @Builder
-    @NoArgsConstructor
-    public static class FolderOnlyId{
-        private Long id;
+
+    public static interface OnlyFolderId{
+        Long getFolderId();
+    }
+    public static interface OnlyId{
+        Long getId();
     }
 
 
@@ -112,13 +112,11 @@ public class FolderDto {
 
 
     public interface FolderRes{
-        Long getId();
+        Long getFolderId();
         Long getParent();
         Long getDepth();
         String getName();
-        Long getUserId();
         Integer getVisitCount();
-        boolean isDeleted();
     }
 
 
@@ -128,21 +126,18 @@ public class FolderDto {
     @NoArgsConstructor
     @ToString
     public static class FolderResImpl implements FolderRes{
-        private boolean deleted;
         private Long id;
         private Long folderId;
-        private Long userId;
         private Long parent;
         private Long depth;
         private String name;
         private Integer visitCount; 
         @QueryProjection
         public FolderResImpl(
-            Long id, Long userId, Long parent, Long depth,
+            Long id,  Long parent, Long depth,
             String name, Integer visitCount
         ){
             this.id=id;
-            this.userId=userId;
             this.parent=parent;
             this.depth=depth;
             this.name=name;
@@ -163,20 +158,18 @@ public class FolderDto {
     @NoArgsConstructor
     @Builder
     public static class FolderUpdateReq{
-        private Long id;
-        private Long parent;
-        @NotNull(message="Depth needed") 
+        private Long folderId;
+        @Size(max=50)
+        private String name;
+        private Long parent; 
         private Long depth;
 
-        @NotNull(message="FolderName needed") 
-        @NotBlank(message="FolderName needed")
-        @Size(max=50, message = "50글자 이상은 사용할 수 없습니다.")
-        private String name;
         private Integer visitCount;
 
-        public FolderUpdateServiceReq toServiceReq(){
+        public FolderUpdateServiceReq toServiceReq(Long id){
             return FolderUpdateServiceReq.builder()
-                    .id(this.id)
+                    .id(id)
+                    .folderId(this.folderId)
                     .parent(this.parent)
                     .depth(this.depth)
                     .name(this.name)
@@ -192,6 +185,7 @@ public class FolderDto {
     @Builder
     public static class FolderUpdateServiceReq{
         private Long id;
+        private Long folderId;
         private Long parent;
         private Long depth;
         private String name;

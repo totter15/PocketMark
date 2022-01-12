@@ -1,10 +1,12 @@
 package com.example.pocketmark.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -15,11 +17,12 @@ import com.example.pocketmark.domain.QBookmark;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderCreateServiceReq;
-import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateServiceReq;
+import com.example.pocketmark.dto.FolderDto.OnlyFolderId;
+import com.example.pocketmark.dto.FolderDto.OnlyId;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
@@ -150,11 +153,11 @@ public class FolderService {
                 .where(qFolder.parent.eq(folderId).or(qFolder.id.eq(folderId)))
                 .execute();
 
-            List<FolderOnlyId> folders = folderRepository.findByParent(folderId);
+            List<OnlyFolderId> folders = folderRepository.findByParent(folderId);
             List<Long> idList = new ArrayList<>();
             idList.add(folderId);
-            for(FolderOnlyId item : folders){
-                idList.add(item.getId());
+            for(OnlyFolderId item : folders){
+                idList.add(item.getFolderId());
             }
 
             update = new JPAUpdateClause(em, qBookmark);
@@ -171,25 +174,35 @@ public class FolderService {
 
     @Transactional(readOnly=true)
     public void deleteFoldersInBatch(List<Long> folderIdList, Long userId){
-        if(folderQueryRepository.isAllExistWithUserId(folderIdList,userId)){ // no count query
+        Map<Long,Long> idMap = folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdList);
+
+
+        if(folderQueryRepository.isAllExistWithUserId(idMap.values(),userId)){ // no count query
 
             //QueryDSL update는 영속성 컨텍스트 무시함 
+            // 폴더들은 DB Id 로 지움
             JPAUpdateClause update = new JPAUpdateClause(em, qFolder);
             update
                 .set(qFolder.deleted, true)
-                .where(qFolder.parent.in(folderIdList).or(qFolder.id.in(folderIdList)))
+                // parent 는 FolderId 기준이고 , id 는 실제 db 아이디
+                // 인덱스 설정했기때문에 folderId로 차라리 검색을 하면 어떤지 성능테스트를 해봐야 함
+                // 그러면 idMap 호출비용을 줄일 수 있음
+                .where(qFolder.parent.in(idMap.keySet()).or(qFolder.id.in(idMap.values())))
                 .execute();
 
-            List<FolderOnlyId> folders = folderRepository.findByParentIn(folderIdList);
-            List<Long> idList = folderIdList;
-            for(FolderOnlyId item : folders){
+            // parent로 연계된 북마크를 지움
+            // parent로 연결된 폴더
+            List<OnlyId> folders = folderRepository.findByParentIn(idMap.keySet());
+            // 기존 폴더 pk
+            Collection<Long> idList = idMap.values();
+            for(OnlyId item : folders){
                 idList.add(item.getId());
             }
 
             update = new JPAUpdateClause(em, qBookmark);
             update
                 .set(qBookmark.deleted, true)
-                .where(qBookmark.folder.id.in(idList))
+                .where(qBookmark.folderPk.in(idList))
                 .execute();
 
             //영속성 무시하고 쿼리를 날리기때문에 동기화해줘야함

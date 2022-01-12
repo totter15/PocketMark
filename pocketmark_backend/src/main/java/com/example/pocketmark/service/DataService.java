@@ -5,31 +5,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
 import com.example.pocketmark.constant.ErrorCode;
-import com.example.pocketmark.domain.Bookmark;
-import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.domain.QBookmark;
-import com.example.pocketmark.domain.QFolder;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkOnlyId;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
-import com.example.pocketmark.dto.DataDto.DataCreateReq;
-import com.example.pocketmark.dto.DataDto.DataDeleteReq;
+import com.example.pocketmark.dto.BookmarkDto.OnlyBookmarkId;
 import com.example.pocketmark.dto.DataDto.DataDeleteServiceReq;
 import com.example.pocketmark.dto.DataDto.DataRes;
-import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.DataDto.DataUpdateServiceReq;
 import com.example.pocketmark.dto.DataDto.DataCreateReq.DataCreateServiceReq;
-import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
-import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
+import com.example.pocketmark.dto.FolderDto.FolderUpdateServiceReq;
+import com.example.pocketmark.dto.FolderDto.OnlyFolderId;
+import com.example.pocketmark.dto.FolderDto.OnlyId;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.BookmarkQueryRepository;
 import com.example.pocketmark.repository.BookmarkRepository;
@@ -100,26 +93,34 @@ public class DataService {
 
     @Transactional(readOnly = true)
     public void updateData(DataUpdateServiceReq req, Long userId){
-        List<FolderUpdateReq> folders;
-        List<BookmarkUpdateReq> bookmarks;
-        List<FolderOnlyId> dbFolders;
-        List<BookmarkOnlyId> dbBookmarks;
+        List<FolderUpdateReq> folderReq;
+        List<BookmarkUpdateReq> bookmarkReq;
+        // List<OnlyFolderId> dbFolders;
+        List<OnlyBookmarkId> dbBookmarks;
 
         //폴더만 업데이트 (이름, 위치(parent,depth))
         if(req.getBookmarks().size()==0){
-            folders =req.getFolders();
+            folderReq =req.getFolders();
             
-            Map<Long, FolderUpdateReq> reqMap = 
-                folders.stream()
-                .collect(Collectors.toMap(it->it.getId() , it->it));
+
+            //(folderId, req)
+            Set<Long> folderIdSet = folderReq.stream().map(FolderUpdateReq::getFolderId).collect(Collectors.toSet());
+
+            //(folderId, dbId)
+            Map<Long,Long> idMap = folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdSet);
+
+            // Map<Long, FolderUpdateReq> reqMap = 
+            //     folders.stream()
+            //     .collect(Collectors.toMap(it->it.getId() , it->it));
+
             //n번 호출로 영속성을 가질것인가, QueryDSL 1번 호출로 성능상이점을 가질것인가
             //그것이 문제로다 (아니면 JPA method 1번호출로 영속성가지는게..?)
             // ** 영속성 있음
 
             // 악의적 스크립트 공격 방지 ( userid 검증 ) 는 Service 단에서?
             // Filter에서 매번하기엔 조회비용이 아까움
-            dbFolders = folderRepository.findByIdInAndUserId(reqMap.keySet(),userId);
-            if(reqMap.size() != dbFolders.size()){
+            // dbFolders = folderRepository.findOnlyIdByFolderIdInAndUserId(reqMap.keySet(),userId);
+            if(folderReq.size() != idMap.size()){
                 throw new GeneralException(ErrorCode.INVALID_DATA_ACCESS_REQUEST);
             }
             // for(Folder dbFolder : dbFolders){
@@ -130,9 +131,9 @@ public class DataService {
 
 
             // sql 저장소에 쌓아두고
-            for(FolderOnlyId dbFolder : dbFolders){
-                FolderUpdateReq updateReq = reqMap.get(dbFolder.getId());
-                folderQueryRepository.update(updateReq);
+            for(FolderUpdateReq singleReq : folderReq){
+                FolderUpdateServiceReq updateServiceReq = singleReq.toServiceReq(idMap.get(singleReq.getFolderId()));
+                folderQueryRepository.update(updateServiceReq);
             }
             // 쌓아둔 sql문 날리고 트랜잭션 종료
             em.flush();
@@ -142,18 +143,19 @@ public class DataService {
         }
         //북마크만 업데이트 (이름, url, comment, folder_id, visitCount)
         else if(req.getFolders().size()==0){
-            bookmarks =req.getBookmarks();
+            bookmarkReq =req.getBookmarks();
             Map<Long, BookmarkUpdateReq> reqMap= 
-                bookmarks.stream()
+                bookmarkReq.stream()
                 .collect(Collectors.toMap(it->it.getId(), it->it));
 
+            //해당 유저의 북마크인지 확인이 필요함 (코드 추가작성 필요)
             dbBookmarks = bookmarkRepository.findByIdIn(reqMap.keySet());
             if(reqMap.size() != dbBookmarks.size()){
                 throw new GeneralException(ErrorCode.INVALID_DATA_ACCESS_REQUEST);
             }
 
 
-            for(BookmarkOnlyId dbObj : dbBookmarks){
+            for(OnlyBookmarkId dbObj : dbBookmarks){
                 BookmarkUpdateReq updateReq = reqMap.get(dbObj.getId());
                 bookmarkQueryRepository.update(updateReq);
             }
@@ -161,27 +163,30 @@ public class DataService {
         }
         //모두 업데이트        
         else{
-            folders =req.getFolders();
-            bookmarks =req.getBookmarks();
-            Map<Long, FolderUpdateReq> reqFolderMap = 
-                folders.stream()
-                .collect(Collectors.toMap(it->it.getId() , it->it));
+            folderReq =req.getFolders();
+            bookmarkReq =req.getBookmarks();
+            //(folderId, req)
+            Set<Long> folderIdSet = folderReq.stream().map(FolderUpdateReq::getFolderId).collect(Collectors.toSet());
+            //(folderId, dbId)
+            Map<Long,Long> idMap = folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdSet);
+            // Map<Long, FolderUpdateReq> reqFolderMap = 
+            //     folders.stream()
+            //     .collect(Collectors.toMap(it->it.getId() , it->it));
             Map<Long, BookmarkUpdateReq> reqBookmarkMap= 
-                bookmarks.stream()
+                bookmarkReq.stream()
                 .collect(Collectors.toMap(it->it.getId(), it->it));
 
-            dbFolders = folderRepository.findByIdInAndUserId(reqFolderMap.keySet(),userId);
             dbBookmarks = bookmarkRepository.findByIdIn(reqBookmarkMap.keySet());
-            if(reqFolderMap.size() != dbFolders.size()
+            if(folderReq.size() != idMap.size()
                 || reqBookmarkMap.size() != dbBookmarks.size()){
                 throw new GeneralException(ErrorCode.INVALID_DATA_ACCESS_REQUEST);
             }
             
-            for(FolderOnlyId dbFolder : dbFolders){
-                FolderUpdateReq updateReq = reqFolderMap.get(dbFolder.getId());
-                folderQueryRepository.update(updateReq);
+            for(FolderUpdateReq singleReq : folderReq){
+                FolderUpdateServiceReq updateServiceReq = singleReq.toServiceReq(idMap.get(singleReq.getFolderId()));
+                folderQueryRepository.update(updateServiceReq);
             }
-            for(BookmarkOnlyId dbObj : dbBookmarks){
+            for(OnlyBookmarkId dbObj : dbBookmarks){
                 BookmarkUpdateReq updateReq = reqBookmarkMap.get(dbObj.getId());
                 bookmarkQueryRepository.update(updateReq);
             }

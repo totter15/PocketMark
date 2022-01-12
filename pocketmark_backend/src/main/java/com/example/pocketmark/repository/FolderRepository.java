@@ -5,8 +5,9 @@ import java.util.List;
 
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.FolderDto.FolderOnlyId;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
+import com.example.pocketmark.dto.FolderDto.OnlyFolderId;
+import com.example.pocketmark.dto.FolderDto.OnlyId;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -17,8 +18,8 @@ public interface FolderRepository extends JpaRepository<Folder,Long>{
     List<Folder> findByUser(User user);
 
 
-    List<FolderOnlyId> findByParent(Long parent);
-    List<FolderOnlyId> findByParentIn(List<Long> parent);
+    List<OnlyFolderId> findByParent(Long parent);
+    List<OnlyId> findByParentIn(Collection<Long> parent);
     
 
     List<FolderRes> findByUserIdAndDepth(Long userId, Long depth);
@@ -28,7 +29,11 @@ public interface FolderRepository extends JpaRepository<Folder,Long>{
     List<FolderRes> findByUser_Id(Long userId);
 
     @Transactional(readOnly = true)
-    List<FolderOnlyId> findByIdInAndUserId(Collection<Long> id, Long userId);
+    List<OnlyFolderId> findOnlyFolderIdByFolderIdInAndUserId(Collection<Long> folderIdList, Long userId);
+    
+    @Transactional(readOnly = true)
+    List<OnlyId> findOnlyIdByFolderIdInAndUserId(Collection<Long> folderIdList, Long userId);
+
     List<Folder> findFolderByIdInAndUserId(Collection<Long> id, Long userId);
 
 

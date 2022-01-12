@@ -21,12 +21,9 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookmarkDto {
     
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class BookmarkOnlyId{
-        Long id;
+
+    public static interface OnlyBookmarkId{
+        Long getId();
     }
 
     
@@ -40,8 +37,8 @@ public class BookmarkDto {
     public static class BookmarkCreateReq{
         @NotNull
         //this is temp folderId
-        @JsonProperty("folderId")
-        private Long tempFolderId;
+        // @JsonProperty("folderId")
+        private Long folderId;
 
         @NotNull @NotBlank
         @Size(max=50)
@@ -76,28 +73,20 @@ public class BookmarkDto {
             }       
         }
 
-        public BookmarkCreateServiceReq toServiceReq(Long realFolderId){
-            return BookmarkCreateServiceReq.builder()
-                    .name(name)
-                    .url(url)
-                    .comment(comment)
-                    .folderId(realFolderId)
-                    .build();
-        }
-
-        @Deprecated
         public BookmarkCreateServiceReq toServiceReq(){
             return BookmarkCreateServiceReq.builder()
                     .name(name)
                     .url(url)
                     .comment(comment)
-                    .folderId(tempFolderId)
+                    .folderId(folderId)
                     .build();
         }
+
 
         public Bookmark toEntity(Folder folder){
 
             return Bookmark.builder()
+                    .folderId(this.folderId)
                     .name(this.name)
                     .url(this.url)
                     .comment(this.comment)
@@ -115,6 +104,7 @@ public class BookmarkDto {
 
 
     public interface BookmarkRes{
+        Long getId();
         String getName();
         String getUrl();
         String getComment();
@@ -124,10 +114,11 @@ public class BookmarkDto {
 
     @Getter
     @ToString
-    // @AllArgsConstructor
+    @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     public static class BookmarkResImpl implements BookmarkRes{
+        private Long id;
         private String name;
         private String url;
         private String comment;

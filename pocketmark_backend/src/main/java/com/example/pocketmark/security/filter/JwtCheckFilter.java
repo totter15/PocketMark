@@ -49,6 +49,7 @@ public class JwtCheckFilter extends BasicAuthenticationFilter {
             );
             SecurityContextHolder.getContext().setAuthentication(userToken);
             chain.doFilter(request, response);
+            return;
         }else{
             throw new GeneralException(ErrorCode.JWT_UNVALID);
         }

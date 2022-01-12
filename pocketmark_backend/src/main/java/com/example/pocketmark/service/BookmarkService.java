@@ -73,7 +73,7 @@ public class BookmarkService {
         if(req.size() ==0) return true;
         
         Set<Long> folderIdSet = req.stream()
-                            .map(BookmarkCreateReq::getTempFolderId)
+                            .map(BookmarkCreateReq::getFolderId)
                             .collect(Collectors.toSet());
 
         // (Key,Value) - (tempFolderId, DBFolderId)
@@ -85,7 +85,7 @@ public class BookmarkService {
         Folder folder;
         List<Bookmark> bookmarks= new ArrayList<>();
         for(BookmarkCreateReq singleReq : req){
-            folder = folderRepository.getById(map.get(singleReq.getTempFolderId()));
+            folder = folderRepository.getById(map.get(singleReq.getFolderId()));
             bookmarks.add(singleReq.toEntity(folder));            
         }
         
@@ -145,7 +145,20 @@ public class BookmarkService {
         em.flush();
     }
 
-    public void deleteBookmarksInBatch(List<Long> bookmarkIdList, Long userId){
+    public void deleteBookmarksInBatch(List<Long> IdList, Long userId){
+        if(!BookmarkQueryRepository.existAll(IdList)){
+            return;
+        }
+
+        QBookmark qBookmark = QBookmark.bookmark;
+        JPAUpdateClause update = new JPAUpdateClause(em, qBookmark);
+            update
+                .set(qBookmark.deleted, true)
+                .where(qBookmark.id.in(IdList))
+                .execute();
+                
+
+        em.flush();
         
     }
 

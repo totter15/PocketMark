@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkOnlyId;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
+import com.example.pocketmark.dto.BookmarkDto.OnlyBookmarkId;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -22,5 +22,5 @@ public interface BookmarkRepository extends JpaRepository<Bookmark,Long>{
 
     Slice<BookmarkRes> findByFolder_UserIdAndFolder_Depth(Long userId,Long depth, Pageable pageable);
 
-    List<BookmarkOnlyId> findByIdIn(Collection<Long> id);
+    List<OnlyBookmarkId> findByIdIn(Collection<Long> id);
 }

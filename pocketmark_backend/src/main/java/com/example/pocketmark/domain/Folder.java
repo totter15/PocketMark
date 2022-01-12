@@ -102,7 +102,6 @@ public class Folder extends BaseEntity {
             .name(this.name)
             .depth(this.depth)
             .parent(this.parent)
-            .userId(this.user.getId())
             .visitCount(this.visitCount)
             .build();
     }

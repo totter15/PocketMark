@@ -59,7 +59,7 @@ public class BookmarkApiController {
         @Valid @RequestBody BookmarkCreateReq req 
     ){
         //create without any select
-        return bookmarkService.saveByCreateReq(req.toServiceReq(req.getTempFolderId()));
+        return bookmarkService.saveByCreateReq(req.toServiceReq());
     }
 
 

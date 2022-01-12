@@ -41,19 +41,21 @@ public class Bookmark extends BaseEntity {
     private String comment;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="folder_id")
+    @JoinColumn(name="folder_pk")
     @ToString.Exclude
     private Folder folder;
 
-    @Column(name="folder_id", insertable = false, updatable = false)
+    @Column(name="folder_pk", insertable = false, updatable = false)
+    private Long folderPk;
+
+    
+    private Integer visitCount;
+    
     private Long folderId;
 
-    private Integer visitCount;
-
-
     //non-column field (DB와 동기화 되지 않은 새폴더에 하위로 생기는 북마크들을 위한 필드)
-    @Transient
-    private Long tempFolderId;
+    // @Transient
+    // private Long tempFolderId;
 
 
 

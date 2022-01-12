@@ -49,6 +49,15 @@ public class BookmarkQueryRepository {
         else return true;
     }
 
+    public boolean existAll(Collection<Long> ids){
+        List<Bookmark> fetch = queryFactory.selectFrom(qBookmark)
+                        .where(qBookmark.id.in(ids)).limit(ids.size()).fetch();
+
+        if(fetch.size() == ids.size()) return true;
+        else return false;
+    }
+
+
     public Long update(BookmarkUpdateReq req){
         UpdateClause<JPAUpdateClause> builder = queryFactory.update(qBookmark);
         
