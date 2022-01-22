@@ -44,7 +44,8 @@ public enum ErrorCode {
     USER_BAD_CREDENTIALS(50002,HttpStatus.UNAUTHORIZED,"User bad credentials"),
     TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Token not valid"),
     REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid"),
-    NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt")
+    NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt"),
+    IS_TOKEN_DIFFERENT(50006,HttpStatus.UNAUTHORIZED, "The types of tokens are different.")
     ;
 
     private final Integer code;
