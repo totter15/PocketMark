@@ -79,14 +79,14 @@ li {
   margin: 0;
 }
 
-button svg {
+.search > button > svg {
   width: 37px;
   height: 37px;
   color: rgb(197, 202, 206);
   margin-left: 10px;
 }
 
-svg:hover {
+.search > button > svg:hover {
   cursor: pointer;
   color: rgb(154, 164, 172);
 }

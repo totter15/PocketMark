@@ -19,7 +19,7 @@ const AddModal = ({
   const onChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
-  const [select, setSelect] = useState(null);
+  const [select, setSelect] = useState({ label: "내 폴더", value: 0 });
 
   const options = folders.map((folder) => {
     const option = {};

@@ -16,6 +16,7 @@ const Main = () => {
   const [folders, setFolders] = useState([
     {
       folderId: 0,
+      depth: 0,
       name: "내 폴더",
     },
   ]);
@@ -46,8 +47,6 @@ const Main = () => {
     },
   });
 
-  console.log(folders);
-
   useEffect(() => {
     // GetData().then((res) => {
     //   setFolders(res.data.folders);
@@ -56,6 +55,7 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
+    axios();
     // setInterval(axios, 1000*60*5); //5분
   }, [server]);
 
@@ -67,15 +67,17 @@ const Main = () => {
 
   const axios = () => {
     PostData(post)
-      .then(() => PutData(put))
-      .then(() => DeleteData(del))
-      .then(() => GetData())
-      .then((res) => {
-        setFolders(res.data.folders);
-        setBookmarks(res.data.bookmarks);
-      })
+      // .then(() => PutData(put))
+      // .then(() => DeleteData(del))
+      // .then(() => GetData())
+      // .then((res) => {
+      //   setFolders(res.data.folders);
+      //   setBookmarks(res.data.bookmarks);
+      // })
       .catch((e) => console.log(e));
   };
+
+  console.log(post);
 
   const makeFolder = useCallback(
     (folderName, parent, depth) => {

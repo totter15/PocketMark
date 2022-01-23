@@ -2,6 +2,8 @@ import React from "react";
 import FolderListItem from "./FolderListItem";
 import { IoAddCircleOutline } from "react-icons/io5";
 import FolderChildList from "./FolderChildList";
+import { BsFillFolderFill } from "react-icons/bs";
+import { AiOutlinePlus } from "react-icons/ai";
 import "./FolderList.css";
 
 const FolderList = ({
@@ -12,10 +14,15 @@ const FolderList = ({
 }) => {
   return (
     <div className="folderList">
-      <div className="addFolder">
-        내 폴더
+      <div
+        className={selectFolder === 0 ? "addFolder select" : "addFolder"}
+        onClick={() => folderSelect(0)}
+      >
+        <div>
+          <BsFillFolderFill />내 폴더
+        </div>
         <button onClick={folderModalOpen}>
-          <IoAddCircleOutline />
+          <AiOutlinePlus />
         </button>
       </div>
 
