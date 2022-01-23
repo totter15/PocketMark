@@ -27,6 +27,11 @@
   animation: modal-show 0.3s;
 }
 
+.addModal .components > form > div {
+  display: flex;
+  flex-direction: column;
+}
+
 .addModal label {
   font-size: 0.8rem;
   font-weight: 600;

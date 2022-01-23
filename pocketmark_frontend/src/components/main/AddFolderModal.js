@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import "./AddFolderModal.css";
 
@@ -13,16 +13,22 @@ const AddFolderModal = ({ makeFolder, open, folderModalClose, folders }) => {
     return option;
   });
 
+  useEffect(() => {
+    options.concat({ value: 0, label: "내 폴더" });
+  }, []);
+
   const onMake = (e) => {
     e.preventDefault();
     makeFolder(name, select ? select.value : 0, select ? 2 : 1);
     setName("");
+    setSelect(null);
     folderModalClose();
   };
 
   const onCancel = (e) => {
     e.preventDefault();
     setName("");
+    setSelect(null);
     folderModalClose();
   };
 
@@ -31,7 +37,7 @@ const AddFolderModal = ({ makeFolder, open, folderModalClose, folders }) => {
       <div className="background"></div>
       <div className="components">
         <form>
-          <div>
+          <div className="folderName">
             <label>폴더 이름</label>
             <input value={name} onChange={(e) => setName(e.target.value)} />
           </div>

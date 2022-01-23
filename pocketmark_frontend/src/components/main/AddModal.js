@@ -1,8 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import "./AddModal.css";
 
-const AddModal = ({ makeBookmarks, open, modalClose, folders }) => {
+const AddModal = ({
+  makeBookmarks,
+  open,
+  modalClose,
+  folders,
+  edit,
+  editBookmarks,
+  editBookmark,
+}) => {
   const [data, setData] = useState({
     name: "",
     url: "",
@@ -20,9 +28,15 @@ const AddModal = ({ makeBookmarks, open, modalClose, folders }) => {
     return option;
   });
 
+  useEffect(() => {
+    if (edit) setData(editBookmark[0]);
+  }, [edit]);
+
   const onMake = (e) => {
     e.preventDefault();
-    makeBookmarks(data.name, data.url, data.comment, select.value);
+    !edit
+      ? makeBookmarks(data.name, data.url, data.comment, select.value)
+      : editBookmarks(data.name, data.url, data.comment, select.value);
     setData({
       name: "",
       url: "",
@@ -64,12 +78,11 @@ const AddModal = ({ makeBookmarks, open, modalClose, folders }) => {
             options={options}
             value={select}
           />
-
-          <div className="buttonContainer">
-            <button onClick={onCancel}>취소</button>
-            <button onClick={onMake}>만들기</button>
-          </div>
         </form>
+        <div className="buttonContainer">
+          <button onClick={onCancel}>취소</button>
+          <button onClick={onMake}>{edit ? "수정하기" : `만들기`}</button>
+        </div>
       </div>
     </div>
   );

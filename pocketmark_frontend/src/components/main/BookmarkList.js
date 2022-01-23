@@ -2,7 +2,7 @@ import React from "react";
 import BookmarkListItem from "./BookmarkListItem";
 import "./BookmarkList.css";
 
-const BookmarkList = ({ bookmarkList }) => {
+const BookmarkList = ({ bookmarkList, editModalOpen, deleteBookmarks }) => {
   return (
     <div className="bookmarkList">
       <div className="route">내폴더 / 폴더1</div>
@@ -12,6 +12,8 @@ const BookmarkList = ({ bookmarkList }) => {
             <BookmarkListItem
               key={`${index}_${bookmark.name}`}
               bookmark={bookmark}
+              editModalOpen={editModalOpen}
+              deleteBookmarks={deleteBookmarks}
             />
           ))}
       </div>

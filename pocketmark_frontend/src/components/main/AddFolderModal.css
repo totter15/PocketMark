@@ -33,6 +33,11 @@
   margin-bottom: 5px;
 }
 
+.addFolderModal .folderName {
+  display: flex;
+  flex-direction: column;
+}
+
 .buttonContainer {
   display: flex;
   flex-direction: "row";

@@ -10,7 +10,6 @@ const FolderList = ({
   folderSelect,
   selectFolder,
 }) => {
-  console.log(folders);
   return (
     <div className="folderList">
       <div className="addFolder">

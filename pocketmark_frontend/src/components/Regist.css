@@ -29,7 +29,8 @@ h1 {
 }
 
 input {
-  width: 100%;
+  /* width: 100%; */
+  flex: 1;
   padding: 12px 20px;
   margin: 8px 0;
   display: inline-block;
@@ -78,7 +79,7 @@ input::placeholder {
   margin-top: 3rem;
 }
 
-.registContainer form div {
+.registContainer > form > div {
   display: flex;
   flex-direction: column;
   margin-bottom: 16px;
