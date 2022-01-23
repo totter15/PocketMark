@@ -28,6 +28,23 @@ public class FolderDto {
         Long getId();
     }
 
+    
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @ToString
+    public static class FolderIdAndDbId{
+        private Long id;
+        private Long folderId;
+
+        @QueryProjection
+        public FolderIdAndDbId(Long id, Long folderId){
+            this.id = id;
+            this.folderId = folderId;
+        }
+    }
+
+
 
     
 
@@ -41,8 +58,6 @@ public class FolderDto {
         private Long folderId;
         private Long parent;
 
-        @NotNull 
-        private Long depth;
         
         @NotNull @NotBlank
         @Size(max=50)
@@ -52,7 +67,6 @@ public class FolderDto {
         public FolderCreateServiceReq toServiceReq(){
             return FolderCreateServiceReq.builder()
                     .parent(parent)
-                    .depth(depth)
                     .name(name)
                     .folderId(folderId)
                     // .userId(userId)
@@ -68,7 +82,6 @@ public class FolderDto {
                     .folderId(folderId)
                     .name(name)
                     .parent(parent)
-                    .depth(depth)
                     .user(user)
                     .visitCount(0)
                     .build();
@@ -84,7 +97,6 @@ public class FolderDto {
     public static class FolderCreateServiceReq{
         private Long folderId;
         private Long parent;
-        private Long depth;
         private String name;
         // private Long userId;
 
@@ -93,7 +105,6 @@ public class FolderDto {
             return Folder.builder()
                     .folderId(folderId)
                     .parent(parent)
-                    .depth(depth)
                     // .userId(userId)
                     .user(user)
                     .name(name)
@@ -103,18 +114,16 @@ public class FolderDto {
     }
 
 
-    public static class FolderServiceReq{
-        private String name;
-        private Long parent;
-        private Long depth;
-        private Long userId;
-    }
+    // public static class FolderServiceReq{
+    //     private String name;
+    //     private Long parent;
+    //     private Long userId;
+    // }
 
 
     public interface FolderRes{
         Long getFolderId();
         Long getParent();
-        Long getDepth();
         String getName();
         Integer getVisitCount();
     }
@@ -126,28 +135,15 @@ public class FolderDto {
     @NoArgsConstructor
     @ToString
     public static class FolderResImpl implements FolderRes{
-        private Long id;
         private Long folderId;
         private Long parent;
-        private Long depth;
         private String name;
         private Integer visitCount; 
+        
         @QueryProjection
         public FolderResImpl(
-            Long id,  Long parent, Long depth,
-            String name, Integer visitCount
+            Long folderId
         ){
-            this.id=id;
-            this.parent=parent;
-            this.depth=depth;
-            this.name=name;
-            this.visitCount=visitCount;
-        }
-        @QueryProjection
-        public FolderResImpl(
-            Long id, Long folderId
-        ){
-            this.id=id;
             this.folderId=folderId;
         }
     }
@@ -161,17 +157,14 @@ public class FolderDto {
         private Long folderId;
         @Size(max=50)
         private String name;
-        private Long parent; 
-        private Long depth;
+        private Long parent;
 
         private Integer visitCount;
 
-        public FolderUpdateServiceReq toServiceReq(Long id){
+        public FolderUpdateServiceReq toServiceReq(){
             return FolderUpdateServiceReq.builder()
-                    .id(id)
                     .folderId(this.folderId)
                     .parent(this.parent)
-                    .depth(this.depth)
                     .name(this.name)
                     .visitCount(this.visitCount)
                     .build();
@@ -184,10 +177,8 @@ public class FolderDto {
     @NoArgsConstructor
     @Builder
     public static class FolderUpdateServiceReq{
-        private Long id;
         private Long folderId;
         private Long parent;
-        private Long depth;
         private String name;
         private Integer visitCount;
     }
