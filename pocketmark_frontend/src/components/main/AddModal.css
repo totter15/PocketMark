@@ -1,0 +1,75 @@
+.addModal {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+}
+
+.background {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 0.7;
+  position: absolute;
+  top: 0;
+}
+
+.addModal .components {
+  width: 350px;
+  height: 350px;
+  background-color: white;
+  position: absolute;
+  border-radius: 20px;
+  padding: 30px;
+  animation: modal-show 0.3s;
+}
+
+.addModal label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.addModal form > div:nth-child(1) {
+  margin-bottom: 8px;
+}
+
+.addModal form > div:nth-child(2) {
+  margin-bottom: 8px;
+}
+
+.addModal form > div:nth-child(3) {
+  margin-bottom: 8px;
+}
+
+.addModal.open {
+  display: flex;
+  animation: modal-bg-show 0.3s;
+}
+
+@keyframes modal-show {
+  from {
+    opacity: 0;
+    margin-top: -20px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+
+@keyframes modal-bg-show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+select {
+  border: 1px solid black;
+}
