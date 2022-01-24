@@ -3,9 +3,12 @@ package com.example.pocketmark.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,6 +18,7 @@ import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.QBookmark;
 import com.example.pocketmark.domain.User;
+import com.example.pocketmark.dto.QFolderDto_FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
 import com.example.pocketmark.dto.FolderDto.FolderCreateServiceReq;
 import com.example.pocketmark.dto.FolderDto.FolderRes;
@@ -27,6 +31,8 @@ import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.UserRepository;
+import com.querydsl.core.QueryFactory;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
 import org.springframework.data.domain.Pageable;
@@ -47,6 +53,7 @@ public class FolderService {
     private final FolderQueryRepository folderQueryRepository;
     private final UserRepository userRepository;
     private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
     private QFolder qFolder = QFolder.folder;
     private QBookmark qBookmark = QBookmark.bookmark;
 
@@ -82,11 +89,11 @@ public class FolderService {
     // 필드를 하나 더 추가해서 유저별 폴더id로 관리하면 리액트단에서도 db의 폴더 id와 싱크를 맞출수있음..!
     // 하 내일하자 ......................
     @Transactional
-    public Map<Long,Long> saveAllByCreateReq(
+    public void saveAllByCreateReq(
         List<FolderCreateReq> req,
         Long userId
     ){
-        if(req.size()==0) return null;
+        if(req.size()==0) return;
 
         User user = userRepository.getById(userId); //proxy
         List<Folder> folders= new ArrayList<>();
@@ -95,9 +102,11 @@ public class FolderService {
             folders.add(singleReq.toEntity(user));
         }
 
+
+        folderRepository.saveAll(folders);
         // (Key,Value) - (tempFolderId, DBFolderId) should be returned
-        return folderRepository.saveAll(folders)       
-                    .stream().collect(Collectors.toMap(it->it.getFolderId(), it->it.getId()));
+        // return folderRepository.saveAll(folders)       
+        //             .stream().collect(Collectors.toMap(it->it.getFolderId(), it->it.getId()));
     }
 
 
@@ -107,12 +116,6 @@ public class FolderService {
         // return folderRepository.findFolderResByUserIdWithoutJoin(userId);
     } 
 
-    public List<FolderRes> getFoldersByDepth(Long userId, Long depth){
-        return folderRepository.findByUserIdAndDepth(userId, depth);
-    } 
-    public Slice<FolderRes> getFoldersByDepth(Long userId, Long depth, Pageable pageable){
-        return folderRepository.findByUserIdAndDepth(userId, depth, pageable);
-    } 
 
     public Slice<FolderRes> getFoldersByParent(Long userId, Long folderId, Pageable pageable){
         return folderRepository.findByUserIdAndParent(userId, folderId, pageable);
@@ -178,41 +181,54 @@ public class FolderService {
 
     @Transactional(readOnly=true)
     public void deleteFoldersInBatch(List<Long> folderIdList, Long userId){
-        Map<Long,Long> idMap = folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdList);
+        // Map<Long,Long> idMap = folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdList);
 
 
-        if(folderQueryRepository.isAllExistWithUserId(idMap.values(),userId)){ // no count query
+        if(folderQueryRepository.isAllExistWithUserIdAndFolderId(folderIdList,userId)){ // no count query
+            Queue<List<Long>> queue = new LinkedList<>();
+            queue.add(folderIdList);
+            Set<Long> idSet = new HashSet<>();
 
-            //QueryDSL update는 영속성 컨텍스트 무시함 
-            // 폴더들은 DB Id 로 지움
+            // 모든 자식을 찾고!
+            while(!queue.isEmpty()){//depth+1 쿼리 
+                List<Long> items = queue.poll();
+                idSet.addAll(items);
+
+                List<Long> ChildIdList= queryFactory
+                            .select(new QFolderDto_FolderResImpl(qFolder.folderId))
+                            .from(qFolder)
+                            .where(qFolder.parent.in(items).and(qFolder.userId.eq(userId)))
+                            .fetch().stream().map(FolderResImpl::getFolderId).collect(Collectors.toList());
+
+                if(ChildIdList.size()>0){
+                    queue.add(ChildIdList);
+                }
+            }
+
+
+            //  일괄업데이트 (폴더)
             JPAUpdateClause update = new JPAUpdateClause(em, qFolder);
             update
                 .set(qFolder.deleted, true)
-                // parent 는 FolderId 기준이고 , id 는 실제 db 아이디
-                // 인덱스 설정했기때문에 folderId로 차라리 검색을 하면 어떤지 성능테스트를 해봐야 함
-                // 그러면 idMap 호출비용을 줄일 수 있음
-                .where(qFolder.parent.in(idMap.keySet()).or(qFolder.id.in(idMap.values())))
+                .where(qFolder.folderId.in(idSet).and(qFolder.userId.eq(userId)))
                 .execute();
 
-            // parent로 연계된 북마크를 지움
-            // parent로 연결된 폴더
-            List<OnlyId> folders = folderRepository.findByParentIn(idMap.keySet());
-            // 기존 폴더 pk
-            Collection<Long> idList = idMap.values();
-            for(OnlyId item : folders){
-                idList.add(item.getId());
-            }
-
+            //  일괄업데이트 (북마크)
             update = new JPAUpdateClause(em, qBookmark);
             update
                 .set(qBookmark.deleted, true)
-                .where(qBookmark.folderPk.in(idList))
+                .where(qBookmark.folderId.in(idSet).and(qBookmark.userId.eq(userId)))
                 .execute();
+            
 
-            //영속성 무시하고 쿼리를 날리기때문에 동기화해줘야함
             em.flush();
             em.clear();
         }
+    }
+
+
+    public void getChildren(List<Long> folderIdList, Long userId){
+
     }
 
 

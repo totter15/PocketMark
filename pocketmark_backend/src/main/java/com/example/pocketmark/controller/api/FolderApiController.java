@@ -46,9 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 public class FolderApiController {
     private final FolderService folderService;
 
-    // test 후 삭제할 bean 
-    private final FolderRepository folderRepository;
-    private final UserRepository userRepository;
 
     public static Long getUserId(){
         return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -102,48 +99,8 @@ public class FolderApiController {
     }
 
 
-    @Autowired
-    BookmarkRepository bookmarkRepository;
-    @Autowired
-    DataService dataService;
 
-    // @PreAuthorize("isAuthenticated()")
-    @GetMapping("/folder/test")
-    public ApiDataResponse<DataRes> test(
-        @PageableDefault(size=2) Pageable pageable
-
-    ){
-        User user = CU("test@gmial.com","Ping91");
-        userRepository.save(user);
-        userRepository.save(CU("test@gmial1.com","Ping92"));
-        userRepository.save(CU("test@gmial2.com","Ping93"));
-        // Folder folder = Folder.builder().parent(1L).depth(1L).user(user).build();
-        Folder rootFolder = folderRepository.save(Folder.builder().name("북마크서비스").parent(0L).depth(0L).user(user).build());
-        folderRepository.save(Folder.builder().name("JPA").parent(1L).depth(1L).user(user).build());
-        folderRepository.save(Folder.builder().name("PUBG").parent(1L).depth(1L).user(user).build());
-        bookmarkRepository.save(Bookmark.builder().name("영국음식레시피").folder(rootFolder).url("testUrl.com").build() );
-        bookmarkRepository.save(Bookmark.builder().name("서핑하기좋은곳").folder(rootFolder).url("testUrl.com").build() );
-        bookmarkRepository.save(Bookmark.builder().name("가을서울관광명소").folder(rootFolder).url("testUrl.com").build() );
-
-        user = CU("test@gmial3.com","Ping94");
-        userRepository.save(user);
-        rootFolder = folderRepository.save(Folder.builder().name("MUSIC").parent(0L).depth(0L).user(user).build());
-        folderRepository.save(Folder.builder().name("Ed Sheeran").parent(rootFolder.getId()).depth(1L).user(user).build());
-        bookmarkRepository.save(Bookmark.builder().name("J-POP").folder(rootFolder).url("testUrl.com").build() );
-        bookmarkRepository.save(Bookmark.builder().name("여행하기좋은곳").folder(rootFolder).url("testUrl.com").build() );
-        bookmarkRepository.save(Bookmark.builder().name("필리핀관광명소").folder(rootFolder).url("testUrl.com").build() );
-        
-        
-
-        folderRepository.findAll().forEach(System.out::println);
     
-        return ApiDataResponse.of(dataService.getData(1L, 1L,pageable));
-    }
-
-    public User CU(String email, String nickname){
-        return new User(email,"1234",nickname);
-        
-    }
 
     
 }

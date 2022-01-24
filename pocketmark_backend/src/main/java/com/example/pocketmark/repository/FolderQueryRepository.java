@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.QFolder;
+import com.example.pocketmark.dto.QFolderDto_FolderIdAndDbId;
 import com.example.pocketmark.dto.QFolderDto_FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderResImpl;
 import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
@@ -50,7 +51,7 @@ public class FolderQueryRepository {
         Long userId, Collection<Long> folderIdSet
     ){
         return queryFactory
-            .select(new QFolderDto_FolderResImpl(qFolder.id, qFolder.folderId))
+            .select(new QFolderDto_FolderIdAndDbId(qFolder.id, qFolder.folderId))
             .from(qFolder)
             .where(qFolder.userId.eq(userId).and(qFolder.folderId.in(folderIdSet)))
             .fetch()
@@ -84,13 +85,24 @@ public class FolderQueryRepository {
         else return true;
     }
 
+    public boolean isAllExistWithUserIdAndFolderId(Collection<Long> folderIdList, Long userId){
+        List<FolderResImpl> fetchList = queryFactory
+                            .select(new QFolderDto_FolderResImpl(qFolder.folderId))
+                            .from(qFolder)
+                            .where(qFolder.folderId.in(folderIdList).and(qFolder.userId.eq(userId)))
+                            .limit(folderIdList.size())
+                            .fetch();
+
+        if(fetchList ==null || fetchList.size()!=folderIdList.size() ) return false;
+        else return true;
+    }
+
     @Transactional(readOnly = true)
     public List<Folder> findByAll(String name, Long parent, Long depth, Pageable pageable){
         return queryFactory.selectFrom(qFolder)
                 .where(
                     eqName(name),
-                    eqParent(parent),
-                    eqDepth(depth))
+                    eqParent(parent))
                 .orderBy(qFolder.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -101,23 +113,20 @@ public class FolderQueryRepository {
     public Long update(FolderUpdateServiceReq req){
         UpdateClause<JPAUpdateClause> builder = queryFactory.update(qFolder);
         
-        if(StringUtils.hasText(req.getName())){
+        if(StringUtils.hasText(req.getName())){ // name
             builder.set(qFolder.name, req.getName());
         }
-        if(req.getParent() != null){
+        if(req.getParent() != null){ //parent
             builder.set(qFolder.parent, req.getParent());
         }
-        if(req.getDepth() != null){
-            builder.set(qFolder.depth, req.getDepth());
-        }
-        if(req.getVisitCount() != null){
+        if(req.getVisitCount() != null){ //visitCount
             builder.set(qFolder.visitCount, req.getVisitCount());
         }
 
         // userId check needed to prevent JS attack from Hacker
         // should be coded in Service Layer
         return builder
-                .where(qFolder.id.eq(req.getId()))
+                .where(qFolder.id.eq(req.getFolderId()))
                 .execute();
     }
 
@@ -133,12 +142,6 @@ public class FolderQueryRepository {
             return null;
         }
         return qFolder.parent.eq(parent);
-    }
-    private BooleanExpression eqDepth(Long depth){
-        if(depth== null){
-            return null;
-        }
-        return qFolder.depth.eq(depth);
     }
 
     

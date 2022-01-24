@@ -45,7 +45,6 @@ import lombok.extern.slf4j.Slf4j;
 @Table(indexes = @Index(name="i_folder_id", columnList = "folder_id"))
 public class Folder extends BaseEntity {
     private Long parent;
-    private Long depth;
     private String name;
 
     @ManyToOne(cascade = {CascadeType.DETACH,
@@ -97,10 +96,8 @@ public class Folder extends BaseEntity {
     public FolderResImpl toJson(){
 
         // return new FolderResImpl(this.depth,this.parent,this.user.getId(),this.name);
-
         return FolderResImpl.builder()
             .name(this.name)
-            .depth(this.depth)
             .parent(this.parent)
             .visitCount(this.visitCount)
             .build();
@@ -108,8 +105,10 @@ public class Folder extends BaseEntity {
 
     public void update(FolderUpdateServiceReq req){
         this.parent = req.getParent();
-        this.depth = req.getDepth();
         this.name = req.getName();
         this.visitCount = req.getVisitCount();
     }
+
+
+    
 }

@@ -35,7 +35,7 @@ public class LoginService {
 
         //root 폴더 생성
         folderService.saveByCreateReq(
-            FolderCreateServiceReq.builder().name("Root").depth(0L).parent(null).folderId(0L).build(),
+            FolderCreateServiceReq.builder().name("Root").parent(null).folderId(0L).build(),
             user.getId());
 
         return user;

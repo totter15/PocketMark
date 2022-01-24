@@ -13,6 +13,7 @@ import javax.persistence.Transient;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateServiceReq;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.hibernate.annotations.Where;
 
@@ -52,6 +53,8 @@ public class Bookmark extends BaseEntity {
     private Integer visitCount;
     
     private Long folderId;
+    private Long bookmarkId;
+    private Long userId;
 
     //non-column field (DB와 동기화 되지 않은 새폴더에 하위로 생기는 북마크들을 위한 필드)
     // @Transient

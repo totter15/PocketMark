@@ -9,7 +9,7 @@ import com.example.pocketmark.domain.QBookmark;
 import com.example.pocketmark.dto.QBookmarkDto_BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
-
+import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateServiceReq;
 import com.querydsl.core.dml.UpdateClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
@@ -42,23 +42,32 @@ public class BookmarkQueryRepository {
             
     // }
 
-    public boolean exist(Long id){
+    public boolean exist(Long bookmarkId){
         Bookmark fetchOne = queryFactory.selectFrom(qBookmark)
-                        .where(qBookmark.id.eq(id)).fetchFirst();
+                        .where(qBookmark.bookmarkId.eq(bookmarkId)).fetchFirst();
         if(fetchOne ==null) return false;
         else return true;
     }
 
-    public boolean existAll(Collection<Long> ids){
+    public boolean existAll(Collection<Long> bookmarkIds){
         List<Bookmark> fetch = queryFactory.selectFrom(qBookmark)
-                        .where(qBookmark.id.in(ids)).limit(ids.size()).fetch();
+                        .where(qBookmark.bookmarkId.in(bookmarkIds)).limit(bookmarkIds.size()).fetch();
 
-        if(fetch.size() == ids.size()) return true;
+        if(fetch.size() == bookmarkIds.size()) return true;
+        else return false;
+    }
+
+    public boolean isAllValidWithUser(Collection<Long> bookmarkIds, Long userId){
+        List<Bookmark> fetch = queryFactory.selectFrom(qBookmark)
+                        .where(qBookmark.id.in(bookmarkIds).and(qBookmark.userId.eq(userId)))
+                        .limit(bookmarkIds.size()).fetch();
+                
+        if(fetch.size() == bookmarkIds.size()) return true;
         else return false;
     }
 
 
-    public Long update(BookmarkUpdateReq req){
+    public Long update(BookmarkUpdateServiceReq req){
         UpdateClause<JPAUpdateClause> builder = queryFactory.update(qBookmark);
         
         if(StringUtils.hasText(req.getName())){
@@ -80,7 +89,7 @@ public class BookmarkQueryRepository {
         // userId check needed to prevent JS attack from Hacker
         // should be coded in Service Layer
         return builder
-                .where(qBookmark.id.eq(req.getId()))
+                .where(qBookmark.id.eq(req.getBookmarkId()))
                 .execute();
     }
     
