@@ -3,7 +3,7 @@ import { getCookis } from "./cookie";
 
 const headers = {
   "Content-Type": "application/json",
-  Authorization: `bearer ${getCookis("myToken")}`,
+  Authorization: `Bearer ${getCookis("myToken")}`,
 };
 
 const Post = async (post, data) => {
@@ -44,7 +44,7 @@ const PutData = async (data) => {
   try {
     const response = await axios.put(
       `http://localhost:9090/api/v1/data`,
-      JSON.stringify(data),
+      data,
       { headers: headers }
     );
     return response;
@@ -56,8 +56,8 @@ const PutData = async (data) => {
 const DeleteData = async (data) => {
   try {
     const response = await axios.put(
-      `http://localhost:9090/api/v1/data`,
-      JSON.stringify(data),
+      `http://localhost:9090/api/v1/data/delete`,
+      data,
       { headers: headers }
     );
     return response;
@@ -69,7 +69,7 @@ const DeleteData = async (data) => {
 const GetData = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:9090/api/v1/data?folder-id=0&size=10&sort=name,desc`,
+      `http://localhost:9090/api/v1/data?folder-id=0&size=10&sort=id`,
       {
         headers: headers,
       }

@@ -30,6 +30,7 @@ const AddModal = ({
 
   useEffect(() => {
     if (edit) setData(editBookmark[0]);
+    console.log(editBookmark);
   }, [edit]);
 
   const onMake = (e) => {

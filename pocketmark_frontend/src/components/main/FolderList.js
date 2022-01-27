@@ -32,6 +32,7 @@ const FolderList = ({
             return (
               <>
                 <FolderListItem
+                  key={folder.folderId}
                   name={folder.name}
                   folderSelect={folderSelect}
                   id={folder.folderId}
@@ -41,6 +42,7 @@ const FolderList = ({
                   if (fol.parent === folder.folderId) {
                     return (
                       <FolderListItem
+                        key={fol.folderId}
                         name={fol.name}
                         child
                         folderSelect={folderSelect}

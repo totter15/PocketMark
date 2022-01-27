@@ -8,10 +8,7 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
 
   return (
     <div className="bookmarkListItem">
-      <div
-        className="edit"
-        onClick={() => deleteBookmarks(bookmark.bookmarkId)}
-      >
+      <div className="edit" onClick={() => deleteBookmarks(bookmark.id)}>
         <RiDeleteBin6Line
           style={{
             position: "absolute",
@@ -22,7 +19,7 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
           }}
         />
       </div>
-      <div className="edit" onClick={() => editModalOpen(bookmark.bookmarkId)}>
+      <div className="edit" onClick={() => editModalOpen(bookmark.id)}>
         <FiEdit3
           style={{
             position: "absolute",

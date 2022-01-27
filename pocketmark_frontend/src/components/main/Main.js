@@ -7,7 +7,6 @@ import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
 import "./Main.css";
 import { DeleteData, PostData, PutData, GetData } from "../../lib/Axios";
-import { getCookis } from "../../lib/cookie";
 
 const Main = () => {
   const [search, setSearch] = useState("");
@@ -30,7 +29,7 @@ const Main = () => {
   const [selectFolder, setSelectFolder] = useState(0);
   const [editBookmark, setEditBookmark] = useState(null);
   const [edit, setEdit] = useState(null);
-  const forderId = useRef(1);
+  const folderId = useRef(1);
   const bookmarkId = useRef(1);
   const server = useRef({
     post: {
@@ -48,16 +47,18 @@ const Main = () => {
   });
 
   useEffect(() => {
-    // GetData().then((res) => {
-    //   setFolders(res.data.folders);
-    //   setBookmarks(res.data.bookmarks);
-    // });
+    GetData().then((res) => {
+      setFolders(res.data.data.folders);
+      setBookmarks(res.data.data.bookmarks);
+      getId(res.data.data);
+    });
+    console.log(bookmarks, folders, "done");
   }, []);
 
   useEffect(() => {
-    axios();
-    // setInterval(axios, 1000*60*5); //5분
-  }, [server]);
+    setInterval(axios, 1000 * 60); //5분
+    console.log(bookmarks, folders, "done");
+  }, []);
 
   useEffect(() => {
     folderSelect(selectFolder);
@@ -65,26 +66,44 @@ const Main = () => {
 
   const { post, put, del } = server.current;
 
-  const axios = () => {
+  const axios = useCallback(() => {
+    console.log(post, put, del, "server");
     PostData(post)
-      // .then(() => PutData(put))
-      // .then(() => DeleteData(del))
-      // .then(() => GetData())
-      // .then((res) => {
-      //   setFolders(res.data.folders);
-      //   setBookmarks(res.data.bookmarks);
-      // })
+      .then(() => PutData(put) && console.log("put완료"))
+      .then(() => DeleteData(del) && console.log("del완료"))
+      .then(() => GetData() && console.log("get완료"))
+      .then((res) => {
+        setFolders(res.data.data.folders);
+        setBookmarks(res.data.data.bookmarks);
+        getId(res.data.data.bookmarks);
+      })
+      .then(() => {
+        console.log("reset");
+        return (server.current = {
+          post: {
+            folders: [],
+            bookmarks: [],
+          },
+          put: {
+            folders: [],
+            bookmarks: [],
+          },
+          del: {
+            folderIdList: [],
+            bookmarkIdList: [],
+          },
+        });
+      })
       .catch((e) => console.log(e));
-  };
-
-  console.log(post);
+    console.log(server.current, "server");
+  }, [post, put, del, folders, bookmarks]);
 
   const makeFolder = useCallback(
     (folderName, parent, depth) => {
       setFolders([
         ...folders,
         {
-          folderId: forderId.current,
+          folderId: folderId.current,
           parent: parent,
           depth: depth,
           name: folderName,
@@ -94,13 +113,13 @@ const Main = () => {
       post.folders = [
         ...post.folders,
         {
-          folderId: forderId.current,
+          folderId: folderId.current,
           parent: parent,
           depth: depth,
           name: folderName,
         },
       ];
-      forderId.current++;
+      folderId.current++;
       folderModalClose();
     },
     [folders, post]
@@ -115,7 +134,7 @@ const Main = () => {
           url: url,
           comment: comment,
           folderId: folderId,
-          bookmarkId: bookmarkId.current,
+          id: bookmarkId.current,
         },
       ]);
       //서버용
@@ -138,13 +157,13 @@ const Main = () => {
     (bookmarkName, url, comment, folderId) => {
       setBookmarks(
         bookmarks.map((bookmark) =>
-          bookmark.bookmarkId === edit
+          bookmark.id === edit
             ? {
                 name: bookmarkName,
                 url: url,
                 comment: comment,
                 folderId: folderId,
-                bookmarkId: edit,
+                id: edit,
               }
             : bookmark
         )
@@ -157,7 +176,8 @@ const Main = () => {
           url: url,
           comment: comment,
           folderId: folderId,
-          bookmarkId: edit,
+          id: edit,
+          visitCount: 0,
         },
       ];
       modalClose();
@@ -167,9 +187,7 @@ const Main = () => {
 
   const deleteBookmarks = useCallback(
     (bookmarkId) => {
-      setBookmarks(
-        bookmarks.filter((bookmark) => bookmark.bookmarkId !== bookmarkId)
-      );
+      setBookmarks(bookmarks.filter((bookmark) => bookmark.id !== bookmarkId));
       //서버용
       del.bookmarkIdList = [...del.bookmarkIdList, bookmarkId];
     },
@@ -186,6 +204,17 @@ const Main = () => {
     },
     [bookmarks]
   );
+
+  const getId = (data) => {
+    let lastFolderId = data.folders[data.folders.length - 1].folderId;
+    let lastBookmarkId = data.bookmarks[data.bookmarks.length - 1].id;
+    console.log(lastBookmarkId);
+    folderId.current = lastFolderId ? ++lastFolderId : 1;
+    bookmarkId.current = lastBookmarkId ? ++lastBookmarkId : 1;
+    console.log(bookmarkId, folderId, "id");
+  };
+
+  window.addEventListener("beforeunload", axios); //브라우저 종료전 서버통신
 
   const folderModalOpen = () => {
     setFolderModal(true);
@@ -207,7 +236,7 @@ const Main = () => {
 
   const editModalOpen = (bookmarkId) => {
     setEdit(bookmarkId);
-    setEditBookmark(bookmarks.filter((b) => b.bookmarkId === bookmarkId));
+    setEditBookmark(bookmarks.filter((b) => b.id === bookmarkId));
     setAddModal(true);
   };
 
