@@ -5,6 +5,7 @@ import com.example.pocketmark.dto.DataDto.DataDeleteReq;
 import com.example.pocketmark.dto.DataDto.DataRes;
 import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
+import com.example.pocketmark.security.provider.UserPrincipal;
 import com.example.pocketmark.service.DataService;
 
 import com.example.pocketmark.service.UserService;
@@ -31,41 +32,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class DataApiController {
 
     private final DataService dataService;
-    private final UserService userService;
 
+    
     private Long getUserId(){
-        Long userId = (Long) SecurityContextHolder.getContext()
+        UserPrincipal userPrincipal = (UserPrincipal)SecurityContextHolder
+                .getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        return userService.selectUserByUserId(userId).getId();
+        return Long.parseLong(userPrincipal.getUsername());
     }
 
-
-
-
-    
-    @GetMapping(value="/data") // /data?depth=1
-    public ApiDataResponse<DataRes> getData(
-        @RequestParam(value ="depth", required = false, defaultValue = "1") Long depth,
-        @PageableDefault(size=2) Pageable pageable
-        
-    )
-    {
-        return ApiDataResponse.of(dataService.getData(getUserId(), depth, pageable));
+    //Test
+    @GetMapping(value="/data-all")
+    public ApiDataResponse<DataRes> getAll(){
+        return ApiDataResponse.of(dataService.getAll(getUserId())); 
     }
 
-    @PutMapping(value="/data")
-    public ApiDataResponse<DataRes> updateData(
-        @RequestBody DataUpdateReq req
-    ){
-        //validation in service
-
-        dataService.updateData(req.toServcieReq(), getUserId());
-        return ApiDataResponse.empty();
-
-    }
-
+    //C
     @PostMapping(value="/data")
     public ApiDataResponse<DataRes> createData(
         @RequestBody DataCreateReq req
@@ -74,6 +58,31 @@ public class DataApiController {
         return ApiDataResponse.empty();
     }
 
+    //R
+    @GetMapping(value="/data") // /data?depth=1
+    public ApiDataResponse<DataRes> getData(
+        // @RequestParam(value ="depth", required = false, defaultValue = "1")
+        // Long depth,
+        @RequestParam(value="folder-id", required = false, defaultValue = "0")
+        Long folderId,
+        @PageableDefault(size=2) Pageable pageable
+        
+    )
+    {
+        return ApiDataResponse.of(dataService.getData(getUserId(), folderId, pageable));
+    }
+
+    //U
+    @PutMapping(value="/data")
+    public ApiDataResponse<DataRes> updateData(
+        @RequestBody DataUpdateReq req
+    ){
+        dataService.updateData(req.toServcieReq(), getUserId());
+        return ApiDataResponse.empty();
+
+    }
+    
+    //D
     @PutMapping(value="/data/delete")
     public ApiDataResponse<DataRes> deleteData(
         @RequestBody DataDeleteReq req

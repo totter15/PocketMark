@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 import com.example.pocketmark.domain.Bookmark;
 import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryProjection;
 
@@ -36,9 +37,15 @@ public class BookmarkDto {
     @ToString
     public static class BookmarkCreateReq{
         @NotNull
-        //this is temp folderId
-        // @JsonProperty("folderId")
+        @JsonProperty("folderId")
+        @JsonAlias("folder-id")
         private Long folderId;
+        
+        
+        @NotNull
+        @JsonProperty("bookmarkId")
+        @JsonAlias("bookmark-id")
+        private Long bookmarkId;
 
         @NotNull @NotBlank
         @Size(max=50)
@@ -56,6 +63,7 @@ public class BookmarkDto {
         @Builder
         @ToString
         public static class BookmarkCreateServiceReq{
+            private Long bookmarkId;
             private Long folderId;
             private String name;
             private String url;
@@ -65,6 +73,8 @@ public class BookmarkDto {
 
                 return Bookmark.builder()
                         .folder(folder)
+                        .bookmarkId(this.bookmarkId)
+                        .folderId(this.folderId)
                         .name(this.name)
                         .url(this.url)
                         .comment(this.comment)
@@ -75,22 +85,25 @@ public class BookmarkDto {
 
         public BookmarkCreateServiceReq toServiceReq(){
             return BookmarkCreateServiceReq.builder()
+                    .bookmarkId(bookmarkId)
+                    .folderId(folderId)
                     .name(name)
                     .url(url)
                     .comment(comment)
-                    .folderId(folderId)
                     .build();
         }
 
 
-        public Bookmark toEntity(Folder folder){
+        public Bookmark toEntity(Folder folder, Long userId){
 
             return Bookmark.builder()
+                    .folder(folder)
+                    .userId(userId)
+                    .bookmarkId(this.bookmarkId)
                     .folderId(this.folderId)
                     .name(this.name)
                     .url(this.url)
                     .comment(this.comment)
-                    .folder(folder)
                     .visitCount(0)
                     .build();
         }
@@ -104,11 +117,11 @@ public class BookmarkDto {
 
 
     public interface BookmarkRes{
-        Long getId();
+        Long getBookmarkId();
+        Long getFolderId();
         String getName();
         String getUrl();
         String getComment();
-        Long getFolderId();
         Integer getVisitCount();
     }
 
@@ -118,11 +131,11 @@ public class BookmarkDto {
     @NoArgsConstructor
     @Builder
     public static class BookmarkResImpl implements BookmarkRes{
-        private Long id;
+        private Long bookmarkId;
+        private Long folderId;
         private String name;
         private String url;
         private String comment;
-        private Long folderId;
         private Integer visitCount;
 
         @QueryProjection
@@ -143,20 +156,20 @@ public class BookmarkDto {
     @NoArgsConstructor
     @Builder
     public static class BookmarkUpdateReq{ //UpdateReq 는 Validation이 필요없음, API단에서 BookmarkId Validation만 필요 
-        private Long id;
+        private Long bookmarkId;
+        private Long folderId;
         private String name;
         private String url;
         private String comment;
-        private Long folderId;
         private Integer visitCount;
 
         public BookmarkUpdateServiceReq toServiceReq(){
             return BookmarkUpdateServiceReq.builder()
-                    .id(id)
+                    .bookmarkId(this.bookmarkId)
+                    .folderId(this.folderId)
                     .name(this.name)
                     .url(this.url)
                     .comment(this.comment)
-                    .folderId(this.folderId)
                     .visitCount(this.visitCount)
                     .build();
         }
@@ -168,11 +181,11 @@ public class BookmarkDto {
     @NoArgsConstructor
     @Builder
     public static class BookmarkUpdateServiceReq{
-        private Long id;
+        private Long bookmarkId;
+        private Long folderId;
         private String name;
         private String url;
         private String comment;
-        private Long folderId;
         private Integer visitCount;
         
     }

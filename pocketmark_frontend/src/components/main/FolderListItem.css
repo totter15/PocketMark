@@ -1,0 +1,8 @@
+.folderListItem {
+  padding: 15px 10px;
+  /* border: 1px solid black; */
+}
+
+.folderListItem:hover {
+  background-color: rgb(236, 241, 243);
+}

@@ -1,0 +1,131 @@
+@import url("https://fonts.googleapis.com/css2?family=Abel&display=swap");
+
+.registContainer {
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 4rem;
+  border-radius: 15px;
+  padding: 1rem 3rem 4rem 3rem;
+  background: white;
+}
+
+h1 {
+  font-family: "Abel", sans-serif;
+  color: #4a535e;
+  font-size: 2.2rem;
+  text-align: center;
+  font-weight: 400;
+  margin: 1rem 0 0.5rem;
+}
+
+.title {
+  color: #4a535e;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid rgb(226, 226, 226);
+  border-radius: 10px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.Ok input {
+  border: 1px solid #b9cbe2;
+}
+
+.email input {
+  border: 1px solid orangered;
+}
+
+.password input:focus {
+  border: 1px solid orangered;
+}
+
+.passwordOk input:focus {
+  border: 1px solid #b9cbe2;
+}
+
+input:focus {
+  border: 1px solid #b9cbe2;
+}
+
+form .password:focus {
+  border: 1px solid orangered;
+}
+
+form .passwordCheck:focus {
+  border: 1px solid orangered;
+}
+
+input::placeholder {
+  color: #969ea7;
+  font-size: 0.8rem;
+}
+
+.registContainer a:-webkit-any-link {
+  text-decoration: none;
+  margin: auto;
+  margin-top: 3rem;
+}
+
+.registContainer form div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+form label {
+  margin-right: 20px;
+  font-size: 0.8rem;
+  color: rgb(87, 92, 128);
+  font-weight: 500;
+}
+
+p {
+  font-size: 0.6rem;
+  margin: 0;
+  margin-top: 2px;
+}
+
+.check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0;
+}
+
+.checkButton {
+  width: 30%;
+  padding: 12px 10px;
+  margin: 0;
+  margin-left: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 16px;
+  transition: 0.1s background ease-in;
+}
+
+button:hover {
+  background: #e7ebf0;
+}
+
+.message {
+  padding-left: 4px;
+  font-size: 0.6rem;
+  font-weight: 500;
+}

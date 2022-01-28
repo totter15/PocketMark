@@ -16,14 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface FolderRepository extends JpaRepository<Folder,Long>{
     List<Folder> findByUser(User user);
+    List<FolderRes> findFolderResByUserId(Long userId);
 
 
     List<OnlyFolderId> findByParent(Long parent);
     List<OnlyId> findByParentIn(Collection<Long> parent);
     
 
-    List<FolderRes> findByUserIdAndDepth(Long userId, Long depth);
-    Slice<FolderRes> findByUserIdAndDepth(Long userId, Long depth, Pageable pageable);
+    Slice<FolderRes> findByUserIdAndParent(Long userId, Long parent, Pageable pageable);
+
 
     List<FolderRes> findByUserId(Long userId);
     List<FolderRes> findByUser_Id(Long userId);

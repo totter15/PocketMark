@@ -1,0 +1,117 @@
+ol,
+ul,
+li {
+  list-style: none;
+}
+.boxalign {
+  width: 1200px;
+}
+.main {
+  background: white;
+  height: 100vh;
+  /* width: 1200px; */
+  margin: auto;
+  /* border-radius: 15px; */
+  position: relative;
+}
+
+.main header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 4rem;
+  box-shadow: 0px 5px 30px 0px rgb(241, 241, 241);
+}
+
+.main header h2 {
+  font-weight: bolder;
+  font-family: "Abel", sans-serif;
+}
+
+.main header .search {
+  display: flex;
+  align-items: center;
+}
+.main header .nav {
+  font-family: "Abel", sans-serif;
+}
+.nav a:link {
+  padding: 5px 20px;
+  border: 1px solid #000;
+  border-radius: 40px;
+  text-decoration: none;
+  color: #000;
+}
+.nav a:link:nth-child(1) {
+  margin-right: 20px;
+}
+
+.nav a:link:hover {
+  background: #eee;
+  transition: 0.3s;
+}
+
+.main input {
+  width: 40vw;
+  margin: 0 0 0 40px;
+  padding: 0.8rem 1rem;
+  padding-left: 50px;
+}
+
+.main form {
+  position: relative;
+}
+
+.main .searchButton {
+  width: 10vw;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  left: 55px;
+  top: 14px;
+  position: absolute;
+}
+
+.main button {
+  background-color: white;
+  padding: 0;
+  margin: 0;
+}
+
+button svg {
+  width: 37px;
+  height: 37px;
+  color: rgb(197, 202, 206);
+  margin-left: 10px;
+}
+
+svg:hover {
+  cursor: pointer;
+  color: rgb(154, 164, 172);
+}
+
+.main main {
+  display: flex;
+  padding: 2rem 4rem;
+}
+
+.foldList {
+  width: 25%;
+  height: 100%;
+  margin: auto;
+  border: 1px solid black;
+
+  /* background: #eee; */
+}
+.foldList h3 {
+  text-align: center;
+  font-family: "Abel", sans-serif;
+}
+.foldList ul {
+  line-height: 2rem;
+  text-align: left;
+}
+.foldList ul li:hover {
+  background: rgb(255, 255, 255);
+}

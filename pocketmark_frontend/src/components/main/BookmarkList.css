@@ -1,0 +1,22 @@
+.bookmarkList {
+  padding: 10px 30px;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.bookmarkList .route {
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid black;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: rgb(88, 88, 88);
+}
+
+.bookmarkList .contents {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}

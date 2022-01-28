@@ -31,7 +31,7 @@ public class DataDto {
     @Builder
     @NoArgsConstructor // for objectMapper
     public static class DataRes{
-        Long depth;
+        Long folderId;
         List<FolderRes> folders;
         List<BookmarkRes> bookmarks;
     }
