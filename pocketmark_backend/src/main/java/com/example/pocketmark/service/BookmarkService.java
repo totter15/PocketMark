@@ -86,7 +86,7 @@ public class BookmarkService {
         List<Bookmark> bookmarks= new ArrayList<>();
         for(BookmarkCreateReq singleReq : req){
             folder = folderRepository.getById(map.get(singleReq.getFolderId()));
-            bookmarks.add(singleReq.toEntity(folder));            
+            bookmarks.add(singleReq.toEntity(folder, userId));            
         }
         
         bookmarkRepository.saveAll(bookmarks);
@@ -101,11 +101,8 @@ public class BookmarkService {
         return bookmarkRepository.findByFolderId(folderId);
     } 
 
-    public Slice<BookmarkRes> getBoomarkByFolderDepth(Long userId, Long depth, Pageable pageable){
-        return bookmarkRepository.findByFolder_UserIdAndFolder_Depth(userId, depth, pageable);
-    }
     public Slice<BookmarkRes> getBoomarkByFolderId(Long userId, Long folderId, Pageable pageable){
-        return bookmarkRepository.findByFolder_UserIdAndFolder_Depth(userId, folderId, pageable);
+        return bookmarkRepository.findByFolder_UserIdAndFolderId(userId, folderId, pageable);
     }
 
 
@@ -122,8 +119,6 @@ public class BookmarkService {
     }
 
 
-    //d - 삭제랑 생성은 배치기능 없음 (데이터로 모두 남기기 위해)
-    // 그걸 프론트에게 맡기고 나는 배치기능을 구현하는게 맞지 않을까? 
     public void deleteBookmarkBySelfId(Long bookmarkId, Long userId){
         //suggeted by Yamashiro Rion
         if(BookmarkQueryRepository.exist(bookmarkId)){ // no count query
@@ -142,7 +137,8 @@ public class BookmarkService {
     }
 
     public void deleteBookmarksInBatch(List<Long> IdList, Long userId){
-        if(!BookmarkQueryRepository.existAll(IdList)){
+        if(IdList.size() == 0
+            || !BookmarkQueryRepository.existAll(IdList)){
             return;
         }
 
@@ -150,11 +146,12 @@ public class BookmarkService {
         JPAUpdateClause update = new JPAUpdateClause(em, qBookmark);
             update
                 .set(qBookmark.deleted, true)
-                .where(qBookmark.id.in(IdList))
+                .where(qBookmark.id.in(IdList).and(qBookmark.userId.eq(userId)))
                 .execute();
                 
 
         em.flush();
+        em.clear();
         
     }
 

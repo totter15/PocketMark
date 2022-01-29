@@ -41,6 +41,12 @@ public class DataApiController {
         return Long.parseLong(userPrincipal.getUsername());
     }
 
+    // Test
+    @GetMapping(value = "/data-all")
+    public ApiDataResponse<DataRes> getAll() {
+        return ApiDataResponse.of(dataService.getAll(getUserId()));
+    }
+
     // C
     @PostMapping(value = "/data")
     public ApiDataResponse<DataRes> createData(

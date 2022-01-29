@@ -2,27 +2,14 @@ package com.example.pocketmark.controller.api;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.validation.Valid;
 
-import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
 import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq.BookmarkCreateServiceReq;
-import com.example.pocketmark.dto.FolderDto.FolderCreateReq;
-import com.example.pocketmark.dto.FolderDto.FolderRes;
-import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
-import com.example.pocketmark.repository.BookmarkRepository;
-import com.example.pocketmark.repository.FolderRepository;
-import com.example.pocketmark.repository.UserRepository;
 import com.example.pocketmark.service.BookmarkService;
-import com.example.pocketmark.service.FolderService;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -46,11 +33,6 @@ public class BookmarkApiController {
 
     private final BookmarkService bookmarkService;
 
-    // test 후 삭제할 bean 
-    private final FolderService folderService;
-    private final FolderRepository folderRepository;
-    private final BookmarkRepository bookmarkRepository;
-    private final UserRepository userRepository;
 
     //C
     @PostMapping("/bookmark")
@@ -99,31 +81,8 @@ public class BookmarkApiController {
 
 
 
-    @GetMapping("/bookmark/test")
-    public List<BookmarkRes> test(){
-        userRepository.save(new User("test@email.com","1234","Ping9"));
 
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
-        folderService.saveByCreateReq(makeFolderReq().toServiceReq(),1L);
-        
-        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq(1L,"JPA 영속성", "testUrl", "유익함"));
-        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq(2L,"JPA 영속성", "testUrl", "유익함"));
-        bookmarkService.saveByCreateReq(new BookmarkCreateServiceReq(2L,"JPA 영속성", "testUrl", "유익함"));
-
-        userRepository.findAll().forEach(System.out::println);
-        folderRepository.findAll().forEach(System.out::println);
-        bookmarkRepository.findAll().forEach(System.out::println);
     
-        return bookmarkRepository.findByFolderId(2L);
-    }
-
-    public FolderCreateReq makeFolderReq(){
-        return FolderCreateReq.builder()
-                .parent(1L)
-                .depth(1L)
-                .name("JPA")
-                .build();
-    }
 
 
     

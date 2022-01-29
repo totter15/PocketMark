@@ -9,6 +9,7 @@ import "./Main.css";
 import { DeleteData, PostData, PutData, GetData } from "../../lib/Axios";
 
 const Main = () => {
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
   //folders/bookmarks
@@ -24,7 +25,6 @@ const Main = () => {
   //modal
   const [folderModal, setFolderModal] = useState(false);
   const [addModal, setAddModal] = useState(false);
-
   const [bookmarkList, setBookmarkList] = useState(null);
   const [selectFolder, setSelectFolder] = useState(0);
   const [editBookmark, setEditBookmark] = useState(null);
@@ -46,32 +46,34 @@ const Main = () => {
     },
   });
 
+  const { post, put, del } = server.current;
+
   useEffect(() => {
     GetData().then((res) => {
+      console.log(res.data, "d");
       setFolders(res.data.data.folders);
       setBookmarks(res.data.data.bookmarks);
       getId(res.data.data);
     });
-    console.log(bookmarks, folders, "done");
   }, []);
 
   useEffect(() => {
-    setInterval(axios, 1000 * 60); //5분
     console.log(bookmarks, folders, "done");
-  }, []);
+    setInterval(() => axios(post, put, del), 1000 * 10); //5분
+  }, [server]);
 
   useEffect(() => {
     folderSelect(selectFolder);
   }, [selectFolder, bookmarks]);
+  console.log(folders, bookmarks);
 
-  const { post, put, del } = server.current;
-
-  const axios = useCallback(() => {
+  const axios = useCallback((post, put, del) => {
     console.log(post, put, del, "server");
+    setLoading(true);
     PostData(post)
-      .then(() => PutData(put) && console.log("put완료"))
-      .then(() => DeleteData(del) && console.log("del완료"))
-      .then(() => GetData() && console.log("get완료"))
+      .then(() => PutData(put))
+      // .then(() => DeleteData(del))
+      .then(() => GetData())
       .then((res) => {
         setFolders(res.data.data.folders);
         setBookmarks(res.data.data.bookmarks);
@@ -95,8 +97,7 @@ const Main = () => {
         });
       })
       .catch((e) => console.log(e));
-    console.log(server.current, "server");
-  }, [post, put, del, folders, bookmarks]);
+  }, []);
 
   const makeFolder = useCallback(
     (folderName, parent, depth) => {
@@ -115,7 +116,6 @@ const Main = () => {
         {
           folderId: folderId.current,
           parent: parent,
-          depth: depth,
           name: folderName,
         },
       ];
@@ -141,6 +141,7 @@ const Main = () => {
       post.bookmarks = [
         ...post.bookmarks,
         {
+          bookmarkId: bookmarkId,
           name: bookmarkName,
           url: url,
           comment: comment,
@@ -172,11 +173,11 @@ const Main = () => {
       put.bookmarks = [
         ...put.bookmarks,
         {
+          bookmarkId: edit,
           name: bookmarkName,
           url: url,
           comment: comment,
           folderId: folderId,
-          id: edit,
           visitCount: 0,
         },
       ];
