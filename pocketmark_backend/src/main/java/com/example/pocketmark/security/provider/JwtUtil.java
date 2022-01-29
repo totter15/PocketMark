@@ -112,6 +112,17 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
+    // authenticationService.authenticate(req) 의 return 타입을 바꾸긴 애매해서
+    // 여기에 추가합니다..... 좋은 의견있으시면 의견부탁드립니다.
+    public static Long getUserId(String token){
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Long.valueOf(claims.getSubject());
+    } 
+
     public List<GrantedAuthority> getAuthoritiesFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(SECRET_KEY)

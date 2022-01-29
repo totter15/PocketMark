@@ -26,6 +26,7 @@ public class LoginDto {
     @Builder
     public static class LoginRes{
         private TokenBox tokenBox;
+        private Long itemId;
     }
 
     

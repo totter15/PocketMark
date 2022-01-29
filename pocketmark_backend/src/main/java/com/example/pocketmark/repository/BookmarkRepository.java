@@ -3,23 +3,26 @@ package com.example.pocketmark.repository;
 import java.util.Collection;
 import java.util.List;
 
-import com.example.pocketmark.domain.Bookmark;
-import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
-import com.example.pocketmark.dto.BookmarkDto.OnlyBookmarkId;
+
+import com.example.pocketmark.domain.main.Bookmark;
+import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
+import com.example.pocketmark.dto.main.ItemDto.ItemIdOnly;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark,Long>{
-    List<Bookmark> findByFolder(Folder folder);
+    //DataService - read-by-parentId
+    @Transactional(readOnly = true)
+    Slice<BookmarkRes> findByUserIdAndParentId(Long userId, Long parentId, Pageable pageable);
+    
+    //DataService - read-all
+    @Transactional(readOnly = true)
     List<BookmarkRes> findByUserId(Long userId);
+    
 
 
-    List<BookmarkRes> findByFolderId(Long folderId);
-
-    Slice<BookmarkRes> findByFolder_UserIdAndFolderId(Long userId,Long folderId, Pageable pageable);
-
-    List<OnlyBookmarkId> findByIdIn(Collection<Long> id);
 }

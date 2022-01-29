@@ -1,10 +1,10 @@
 package com.example.pocketmark.controller.api;
 
-import com.example.pocketmark.dto.DataDto.DataCreateReq;
-import com.example.pocketmark.dto.DataDto.DataDeleteReq;
-import com.example.pocketmark.dto.DataDto.DataRes;
-import com.example.pocketmark.dto.DataDto.DataUpdateReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
+import com.example.pocketmark.dto.main.DataDto.DataCreateReq;
+import com.example.pocketmark.dto.main.DataDto.DataDeleteReq;
+import com.example.pocketmark.dto.main.DataDto.DataRes;
+import com.example.pocketmark.dto.main.DataDto.DataUpdateReq;
 import com.example.pocketmark.security.provider.UserPrincipal;
 import com.example.pocketmark.service.DataService;
 

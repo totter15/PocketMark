@@ -3,11 +3,10 @@ package com.example.pocketmark.repository;
 import java.util.Collection;
 import java.util.List;
 
-import com.example.pocketmark.domain.Folder;
 import com.example.pocketmark.domain.User;
-import com.example.pocketmark.dto.FolderDto.FolderRes;
-import com.example.pocketmark.dto.FolderDto.OnlyFolderId;
-import com.example.pocketmark.dto.FolderDto.OnlyId;
+import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.dto.main.ItemDto.FolderRes;
+import com.example.pocketmark.dto.main.ItemDto.ItemIdOnly;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -15,29 +14,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface FolderRepository extends JpaRepository<Folder,Long>{
-    List<Folder> findByUser(User user);
-    List<FolderRes> findFolderResByUserId(Long userId);
-
-
-    List<OnlyFolderId> findByParent(Long parent);
-    List<OnlyId> findByParentIn(Collection<Long> parent);
+    //DataService - Read-By ParentId
+    @Transactional(readOnly = true)
+    Slice<FolderRes> findByUserIdAndParentId(Long userId, Long parentId, Pageable pageable);
     
-
-    Slice<FolderRes> findByUserIdAndParent(Long userId, Long parent, Pageable pageable);
-
-
+    //DataService - Read-ALL
+    @Transactional(readOnly = true)
     List<FolderRes> findByUserId(Long userId);
-    List<FolderRes> findByUser_Id(Long userId);
-
-    @Transactional(readOnly = true)
-    List<OnlyFolderId> findOnlyFolderIdByFolderIdInAndUserId(Collection<Long> folderIdList, Long userId);
-    
-    @Transactional(readOnly = true)
-    List<OnlyId> findOnlyIdByFolderIdInAndUserId(Collection<Long> folderIdList, Long userId);
-
-    List<Folder> findFolderByIdInAndUserId(Collection<Long> id, Long userId);
-
-
-
 
 }

@@ -1,4 +1,4 @@
-package com.example.pocketmark.domain;
+package com.example.pocketmark.domain.base;
 
 import lombok.Data;
 import lombok.Getter;
@@ -18,10 +18,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public abstract class BaseTimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public abstract class BaseTimeEntity{
+    
 
     @CreatedDate
     @Column(updatable = false)
