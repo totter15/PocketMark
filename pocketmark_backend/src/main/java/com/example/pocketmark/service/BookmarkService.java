@@ -17,8 +17,10 @@ import com.example.pocketmark.domain.main.QItem;
 import com.example.pocketmark.domain.main.Item.ItemPK;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkCreateReq;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq.BookmarkUpdateServiceReq;
+import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.BookmarkQueryRepository;
 import com.example.pocketmark.repository.BookmarkRepository;
@@ -29,6 +31,7 @@ import com.querydsl.jpa.impl.JPAUpdateClause;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +44,7 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final BookmarkQueryRepository bookmarkQueryRepository;
     private final EntityManager em;
+    private final TagService tagService;
 
     //Create - 완료
     @Transactional
@@ -64,13 +68,60 @@ public class BookmarkService {
 
 
     //Read-ALL - 완료
-    public List<BookmarkRes> getAllBookmarks(Long userId){
-        return bookmarkRepository.findByUserId(userId);
+    public List<BookmarkResWithTag> getAllBookmarks(Long userId){
+        List<BookmarkRes> bookmarkResList = bookmarkRepository.findByUserId(userId);
+        List<BookmarkResWithTag> result = new ArrayList<>();
+        BookmarkResWithTag temp;
+        List<TagRes> tags;
+        //it.getter 호출은 Hibernate 내부비용과 같음
+        for(BookmarkRes it : bookmarkResList){
+            if(it.isTagExist()){
+                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), tags, it.getVisitCount()); 
+            }else{
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), null, it.getVisitCount());
+            }
+            result.add(temp);
+        }
+
+        return result;
+        // return bookmarkRepository.findByUserId(userId);
     }
 
     //Read-By ParentId - 완료
-    public Slice<BookmarkRes> getBoomarkByParentId(Long userId, Long parentId, Pageable pageable){
-        return bookmarkRepository.findByUserIdAndParentId(userId, parentId, pageable);
+    public Slice<BookmarkResWithTag> getBoomarkByParentId(Long userId, Long parentId, Pageable pageable){
+        
+
+        Slice<BookmarkRes> bookmarkResList = bookmarkRepository.findByUserIdAndParentId(userId, parentId, pageable);
+        List<BookmarkResWithTag> result = new ArrayList<>();
+        BookmarkResWithTag temp;
+        List<TagRes> tags;
+        boolean hasNext = bookmarkResList.hasNext();
+        //it.getter 호출은 Hibernate 내부비용과 같음
+        for(BookmarkRes it : bookmarkResList){
+            if(it.isTagExist()){
+                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), tags, it.getVisitCount()); 
+            }else{
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), null, it.getVisitCount());
+            }
+            result.add(temp);
+        }
+
+        return new SliceImpl<BookmarkResWithTag>(result, pageable, hasNext);
+        
     }
 
     //Update - 완료

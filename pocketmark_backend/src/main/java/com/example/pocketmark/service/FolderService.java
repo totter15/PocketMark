@@ -14,13 +14,16 @@ import com.example.pocketmark.constant.ErrorCode;
 
 import com.example.pocketmark.domain.main.Folder;
 import com.example.pocketmark.domain.main.QItem;
+import com.example.pocketmark.domain.main.Item.ItemPK;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderRes;
 import com.example.pocketmark.dto.main.ItemDto.FolderResImpl;
+import com.example.pocketmark.dto.main.ItemDto.FolderResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.ItemIdOnly;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq.FolderCreateServiceReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq.FolderUpdateServiceReq;
+import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
@@ -29,6 +32,7 @@ import com.querydsl.jpa.impl.JPAUpdateClause;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +52,7 @@ public class FolderService {
     // private final JPAQueryFactory queryFactory;
     // private QFolder qFolder = QFolder.folder;
     // private QBookmark qBookmark = QBookmark.bookmark;
-    
+    private final TagService tagService;
     
     //Create
     @Transactional
@@ -83,16 +87,76 @@ public class FolderService {
 
 
     //Read-ALL
-    public List<FolderRes> getAllFolders(Long userId){
+    public List<FolderResWithTag> getAllFolders(Long userId){
 
-        // List<FolderRes> folderResList = folderRepository.findByUserId(userId);
+        List<FolderRes> folderResList = folderRepository.findByUserId(userId);
+        List<FolderResWithTag> result = new ArrayList<>();
+        FolderResWithTag temp;
+        List<TagRes> tags;
+        //it.getter 호출은 Hibernate 내부비용과 같음
+        for(FolderRes it : folderResList){
+            if(it.isTagExist()){
+                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                temp = FolderResWithTag.builder()
+                    .itemId(it.getItemId())
+                    .parentId(it.getParentId())
+                    .name(it.getName())
+                    .tags(tags)
+                    .visitCount(it.getVisitCount())
+                    .build();
+            }else{
+                temp = FolderResWithTag.builder()
+                    .itemId(it.getItemId())
+                    .parentId(it.getParentId())
+                    .name(it.getName())
+                    .tags(null)
+                    .visitCount(it.getVisitCount())
+                    .build();
+            }
+            result.add(temp);
+        }
 
-        return folderRepository.findByUserId(userId);
+        return result;
+
+
+        // return folderRepository.findByUserId(userId);
     } 
 
     //Read-By ParentId
-    public Slice<FolderRes> getFoldersByParentId(Long userId, Long folderId, Pageable pageable){
-        return folderRepository.findByUserIdAndParentId(userId, folderId, pageable);
+    public Slice<FolderResWithTag> getFoldersByParentId(Long userId, Long folderId, Pageable pageable){
+        Slice<FolderRes> folderResList = folderRepository.findByUserIdAndParentId(userId, folderId, pageable);
+        List<FolderResWithTag> result = new ArrayList<>();
+        FolderResWithTag temp;
+        List<TagRes> tags;
+        boolean hasNext=folderResList.hasNext();
+        //it.getter 호출은 Hibernate 내부비용과 같음
+        for(FolderRes it : folderResList){
+            if(it.isTagExist()){
+                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                temp = FolderResWithTag.builder()
+                    .itemId(it.getItemId())
+                    .parentId(it.getParentId())
+                    .name(it.getName())
+                    .tags(tags)
+                    .visitCount(it.getVisitCount())
+                    .build();
+            }else{
+                temp = FolderResWithTag.builder()
+                    .itemId(it.getItemId())
+                    .parentId(it.getParentId())
+                    .name(it.getName())
+                    .tags(null)
+                    .visitCount(it.getVisitCount())
+                    .build();
+            }
+            result.add(temp);
+        }
+        return new SliceImpl<FolderResWithTag>(result, pageable, hasNext);
+        
+        // return result;
+
+
+        // return folderRepository.findByUserIdAndParentId(userId, folderId, pageable);
     }
 
 

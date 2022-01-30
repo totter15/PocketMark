@@ -62,7 +62,8 @@ public class Item extends BaseEntity{
     
     /* Table-Field Area */
     // not null + uniqueIdx // + optional=false
-    @Id @Column(name="item_id") private Long itemId; //PK
+    @Id @Column(name="item_id") 
+    private Long itemId; //PK
     @Id @Column(name = "user_id")
     private Long userId; //PK FK
 
@@ -71,7 +72,7 @@ public class Item extends BaseEntity{
     private String name;
     private BigDecimal visitCount;
 
-    private boolean isTagExist;
+    private boolean tagExist;
 
 
 
@@ -91,7 +92,7 @@ public class Item extends BaseEntity{
     private Tags tags = new Tags();
 
     public List<Tag> getTags(){
-        if(this.isTagExist){
+        if(this.tagExist){
             return this.tags.getTags();
         }
         else{

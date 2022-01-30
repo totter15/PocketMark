@@ -11,9 +11,11 @@ import com.example.pocketmark.dto.main.DataDto.DataCreateReq.DataCreateServiceRe
 import com.example.pocketmark.dto.main.DataDto.DataDeleteReq.DataDeleteServiceReq;
 import com.example.pocketmark.dto.main.DataDto.DataUpdateReq.DataUpdateServiceReq;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderRes;
 import com.example.pocketmark.dto.main.ItemDto.FolderResImpl;
+import com.example.pocketmark.dto.main.ItemDto.FolderResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq;
 import com.example.pocketmark.repository.ItemRepository;
 
@@ -46,8 +48,8 @@ public class DataService {
     public DataRes getAll(Long userId){
         
 
-        List<FolderRes> folders = folderService.getAllFolders(userId);
-        List<BookmarkRes> bookmarks = bookmarkService.getAllBookmarks(userId);
+        List<FolderResWithTag> folders = folderService.getAllFolders(userId);
+        List<BookmarkResWithTag> bookmarks = bookmarkService.getAllBookmarks(userId);
         DataRes data = DataRes.builder().parentId(0L).folders(folders).bookmarks(bookmarks).build();
 
         return data;
@@ -57,8 +59,8 @@ public class DataService {
     @Transactional(readOnly = true)
     public DataRes getData(Long userId, Long parentId, Pageable pageable){
         if(parentId != null && userId != null){
-            List<FolderRes> folders = folderService.getFoldersByParentId(userId, parentId, pageable).getContent();
-            List<BookmarkRes> bookmarks = bookmarkService.getBoomarkByParentId(userId, parentId, pageable).getContent();
+            List<FolderResWithTag> folders = folderService.getFoldersByParentId(userId, parentId, pageable).getContent();
+            List<BookmarkResWithTag> bookmarks = bookmarkService.getBoomarkByParentId(userId, parentId, pageable).getContent();
             DataRes data = DataRes.builder().parentId(parentId).folders(folders).bookmarks(bookmarks).build();
             return data;
         }else{

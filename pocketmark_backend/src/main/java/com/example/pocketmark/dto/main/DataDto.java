@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.example.pocketmark.dto.main.ItemDto.BookmarkCreateReq;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderRes;
+import com.example.pocketmark.dto.main.ItemDto.FolderResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq;
 
 import lombok.AllArgsConstructor;
@@ -23,8 +25,8 @@ public class DataDto {
     @Builder @Getter
     public static class DataRes{
         Long parentId;
-        List<FolderRes> folders;
-        List<BookmarkRes> bookmarks;
+        List<FolderResWithTag> folders;
+        List<BookmarkResWithTag> bookmarks;
     }
     
     //Data - Update

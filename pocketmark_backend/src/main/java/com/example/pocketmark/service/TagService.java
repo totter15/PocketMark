@@ -62,7 +62,7 @@ public class TagService {
         QItem qItem = QItem.item;
         JPAUpdateClause update= new JPAUpdateClause(em, qItem);
     
-        update.set(qItem.isTagExist, true)
+        update.set(qItem.tagExist, true)
             .where(qItem.itemId.in(itemIdList))
             .execute();
 

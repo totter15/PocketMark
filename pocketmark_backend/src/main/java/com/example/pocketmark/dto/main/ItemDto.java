@@ -104,7 +104,8 @@ public class ItemDto {
         Long getItemId();
         Long getParentId();
         String getName();
-        List<TagRes> getTags();
+        boolean isTagExist();
+        // List<TagRes> getTags();
         BigDecimal getVisitCount();
     }
 
@@ -204,7 +205,8 @@ public class ItemDto {
         String getName();
         String getUrl();
         String getComment();
-        List<TagRes> getTags();
+        // List<TagRes> getTags();
+        boolean isTagExist();
         BigDecimal getVisitCount();
     }
 
@@ -257,7 +259,8 @@ public class ItemDto {
         private Long itemId;
         private Long parentId;
         private String name;
-        private List<TagRes> tags;
+        private boolean isTagExist;
+        // private List<TagRes> tags;
         private BigDecimal visitCount; 
         
         @QueryProjection
@@ -287,9 +290,22 @@ public class ItemDto {
         private String name;
         private String url;
         private String comment;
-        private List<TagRes> tags;
+        private boolean isTagExist;
+        // private List<TagRes> tags;
         private BigDecimal visitCount;
         
+    }
+
+    @AllArgsConstructor @NoArgsConstructor
+    @Builder @ToString @Getter
+    public static class BookmarkResWithTag{
+        private Long itemId;
+        private Long parentId;
+        private String name;
+        private String url;
+        private String comment;
+        private List<TagRes> tags;
+        private BigDecimal visitCount; 
     }
 
 
