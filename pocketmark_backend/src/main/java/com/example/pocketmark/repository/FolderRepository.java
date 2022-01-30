@@ -14,7 +14,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface FolderRepository extends JpaRepository<Folder,ItemPK>{
+public interface FolderRepository extends JpaRepository<Folder,String>{
     //DataService - Read-By ParentId
     @Transactional(readOnly = true)
     Slice<FolderRes> findByUserIdAndParentId(Long userId, Long parentId, Pageable pageable);

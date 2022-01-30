@@ -18,6 +18,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -54,18 +55,22 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
-@IdClass(ItemPK.class)
+// @IdClass(ItemPK.class)
 @Slf4j
 @Where(clause = "deleted = false")
 @Table(indexes = @Index(name="i_item_parent_id", columnList = "parent_id"))
 public class Item extends BaseEntity{
     
     /* Table-Field Area */
-    // not null + uniqueIdx // + optional=false
-    @Id @Column(name="item_id") 
-    private Long itemId; //PK
-    @Id @Column(name = "user_id")
-    private Long userId; //PK FK
+    @Id
+    // 조인속도향상 및 JPQL, DSL IN절 사용가능
+    @Column(name="pk")
+    private String pk;
+    
+    @Column(name="item_id") 
+    private Long itemId; 
+    @Column(name = "user_id")
+    private Long userId; // FK
 
     @Column(name="parent_id")
     private Long parentId;
@@ -100,7 +105,13 @@ public class Item extends BaseEntity{
         }
     }
 
-    
+    public static String makePK(Long itemId, Long userId){
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.valueOf(itemId));
+        sb.append(", ");
+        sb.append(String.valueOf(userId));
+        return sb.toString();
+    }
     
 
 
@@ -122,6 +133,7 @@ public class Item extends BaseEntity{
         Long itemId, Long userId,    
         Long parentId, String name
     ){
+        this.pk=makePK(itemId, userId);
         this.itemId=itemId;
         this.userId=userId;
         this.parentId=parentId;

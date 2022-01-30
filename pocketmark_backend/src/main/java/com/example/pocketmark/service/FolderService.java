@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import com.example.pocketmark.constant.ErrorCode;
 
 import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.domain.main.Item;
 import com.example.pocketmark.domain.main.QItem;
 import com.example.pocketmark.domain.main.Item.ItemPK;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq;
@@ -93,10 +94,11 @@ public class FolderService {
         List<FolderResWithTag> result = new ArrayList<>();
         FolderResWithTag temp;
         List<TagRes> tags;
+        
         //it.getter 호출은 Hibernate 내부비용과 같음
         for(FolderRes it : folderResList){
             if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
                 temp = FolderResWithTag.builder()
                     .itemId(it.getItemId())
                     .parentId(it.getParentId())
@@ -132,7 +134,7 @@ public class FolderService {
         //it.getter 호출은 Hibernate 내부비용과 같음
         for(FolderRes it : folderResList){
             if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
                 temp = FolderResWithTag.builder()
                     .itemId(it.getItemId())
                     .parentId(it.getParentId())

@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.main.Bookmark;
 import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.domain.main.Item;
 import com.example.pocketmark.domain.main.QBookmark;
 import com.example.pocketmark.domain.main.QItem;
 import com.example.pocketmark.domain.main.Item.ItemPK;
@@ -76,7 +77,7 @@ public class BookmarkService {
         //it.getter 호출은 Hibernate 내부비용과 같음
         for(BookmarkRes it : bookmarkResList){
             if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
                 temp = new BookmarkResWithTag(
                     it.getItemId(), it.getParentId(),
                     it.getName(), it.getUrl(),
@@ -106,7 +107,7 @@ public class BookmarkService {
         //it.getter 호출은 Hibernate 내부비용과 같음
         for(BookmarkRes it : bookmarkResList){
             if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(new ItemPK(it.getItemId(), userId));
+                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
                 temp = new BookmarkResWithTag(
                     it.getItemId(), it.getParentId(),
                     it.getName(), it.getUrl(),

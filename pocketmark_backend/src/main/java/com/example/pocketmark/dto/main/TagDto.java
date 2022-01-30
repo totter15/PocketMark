@@ -18,6 +18,11 @@ public class TagDto {
         String getName();
     }
 
+    public interface TagResWithItemId{
+        String getName();
+        Long getItemId();
+    }
+
     @Getter @ToString
     @AllArgsConstructor @NoArgsConstructor
     public static class TagResImpl implements TagRes{
@@ -50,8 +55,10 @@ public class TagDto {
                     .name(this.name)
                     .build();
         }
-        public Tag toEntity(Item item){
+        public Tag toEntity(Long itemId, Long userId, Item item){
             return Tag.builder()
+                    .itemId(itemId)
+                    .userId(userId)
                     .name(this.name)
                     .item(item)
                     .build();

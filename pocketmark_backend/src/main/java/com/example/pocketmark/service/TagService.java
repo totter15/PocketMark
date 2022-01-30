@@ -15,6 +15,7 @@ import com.example.pocketmark.dto.main.TagDto.TagCreateReq;
 import com.example.pocketmark.dto.main.TagDto.TagDeleteBulkReq;
 import com.example.pocketmark.dto.main.TagDto.TagDeleteReq;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.dto.main.TagDto.TagResWithItemId;
 import com.example.pocketmark.dto.main.TagDto.TagCreateReq.TagCreateServiceReq;
 import com.example.pocketmark.repository.ItemRepository;
 import com.example.pocketmark.repository.TagRepository;
@@ -50,9 +51,10 @@ public class TagService {
         Long itemId; Item item;
         for(TagCreateReq singleReq : req.getTags()){
             itemId = singleReq.getItemId();
-            item = itemRepository.getById(new ItemPK(itemId, userId));
+            // item = itemRepository.getById(new ItemPK(itemId, userId));
+            item = itemRepository.getById(Item.makePK(itemId, userId));
             itemIdList.add(itemId);
-            tags.add(singleReq.toEntity(item));
+            tags.add(singleReq.toEntity(itemId,userId,item));
         }
 
         tagRepository.saveAll(tags);
@@ -75,37 +77,43 @@ public class TagService {
         return tagRepository.findByUserId(userId);
     }
 
-    //Read ByName for specific User.
+    //본인 게시물 태그검색
     @Transactional(readOnly = true)
-    public List<TagRes> getTagsByName(String name, Long userId){
+    public List<TagRes> getTagsByNameAndUserId(String name, Long userId){
         return tagRepository.findByNameAndUserId(name, userId);
     }
 
+    //공유게시판 태그검색 (itemId 로 상위엔티티 역추적해야함)
+    @Transactional(readOnly = true)
+    public List<TagResWithItemId> getTagsByName(String name){
+        return tagRepository.findByName(name);
+    }
     //Read By SuperEntity
     @Transactional(readOnly = true)
-    public List<TagRes> getTagsByItemPK(ItemPK itemPK){
-        return tagRepository.findByFK(itemPK);
+    public List<TagRes> getTagsByItemPK(String itemPK){
+        // return tagRepository.findByFK(itemPK);
+        return tagRepository.findByItemPk(itemPK);
     }
 
     //Delete
-    //N*update
+    //1*update
     @Transactional(readOnly = true)
     public boolean deleteTagsInBatch(TagDeleteBulkReq req, Long userId){
         QTag qTag = QTag.tag;
-        // 설계가 잘못됬나...
-        // Pk를 찾기위해 Select 를 N개 날리느냐, 
-        // Update를 N 개 날리느냐...
-        // 일단 Update 를 N개 날리자...
-        // 추후 리팩토링 대상   
+        
+        //대리키로 N회 update -> 1회 update
+        List<String> itemPkList= new ArrayList<>();
         for(TagDeleteReq singleReq : req.getTags()){
-            JPAUpdateClause update= new JPAUpdateClause(em, qTag);
-            
-            update.set(qTag.deleted, true)
-                .where(qTag.name.eq(singleReq.getName())
-                .and(qTag.itemId.eq(singleReq.getItemId()))
-                .and(qTag.userId.eq(userId)))
-                .execute();            
+            itemPkList.add(
+                Item.makePK(singleReq.getItemId(), userId) 
+            );
         }
+        
+        JPAUpdateClause update= new JPAUpdateClause(em, qTag);
+        
+        update.set(qTag.deleted, true)
+            .where(qTag.itemPk.in(itemPkList))
+            .execute();            
 
         // Tag 변경기록이 추후 데이터사이언스에서 유용한 정보로 사용할 수 있을까?
         // Category Classfication 에 사용될 수는 있겠지만, target vetor로 적절치 않음
