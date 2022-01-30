@@ -16,6 +16,7 @@ import com.example.pocketmark.domain.main.Folder;
 import com.example.pocketmark.domain.main.QItem;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderRes;
+import com.example.pocketmark.dto.main.ItemDto.FolderResImpl;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.ItemIdOnly;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq.FolderCreateServiceReq;
@@ -83,6 +84,9 @@ public class FolderService {
 
     //Read-ALL
     public List<FolderRes> getAllFolders(Long userId){
+
+        // List<FolderRes> folderResList = folderRepository.findByUserId(userId);
+
         return folderRepository.findByUserId(userId);
     } 
 

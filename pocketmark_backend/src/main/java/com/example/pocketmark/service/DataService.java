@@ -13,6 +13,7 @@ import com.example.pocketmark.dto.main.DataDto.DataUpdateReq.DataUpdateServiceRe
 import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderRes;
+import com.example.pocketmark.dto.main.ItemDto.FolderResImpl;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq;
 import com.example.pocketmark.repository.ItemRepository;
 

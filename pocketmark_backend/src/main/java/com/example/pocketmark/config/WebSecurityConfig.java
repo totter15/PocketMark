@@ -48,9 +48,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .cors()
                 .and()
                 .csrf().disable()
-                // //h2-console
-                // .headers().frameOptions().disable().and()
-                // //h2-console
+                //h2-console
+                .headers().frameOptions().disable().and()
+                //h2-console
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -62,9 +62,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
                 ).permitAll()
 
-                // //h2 console
-                // .antMatchers("/h2-console/**","**").permitAll()
-                // //h2 console
+                //h2 console
+                .antMatchers("/h2-console/**","**").permitAll()
+                //h2 console
                 .anyRequest().hasAuthority("ROLE_USER")
         ;
 

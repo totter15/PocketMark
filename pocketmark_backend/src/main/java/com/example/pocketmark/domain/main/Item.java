@@ -2,11 +2,13 @@ package com.example.pocketmark.domain.main;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -19,14 +21,20 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.domain.base.BaseEntity;
 import com.example.pocketmark.domain.main.Item.ItemPK;
+import com.example.pocketmark.domain.main.embeddable.Tags;
+import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.dto.main.TagDto.TagResImpl;
+import com.example.pocketmark.service.TagService;
 
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
 import org.hibernate.annotations.Where;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Immutable;
 
 import lombok.AccessLevel;
@@ -49,12 +57,12 @@ import lombok.extern.slf4j.Slf4j;
 @IdClass(ItemPK.class)
 @Slf4j
 @Where(clause = "deleted = false")
-@Table(indexes = @Index(name="i_parent_id", columnList = "parent_id"))
+@Table(indexes = @Index(name="i_item_parent_id", columnList = "parent_id"))
 public class Item extends BaseEntity{
     
     /* Table-Field Area */
     // not null + uniqueIdx // + optional=false
-    @Id private Long itemId; //PK
+    @Id @Column(name="item_id") private Long itemId; //PK
     @Id @Column(name = "user_id")
     private Long userId; //PK FK
 
@@ -63,7 +71,7 @@ public class Item extends BaseEntity{
     private String name;
     private BigDecimal visitCount;
 
-
+    private boolean isTagExist;
 
 
 
@@ -76,13 +84,23 @@ public class Item extends BaseEntity{
     private User user;
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<Tag> tags;
 
-    public void setTags(List<Tag> tags){
-        this.tags=tags;
+    
+
+    @Embedded
+    private Tags tags = new Tags();
+
+    public List<Tag> getTags(){
+        if(this.isTagExist){
+            return this.tags.getTags();
+        }
+        else{
+            return new ArrayList<>();
+        }
     }
+
+    
+    
 
 
     public boolean visitCountUpdate(BigDecimal cnt){
@@ -112,7 +130,7 @@ public class Item extends BaseEntity{
 
 
     @AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @EqualsAndHashCode
+    @EqualsAndHashCode @Getter
     public static class ItemPK implements Serializable{
         private Long itemId;
         private Long userId;

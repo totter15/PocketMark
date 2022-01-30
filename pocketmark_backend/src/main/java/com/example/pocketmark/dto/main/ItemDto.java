@@ -1,6 +1,7 @@
 package com.example.pocketmark.dto.main;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -8,9 +9,15 @@ import javax.validation.constraints.Size;
 
 import com.example.pocketmark.domain.main.Bookmark;
 import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.domain.main.Tag;
+import com.example.pocketmark.domain.main.embeddable.Tags;
+import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.service.TagService;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryProjection;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -97,6 +104,7 @@ public class ItemDto {
         Long getItemId();
         Long getParentId();
         String getName();
+        List<TagRes> getTags();
         BigDecimal getVisitCount();
     }
 
@@ -196,6 +204,7 @@ public class ItemDto {
         String getName();
         String getUrl();
         String getComment();
+        List<TagRes> getTags();
         BigDecimal getVisitCount();
     }
 
@@ -248,6 +257,7 @@ public class ItemDto {
         private Long itemId;
         private Long parentId;
         private String name;
+        private List<TagRes> tags;
         private BigDecimal visitCount; 
         
         @QueryProjection
@@ -256,6 +266,16 @@ public class ItemDto {
         ){
             this.itemId=itemId;
         }
+    }
+
+    @AllArgsConstructor @NoArgsConstructor
+    @Builder @ToString @Getter
+    public static class FolderResWithTag{
+        private Long itemId;
+        private Long parentId;
+        private String name;
+        private List<TagRes> tags;
+        private BigDecimal visitCount; 
     }
 
     
@@ -267,6 +287,7 @@ public class ItemDto {
         private String name;
         private String url;
         private String comment;
+        private List<TagRes> tags;
         private BigDecimal visitCount;
         
     }

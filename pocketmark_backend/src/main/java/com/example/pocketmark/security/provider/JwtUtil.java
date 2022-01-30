@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -21,8 +21,10 @@ public class JwtUtil {
     private static final String TOKEN_TYPE_CLAIM = "tokenType";
     private static final String SECRET_KEY = "whoKnowsMyKey?blahblah";
 
-    // 15분
-    public static long ACCESS_TOKEN_EXPIRATION_TIME = 900000L;
+    // deploy - 15분
+    // developOnly - 6 hours
+    // public static long ACCESS_TOKEN_EXPIRATION_TIME = 900000L;
+    public static long ACCESS_TOKEN_EXPIRATION_TIME = Duration.ofMinutes(60*6).toMillis();
 //    public static long ACCESS_TOKEN_EXPIRATION_TIME = 15000L;
     // 24주
     public static long REFRESH_TOKEN_EXPIRATION_TIME = 604800000L;

@@ -1,12 +1,22 @@
 package com.example.pocketmark.controller.api;
 
+import java.util.List;
+
+import com.example.pocketmark.domain.main.Tag;
 import com.example.pocketmark.dto.common.ApiDataResponse;
 import com.example.pocketmark.dto.main.DataDto.DataCreateReq;
 import com.example.pocketmark.dto.main.DataDto.DataDeleteReq;
 import com.example.pocketmark.dto.main.DataDto.DataRes;
 import com.example.pocketmark.dto.main.DataDto.DataUpdateReq;
+import com.example.pocketmark.dto.main.TagDto.TagCreateBulkReq;
+import com.example.pocketmark.dto.main.TagDto.TagCreateReq;
+import com.example.pocketmark.dto.main.TagDto.TagDeleteBulkReq;
+import com.example.pocketmark.dto.main.TagDto.TagDeleteReq;
+import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.repository.TagRepository;
 import com.example.pocketmark.security.provider.UserPrincipal;
 import com.example.pocketmark.service.DataService;
+import com.example.pocketmark.service.TagService;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,16 +32,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
 @RequestMapping("/api/v1")
 @Slf4j
 @RequiredArgsConstructor
-public class DataApiController {
+public class TagApiController {
+    /* Create 와 Delete만 있음 */
+    /* Update 는 Immutable 엔티티라 없고,
+       Read 는 DataController에서 처리
+    */
 
-    private final DataService dataService;
+    private final TagService tagService;
 
-    
     private Long getUserId(){
         UserPrincipal userPrincipal = (UserPrincipal)SecurityContextHolder
                 .getContext()
@@ -42,55 +54,28 @@ public class DataApiController {
     }
 
     //Test
-    @GetMapping(value="/data-all")
-    public ApiDataResponse<DataRes> getAll(){
-        return ApiDataResponse.of(dataService.getAll(getUserId())); 
+    @GetMapping(value="/tag-all")
+    public ApiDataResponse<List<TagRes>> getAll(){
+        return ApiDataResponse.of(tagService.getAll(getUserId())); 
     }
 
-    //C
-    @PostMapping(value="/data")
-    public ApiDataResponse<DataRes> createData(
-        @RequestBody DataCreateReq req
+    //Create
+    @PostMapping(value="/tag")
+    public ApiDataResponse<String> createTag(
+        @RequestBody TagCreateBulkReq req
     ){
-        dataService.createData(req.toServiceReq(), getUserId());
+        tagService.createTags(req, getUserId());
         return ApiDataResponse.empty();
     }
 
-    //R
-    @GetMapping(value="/data") // /data?depth=1
-    public ApiDataResponse<DataRes> getData(
-        // @RequestParam(value ="depth", required = false, defaultValue = "1")
-        // Long depth,
-        @RequestParam(value="folder-id", required = false, defaultValue = "0")
-        Long folderId,
-        @PageableDefault(size=2) Pageable pageable
-        
-    )
-    {
-        return ApiDataResponse.of(dataService.getData(getUserId(), folderId, pageable));
-    }
-
-    //U
-    @PutMapping(value="/data")
-    public ApiDataResponse<DataRes> updateData(
-        @RequestBody DataUpdateReq req
+    //Delete
+    @PutMapping(value="/tag-delete")
+    public ApiDataResponse<TagRes> deleteTag(
+        @RequestBody TagDeleteBulkReq req
     ){
-        dataService.updateData(req.toServcieReq(), getUserId());
+        tagService.deleteTagsInBatch(req, getUserId());
         return ApiDataResponse.empty();
-
-    }
-    
-    //D
-    @PutMapping(value="/data/delete")
-    public ApiDataResponse<DataRes> deleteData(
-        @RequestBody DataDeleteReq req
-    ){
-        dataService.deleteData(req.toServiceReq(), getUserId());
-        return ApiDataResponse.empty();
-    }
+    }   
 
 
-    
-    
-    
 }
