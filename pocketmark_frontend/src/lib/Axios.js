@@ -66,10 +66,10 @@ const DeleteData = async (data) => {
   }
 };
 
-const GetData = async () => {
+const GetData = async (folderId) => {
   try {
     const response = await axios.get(
-      `http://localhost:9090/api/v1/data?folder-id=0&size=10&sort=id`,
+      `http://localhost:9090/api/v1/data?folder-id=${folderId}&size=100&sort=id`,
       {
         headers: headers,
       }

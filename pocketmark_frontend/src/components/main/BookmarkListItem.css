@@ -3,9 +3,8 @@
   flex-direction: column;
   border-radius: 12px;
   margin: 10px;
-  padding: 12px;
+  padding: 20px;
   width: 40%;
-  height: 80px;
   background-color: rgb(241, 245, 248);
   position: relative;
 }
@@ -17,7 +16,7 @@
 .bookmarkListItem > a > div {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .bookmarkListItem > a {
@@ -29,12 +28,19 @@
   font-weight: 500;
   margin-right: 10px;
   color: black;
+  width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
 }
 
 .bookmarkListItem .comment {
   color: rgb(105, 105, 105);
+  word-break: break-all;
+  width: 100%;
 }
 
 .bookmarkListItem .url {
   color: rgb(167, 175, 182);
+  word-break: break-all;
 }

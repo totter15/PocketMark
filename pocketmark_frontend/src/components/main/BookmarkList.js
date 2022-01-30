@@ -2,10 +2,14 @@ import React from "react";
 import BookmarkListItem from "./BookmarkListItem";
 import "./BookmarkList.css";
 
-const BookmarkList = ({ bookmarkList, editModalOpen, deleteBookmarks }) => {
+const BookmarkList = ({
+  bookmarkList,
+  editModalOpen,
+  deleteBookmarks,
+  selectFolder,
+}) => {
   return (
     <div className="bookmarkList">
-      <div className="route">내폴더 / 폴더1</div>
       <div className="contents">
         {bookmarkList &&
           bookmarkList.map((bookmark, index) => (

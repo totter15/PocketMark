@@ -5,6 +5,8 @@ import AddFolderModal from "./AddFolderModal";
 import AddModal from "./AddModal";
 import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
+import { FiEdit3 } from "react-icons/fi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import "./Main.css";
 import { DeleteData, PostData, PutData, GetData } from "../../lib/Axios";
 
@@ -28,6 +30,7 @@ const Main = () => {
   const [bookmarkList, setBookmarkList] = useState(null);
   const [selectFolder, setSelectFolder] = useState(0);
   const [editBookmark, setEditBookmark] = useState(null);
+  const [editFolder, setEditFolder] = useState(null);
   const [edit, setEdit] = useState(null);
   const folderId = useRef(1);
   const bookmarkId = useRef(1);
@@ -49,8 +52,7 @@ const Main = () => {
   const { post, put, del } = server.current;
 
   useEffect(() => {
-    GetData().then((res) => {
-      console.log(res.data, "d");
+    GetData(0).then((res) => {
       setFolders(res.data.data.folders);
       setBookmarks(res.data.data.bookmarks);
       getId(res.data.data);
@@ -58,55 +60,53 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    console.log(bookmarks, folders, "done");
-    setInterval(() => axios(post, put, del), 1000 * 10); //5분
+    setInterval(() => axios(server.current), 1000 * 60 * 5); //5분
   }, [server]);
 
   useEffect(() => {
     folderSelect(selectFolder);
   }, [selectFolder, bookmarks]);
-  console.log(folders, bookmarks);
 
-  const axios = useCallback((post, put, del) => {
-    console.log(post, put, del, "server");
-    setLoading(true);
+  const axios = useCallback((server) => {
+    const { post, put, del } = server;
     PostData(post)
-      .then(() => PutData(put))
-      // .then(() => DeleteData(del))
-      .then(() => GetData())
+      .then(() => {
+        if (put.folders.length > 0 || put.bookmarks.length > 0) PutData(put);
+      })
+      .then(() => {
+        if (del.folderIdList.length > 0 || del.bookmarkIdList.length > 0)
+          DeleteData(del);
+      })
+      .then(() => GetData(0))
       .then((res) => {
         setFolders(res.data.data.folders);
         setBookmarks(res.data.data.bookmarks);
-        getId(res.data.data.bookmarks);
+        getId(res.data.data);
       })
       .then(() => {
-        console.log("reset");
-        return (server.current = {
-          post: {
-            folders: [],
-            bookmarks: [],
-          },
-          put: {
-            folders: [],
-            bookmarks: [],
-          },
-          del: {
-            folderIdList: [],
-            bookmarkIdList: [],
-          },
-        });
+        server.post = {
+          folders: [],
+          bookmarks: [],
+        };
+        server.put = {
+          folders: [],
+          bookmarks: [],
+        };
+        server.del = {
+          folderIdList: [],
+          bookmarkIdList: [],
+        };
       })
       .catch((e) => console.log(e));
   }, []);
 
   const makeFolder = useCallback(
-    (folderName, parent, depth) => {
+    (folderName, parent) => {
       setFolders([
         ...folders,
         {
           folderId: folderId.current,
           parent: parent,
-          depth: depth,
           name: folderName,
         },
       ]);
@@ -125,6 +125,30 @@ const Main = () => {
     [folders, post]
   );
 
+  const editFolders = useCallback((folderName, parent) => {
+    setFolders(
+      folders.map((folder) =>
+        folder.folderId === edit
+          ? {
+              name: folderName,
+              parent: parent,
+              folderId: edit,
+            }
+          : folder
+      )
+    );
+    //서버용
+    put.folders = [
+      ...put.folders,
+      {
+        folderId: edit,
+        parent: parent,
+        name: folderName,
+        visitCount: 0,
+      },
+    ];
+  });
+
   const makeBookmarks = useCallback(
     (bookmarkName, url, comment, folderId) => {
       setBookmarks([
@@ -141,7 +165,7 @@ const Main = () => {
       post.bookmarks = [
         ...post.bookmarks,
         {
-          bookmarkId: bookmarkId,
+          bookmarkId: bookmarkId.current,
           name: bookmarkName,
           url: url,
           comment: comment,
@@ -158,13 +182,13 @@ const Main = () => {
     (bookmarkName, url, comment, folderId) => {
       setBookmarks(
         bookmarks.map((bookmark) =>
-          bookmark.id === edit
+          bookmark.bookmarkId === edit
             ? {
                 name: bookmarkName,
                 url: url,
                 comment: comment,
                 folderId: folderId,
-                id: edit,
+                bookmarkId: edit,
               }
             : bookmark
         )
@@ -177,7 +201,7 @@ const Main = () => {
           name: bookmarkName,
           url: url,
           comment: comment,
-          folderId: folderId,
+          folderId: "",
           visitCount: 0,
         },
       ];
@@ -188,28 +212,43 @@ const Main = () => {
 
   const deleteBookmarks = useCallback(
     (bookmarkId) => {
-      setBookmarks(bookmarks.filter((bookmark) => bookmark.id !== bookmarkId));
+      setBookmarks(
+        bookmarks.filter((bookmark) => bookmark.bookmarkId !== bookmarkId)
+      );
       //서버용
       del.bookmarkIdList = [...del.bookmarkIdList, bookmarkId];
     },
     [bookmarks, del]
   );
 
+  //선택한 폴더의 북마크 가져오기
+  const getSelectFolder = useCallback((folderId) => {
+    GetData(folderId).then((res) => {
+      setBookmarks([...bookmarks, ...res.data.data.bookmarks]);
+    });
+  }, []);
+
+  //북마크 리스트에 선택한 폴더의 북마크 추가
+  useEffect(() => {
+    getSelectFolder(selectFolder);
+  }, [selectFolder]);
+
   const folderSelect = useCallback(
     (folderId) => {
       setSelectFolder(folderId);
-      bookmarks &&
-        setBookmarkList(
-          bookmarks.filter((bookmark) => bookmark.folderId === folderId)
-        );
+      setBookmarkList(
+        bookmarks.filter((bookmark) => bookmark.folderId === folderId)
+      );
     },
     [bookmarks]
   );
 
-  const getId = (data) => {
-    let lastFolderId = data.folders[data.folders.length - 1].folderId;
-    let lastBookmarkId = data.bookmarks[data.bookmarks.length - 1].id;
-    console.log(lastBookmarkId);
+  //id값 구하기
+  const getId = ({ folders, bookmarks }) => {
+    let lastFolderId =
+      folders.length > 0 && folders[folders.length - 1].folderId;
+    let lastBookmarkId =
+      bookmarks.length > 0 && bookmarks[bookmarks.length - 1].bookmarkId;
     folderId.current = lastFolderId ? ++lastFolderId : 1;
     bookmarkId.current = lastBookmarkId ? ++lastBookmarkId : 1;
     console.log(bookmarkId, folderId, "id");
@@ -217,28 +256,56 @@ const Main = () => {
 
   window.addEventListener("beforeunload", axios); //브라우저 종료전 서버통신
 
+  // 폴더 모달 열기
   const folderModalOpen = () => {
     setFolderModal(true);
   };
 
+  //폴더 수정 모달 열기
+  const editFolderModalOpen = (folderId) => {
+    setEdit(folderId);
+    setEditFolder(folders.filter((f) => f.folderId === folderId));
+    setFolderModal(true);
+  };
+
+  // 폴더 모달 닫기
   const folderModalClose = () => {
     setFolderModal(false);
   };
 
+  //북마크 모달 열기
+  const modalOpen = () => {
+    setAddModal(true);
+  };
+
+  // 북마크 수정 모달 열기
+  const editModalOpen = (bookmarkId) => {
+    setEdit(bookmarkId);
+    setEditBookmark(bookmarks.filter((b) => b.bookmarkId === bookmarkId));
+    setAddModal(true);
+  };
+
+  // 북마크 모달 닫기
   const modalClose = () => {
     setAddModal(false);
     setEdit(null);
     setEditBookmark(null);
   };
 
-  const modalOpen = () => {
-    setAddModal(true);
-  };
-
-  const editModalOpen = (bookmarkId) => {
-    setEdit(bookmarkId);
-    setEditBookmark(bookmarks.filter((b) => b.id === bookmarkId));
-    setAddModal(true);
+  const getRoute = (folderId) => {
+    const selectFolderData = folders.find(
+      (folder) => folder.folderId === folderId
+    );
+    if (folderId === 0) return;
+    else
+      return selectFolderData.parent == 0
+        ? ` / ${selectFolderData.name}`
+        : ` / 
+        ${
+          folders.find((folder) => folder.folderId === selectFolderData.parent)
+            .name
+        } 
+          / ${selectFolderData.name}`;
   };
 
   return (
@@ -277,13 +344,39 @@ const Main = () => {
             selectFolder={selectFolder}
           />
 
-          {/* 폴더 내부 */}
-          <BookmarkList
-            bookmarks={bookmarks}
-            bookmarkList={bookmarkList}
-            editModalOpen={editModalOpen}
-            deleteBookmarks={deleteBookmarks}
-          />
+          <section className="bookmark">
+            <div className="route">
+              내 폴더 {getRoute(selectFolder)}
+              <div>
+                <button onClick={() => editFolderModalOpen(selectFolder)}>
+                  <FiEdit3
+                    style={{
+                      color: "darkgray",
+                      width: "18px",
+                      height: "18px",
+                    }}
+                  />
+                </button>
+                <button>
+                  <RiDeleteBin6Line
+                    style={{
+                      color: "darkgray",
+                      width: "18px",
+                      height: "18px",
+                    }}
+                  />
+                </button>
+              </div>
+            </div>
+            {/* 북마크 리스트 */}
+            <BookmarkList
+              bookmarks={bookmarks}
+              bookmarkList={bookmarkList}
+              editModalOpen={editModalOpen}
+              deleteBookmarks={deleteBookmarks}
+              selectFolder={selectFolder}
+            />
+          </section>
         </main>
       </div>
       {/* 폴더 추가/수정 */}
@@ -292,6 +385,9 @@ const Main = () => {
         open={folderModal}
         makeFolder={makeFolder}
         folders={folders}
+        editFolder={editFolder}
+        edit={edit}
+        editFolders={editFolders}
       />
       {/* 북마크 추가/수정 */}
       <AddModal

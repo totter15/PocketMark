@@ -33,9 +33,9 @@ const FolderList = ({
               <>
                 <FolderListItem
                   key={folder.folderId}
+                  id={folder.folderId}
                   name={folder.name}
                   folderSelect={folderSelect}
-                  id={folder.folderId}
                   select={folder.folderId === selectFolder}
                 />
                 {folders.map((fol) => {

@@ -2,7 +2,15 @@ import React, { useCallback, useEffect, useState } from "react";
 import Select from "react-select";
 import "./AddFolderModal.css";
 
-const AddFolderModal = ({ makeFolder, open, folderModalClose, folders }) => {
+const AddFolderModal = ({
+  makeFolder,
+  open,
+  folderModalClose,
+  folders,
+  edit,
+  editFolders,
+  editFolder,
+}) => {
   const [name, setName] = useState("");
   const [select, setSelect] = useState({ label: "내 폴더", value: 0 });
   const [options, setOptions] = useState([{}]);
@@ -10,12 +18,10 @@ const AddFolderModal = ({ makeFolder, open, folderModalClose, folders }) => {
   const getOptions = useCallback(() => {
     let options = [];
     folders.forEach((folder) => {
-      if (folder.depth != 2)
-        //depth 1단까지 옵션보이기
-        options.push({
-          value: folder.folderId,
-          label: folder.name,
-        });
+      options.push({
+        value: folder.folderId,
+        label: folder.name,
+      });
     });
     setOptions(options);
   }, [folders]);
@@ -26,7 +32,9 @@ const AddFolderModal = ({ makeFolder, open, folderModalClose, folders }) => {
 
   const onMake = (e) => {
     e.preventDefault();
-    makeFolder(name, select ? select.value : 0, select.value === 0 ? 1 : 2);
+    !edit
+      ? makeFolder(name, select ? select.value : 0)
+      : editFolders(name, select.value);
     setName("");
     setSelect(null);
     folderModalClose();
@@ -55,7 +63,7 @@ const AddFolderModal = ({ makeFolder, open, folderModalClose, folders }) => {
           />
           <div className="buttonContainer">
             <button onClick={onCancel}>취소</button>
-            <button onClick={onMake}>만들기</button>
+            <button onClick={onMake}>{!edit ? "만들기" : "수정하기"}</button>
           </div>
         </form>
       </div>
