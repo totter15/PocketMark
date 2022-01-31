@@ -281,6 +281,12 @@ public class ItemDto {
         private BigDecimal visitCount; 
     }
 
+    @AllArgsConstructor @NoArgsConstructor
+    @Builder @ToString @Getter
+    public static class AllFolderResWithTag{
+        private List<FolderResWithTag> folders;
+    }
+
     
     @AllArgsConstructor @NoArgsConstructor
     @Builder @ToString @Getter

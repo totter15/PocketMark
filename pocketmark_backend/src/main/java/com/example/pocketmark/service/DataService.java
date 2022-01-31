@@ -10,6 +10,7 @@ import com.example.pocketmark.dto.main.DataDto.DataRes;
 import com.example.pocketmark.dto.main.DataDto.DataCreateReq.DataCreateServiceReq;
 import com.example.pocketmark.dto.main.DataDto.DataDeleteReq.DataDeleteServiceReq;
 import com.example.pocketmark.dto.main.DataDto.DataUpdateReq.DataUpdateServiceReq;
+import com.example.pocketmark.dto.main.ItemDto.AllFolderResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
@@ -120,6 +121,12 @@ public class DataService {
         return itemRepository.findFirstByUserIdOrderByItemIdDesc(userId).getItemId();
     }
 
+
+    //Get AllFolders by userId
+    @Transactional(readOnly = true)
+    public AllFolderResWithTag getAllFolders(Long userId){
+        return AllFolderResWithTag.builder().folders(folderService.getAllFolders(userId)).build();   
+    }
 
 
 

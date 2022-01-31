@@ -187,6 +187,9 @@ public class FolderService {
     //Delete
     @Transactional(readOnly=true)
     public void deleteFoldersInBatch(List<Long> itemIdList, Long userId){
+        System.out.println("d : " + itemIdList);
+        if(itemIdList==null || itemIdList.size()==0) return;
+
         if(folderQueryRepository.existAll(itemIdList,userId)){ // no count query
             Queue<List<Long>> queue = new LinkedList<>();
             queue.add(itemIdList);

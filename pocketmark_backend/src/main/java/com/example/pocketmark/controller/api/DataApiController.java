@@ -5,6 +5,7 @@ import com.example.pocketmark.dto.main.DataDto.DataCreateReq;
 import com.example.pocketmark.dto.main.DataDto.DataDeleteReq;
 import com.example.pocketmark.dto.main.DataDto.DataRes;
 import com.example.pocketmark.dto.main.DataDto.DataUpdateReq;
+import com.example.pocketmark.dto.main.ItemDto.AllFolderResWithTag;
 import com.example.pocketmark.security.provider.UserPrincipal;
 import com.example.pocketmark.service.DataService;
 
@@ -89,6 +90,14 @@ public class DataApiController {
         return ApiDataResponse.empty();
     }
 
+
+    //Read ALL Folders
+    @GetMapping(value="/folder")
+    public ApiDataResponse<AllFolderResWithTag> getAllFolders(
+        
+    ){
+        return ApiDataResponse.of(dataService.getAllFolders(getUserId()));
+    }
 
     
     
