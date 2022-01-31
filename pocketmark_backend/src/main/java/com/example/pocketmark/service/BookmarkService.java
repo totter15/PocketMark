@@ -145,7 +145,7 @@ public class BookmarkService {
     public void deleteBookmarksInBatch(List<Long> itemIdList, Long userId){
         //ItemPk = itemId + userId
 
-        if(itemIdList.size() == 0
+        if(itemIdList.size() == 0 || itemIdList == null
             || !bookmarkQueryRepository.existAll(itemIdList,userId)){
             return;
         }
@@ -177,6 +177,7 @@ public class BookmarkService {
         */
         QItem qItem = QItem.item;
         // QBookmark qBookmark = QBookmark.bookmark;
+        // dsl 도 JPQL기반이라 item도 Hibernate떄문에 조인됨.... ㄹㅇ....
         JPAUpdateClause update = new JPAUpdateClause(em, qItem);
             update
                 .set(qItem.deleted, true)
