@@ -144,8 +144,9 @@ public class BookmarkService {
     //Delete - 완료
     public void deleteBookmarksInBatch(List<Long> itemIdList, Long userId){
         //ItemPk = itemId + userId
+        System.out.println("B >>> :"+itemIdList);
 
-        if(itemIdList.size() == 0 || itemIdList == null
+        if(itemIdList==null || itemIdList.size() == 0
             || !bookmarkQueryRepository.existAll(itemIdList,userId)){
             return;
         }
