@@ -151,12 +151,36 @@ public class BookmarkService {
         }
 
         // qBookmark 로 업데이트문 어떻게 날라가는지 확인 후 qItem 으로 바꿀것 
-        // QItem qItem = QItem.item;
-        QBookmark qBookmark = QBookmark.bookmark;
-        JPAUpdateClause update = new JPAUpdateClause(em, qBookmark);
+        /*
+        update
+        item 
+    set
+        deleted=? 
+    where
+        (
+            pk
+        ) in (
+            select
+                bookmark0_.pk as pk 
+            from
+                bookmark bookmark0_ 
+            inner join
+                item bookmark0_1_ 
+                    on bookmark0_.pk=bookmark0_1_.pk 
+            where
+                (
+                    deleted = 0
+                ) 
+                and bookmark0_1_.item_id=? 
+                and bookmark0_1_.user_id=?
+        )
+        */
+        QItem qItem = QItem.item;
+        // QBookmark qBookmark = QBookmark.bookmark;
+        JPAUpdateClause update = new JPAUpdateClause(em, qItem);
             update
-                .set(qBookmark.deleted, true)
-                .where(qBookmark.itemId.in(itemIdList).and(qBookmark.userId.eq(userId)))
+                .set(qItem.deleted, true)
+                .where(qItem.itemId.in(itemIdList).and(qItem.userId.eq(userId)))
                 .execute();
             //where 절 요소는 PK임 
         em.flush();
