@@ -1,6 +1,8 @@
 package com.example.pocketmark.domain;
 
 
+import com.example.pocketmark.domain.base.BaseTimeEntity;
+import com.example.pocketmark.domain.base.BaseTimeEntityWithId;
 import com.example.pocketmark.util.Encryptor;
 import org.hibernate.annotations.Where;
 
@@ -16,8 +18,7 @@ import java.util.Set;
 @Getter
 @Builder
 @Where(clause = "deleted = false")
-public class User extends BaseTimeEntity{
-
+public class User extends BaseTimeEntityWithId{
     
     @Column(unique = true)
     private String email;

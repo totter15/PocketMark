@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -21,9 +21,11 @@ public class JwtUtil {
     private static final String TOKEN_TYPE_CLAIM = "tokenType";
     private static final String SECRET_KEY = "whoKnowsMyKey?blahblah";
 
-    // 15분
+    // deploy - 15분
+    // developOnly - 6 hours
     public static long ACCESS_TOKEN_EXPIRATION_TIME = 900000L;
-//    public static long ACCESS_TOKEN_EXPIRATION_TIME = 15000L;
+    // public static long ACCESS_TOKEN_EXPIRATION_TIME = Duration.ofMinutes(60*6).toMillis();
+
     // 24주
     public static long REFRESH_TOKEN_EXPIRATION_TIME = 604800000L;
 
@@ -111,6 +113,17 @@ public class JwtUtil {
 
         return claims.getSubject();
     }
+
+    // authenticationService.authenticate(req) 의 return 타입을 바꾸긴 애매해서
+    // 여기에 추가합니다..... 좋은 의견있으시면 의견부탁드립니다.
+    public static Long getUserId(String token){
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Long.valueOf(claims.getSubject());
+    } 
 
     public List<GrantedAuthority> getAuthoritiesFromJWT(String token) {
         Claims claims = Jwts.parser()

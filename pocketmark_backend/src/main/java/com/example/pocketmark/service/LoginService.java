@@ -3,9 +3,9 @@ package com.example.pocketmark.service;
 import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.User;
 import com.example.pocketmark.dto.SignUpUserDto;
-import com.example.pocketmark.dto.FolderDto.FolderCreateServiceReq;
 import com.example.pocketmark.dto.LoginDto.LoginReq;
 import com.example.pocketmark.dto.common.ApiDataResponse;
+import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq.FolderCreateServiceReq;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.UserRepository;
 
@@ -34,9 +34,7 @@ public class LoginService {
         User user = userService.create(signUpDto);
 
         //root 폴더 생성
-        folderService.saveByCreateReq(
-            FolderCreateServiceReq.builder().name("Root").parent(null).folderId(0L).build(),
-            user.getId());
+        folderService.makeAndSaveRootFolder(user.getId());
 
         return user;
     }

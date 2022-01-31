@@ -4,12 +4,9 @@ package com.example.pocketmark.repository;
 import java.util.Collection;
 import java.util.List;
 
-import com.example.pocketmark.domain.Bookmark;
-import com.example.pocketmark.domain.QBookmark;
-import com.example.pocketmark.dto.QBookmarkDto_BookmarkResImpl;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateServiceReq;
+import com.example.pocketmark.domain.main.Bookmark;
+import com.example.pocketmark.domain.main.QBookmark;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq.BookmarkUpdateServiceReq;
 import com.querydsl.core.dml.UpdateClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
@@ -26,48 +23,21 @@ public class BookmarkQueryRepository {
     private final JPAQueryFactory queryFactory;
     private QBookmark qBookmark = QBookmark.bookmark;
 
-    // public List<BookmarkResImpl> getBoomarkByFolder_UserIdAndFolder_Depth(
-    //     Long userId, Long depth, Long size, Long page
-    // ){
-    //     Long offset = (page-1)*size;
-    //     return queryFactory
-    //         .select(new QBookmarkDto_BookmarkResImpl(qBookmark.name, qBookmark.url, qBookmark.comment, qBookmark.folderId, qBookmark.visitCount))
-    //         .from(qBookmark)
-    //         .where(qBookmark.folder.userId.eq(userId)
-    //         .and(qBookmark.folder.depth.eq(depth)))
-    //         .orderBy(qBookmark.name.desc())
-    //         .offset(offset)
-    //         .limit(size)
-    //         .fetch();
-            
-    // }
-
-    public boolean exist(Long bookmarkId){
-        Bookmark fetchOne = queryFactory.selectFrom(qBookmark)
-                        .where(qBookmark.bookmarkId.eq(bookmarkId)).fetchFirst();
-        if(fetchOne ==null) return false;
-        else return true;
-    }
-
-    public boolean existAll(Collection<Long> bookmarkIds){
+    //완료 - But fetch가 null 인경우 size()가 작동하는지 체크해야함
+    //projection 으로 최소조회 처리하기 
+    public boolean existAll(Collection<Long> itemIdList, Long userId){
         List<Bookmark> fetch = queryFactory.selectFrom(qBookmark)
-                        .where(qBookmark.bookmarkId.in(bookmarkIds)).limit(bookmarkIds.size()).fetch();
+                        .where(qBookmark.itemId.in(itemIdList).and(qBookmark.userId.eq(userId)))
+                        .limit(itemIdList.size()).fetch();
 
-        if(fetch.size() == bookmarkIds.size()) return true;
-        else return false;
-    }
-
-    public boolean isAllValidWithUser(Collection<Long> bookmarkIds, Long userId){
-        List<Bookmark> fetch = queryFactory.selectFrom(qBookmark)
-                        .where(qBookmark.id.in(bookmarkIds).and(qBookmark.userId.eq(userId)))
-                        .limit(bookmarkIds.size()).fetch();
-                
-        if(fetch.size() == bookmarkIds.size()) return true;
+        if(fetch.size() == itemIdList.size()) return true;
         else return false;
     }
 
 
-    public Long update(BookmarkUpdateServiceReq req){
+    // 완료
+    // (Name, URL, Comment, ParentId, VisitCount)
+    public Long update(BookmarkUpdateServiceReq req,Long userId){
         UpdateClause<JPAUpdateClause> builder = queryFactory.update(qBookmark);
         
         if(StringUtils.hasText(req.getName())){
@@ -79,8 +49,8 @@ public class BookmarkQueryRepository {
         if(StringUtils.hasText(req.getComment())){
             builder.set(qBookmark.comment, req.getComment());
         }
-        if(req.getFolderId() != null){
-            builder.set(qBookmark.folder.id, req.getFolderId());
+        if(req.getParentId() != null){
+            builder.set(qBookmark.parentId, req.getParentId());
         }
         if(req.getVisitCount() != null){
             builder.set(qBookmark.visitCount, req.getVisitCount());
@@ -89,7 +59,8 @@ public class BookmarkQueryRepository {
         // userId check needed to prevent JS attack from Hacker
         // should be coded in Service Layer
         return builder
-                .where(qBookmark.id.eq(req.getBookmarkId()))
+                .where(qBookmark.itemId.eq(req.getItemId())
+                .and(qBookmark.userId.eq(userId)))
                 .execute();
     }
     

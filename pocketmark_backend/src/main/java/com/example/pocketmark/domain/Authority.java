@@ -5,6 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Entity;
 
+import com.example.pocketmark.domain.base.BaseTimeEntity;
+import com.example.pocketmark.domain.base.BaseTimeEntityWithId;
+
 import static java.util.Objects.hash;
 
 @AllArgsConstructor
@@ -12,7 +15,7 @@ import static java.util.Objects.hash;
 @Builder
 @Entity
 @Getter
-public class Authority extends BaseTimeEntity implements GrantedAuthority {
+public class Authority extends BaseTimeEntityWithId implements GrantedAuthority {
     public static final String ROLE_USER = "USER";
 
     public static final Authority USER_AUTHORITY = Authority.builder().authority(ROLE_USER).build();
