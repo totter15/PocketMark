@@ -17,4 +17,9 @@ public class EmailAuthenticationCode extends BaseTimeEntityWithId {
 
     private String email;
     private String code;
+    private boolean success;
+
+    public void successAuthenticate(){
+        this.success = true;
+    }
 }

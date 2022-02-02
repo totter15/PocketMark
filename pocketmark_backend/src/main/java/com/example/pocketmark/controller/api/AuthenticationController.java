@@ -1,5 +1,6 @@
 package com.example.pocketmark.controller.api;
 
+import com.example.pocketmark.dto.AuthenticationEmail;
 import com.example.pocketmark.dto.LoginDto;
 import com.example.pocketmark.dto.RefreshToken;
 import com.example.pocketmark.dto.SendAuthenticationEmail;
@@ -61,5 +62,24 @@ public class AuthenticationController {
 
         emailService.sendSignUpAuthenticationMail(fromSendAuthenticationEmailReq(req));
         return ApiDataResponse.success();
+    }
+
+
+    @PostMapping("/authentication-email")
+    public ApiDataResponse<AuthenticationEmail.AuthenticationEmailRes> authenticationEmail(
+            @RequestBody AuthenticationEmail.AuthenticationEmailReq req
+    ){
+
+        boolean authenticationResult = emailService.authenticateEmail(
+                AuthenticationEmail.AuthenticationEmailDto
+                        .fromSendAuthenticationEmailReq(req)
+        );
+
+        return ApiDataResponse.of(
+                AuthenticationEmail.AuthenticationEmailRes
+                        .builder()
+                        .success(authenticationResult)
+                        .build()
+        );
     }
 }

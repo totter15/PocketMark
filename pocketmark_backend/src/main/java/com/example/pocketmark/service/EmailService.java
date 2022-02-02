@@ -1,14 +1,19 @@
 package com.example.pocketmark.service;
 
+import com.example.pocketmark.constant.ErrorCode;
 import com.example.pocketmark.domain.EmailAuthenticationCode;
+import com.example.pocketmark.dto.AuthenticationEmail;
 import com.example.pocketmark.dto.SendAuthenticationEmail.SendAuthenticationEmailDto;
+import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.EmailAuthenticationCodeRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Random;
 
@@ -17,17 +22,17 @@ public class EmailService {
 
     private final JavaMailSender emailSender;
     private final EmailAuthenticationCodeRepository emailAuthenticationCodeRepository;
-    private final int leftLimit;
-    private final int rightLimit;
-    private final int targetStringLength;
     private final Random random;
+
+
+    public static int leftEmailAuthenticationCodeLimit = 48;    // 0
+    public static int rightEmailAuthenticationCodeLimit = 122;  // z
+    public static int emailAuthenticationCodeLength = 10;
+    public static Long expireSignUpEmailAuthentication = 3L;
 
     public EmailService(JavaMailSender emailSender, EmailAuthenticationCodeRepository emailAuthenticationCodeRepository) {
         this.emailSender = emailSender;
         this.emailAuthenticationCodeRepository = emailAuthenticationCodeRepository;
-        this.leftLimit = 48;    // 0
-        this.rightLimit = 122;  // z
-        this.targetStringLength = 10;
         this.random = new Random();
     }
 
@@ -39,6 +44,7 @@ public class EmailService {
         emailAuthenticationCodeRepository.save(EmailAuthenticationCode.builder()
                         .email(dto.getEmail())
                         .code(authenticationCode)
+                        .success(false)
                         .build()
         );
 
@@ -55,12 +61,33 @@ public class EmailService {
 
     public String makeEmailAuthenticationCode(){
 
-        return random.ints(leftLimit,rightLimit + 1)
+        return random.ints(leftEmailAuthenticationCodeLimit,rightEmailAuthenticationCodeLimit + 1)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(targetStringLength)
+                .limit(emailAuthenticationCodeLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
 
     }
 
+
+    @Transactional
+    public boolean authenticateEmail(AuthenticationEmail.AuthenticationEmailDto dto) {
+
+        EmailAuthenticationCode code = emailAuthenticationCodeRepository
+                .findFirstByEmailOrderByCreatedAtDesc(dto.getEmail());
+
+        if(dto.getCode().equals(code.getCode())){
+            boolean isExpired = code.getCreatedAt().plusMinutes(expireSignUpEmailAuthentication)
+                    .isBefore(LocalDateTime.now());
+
+            if(isExpired){
+                throw new GeneralException(ErrorCode.EMAIL_AUTHENTICATION_CODE_EXPIRE);
+            }else{
+                code.successAuthenticate();
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
