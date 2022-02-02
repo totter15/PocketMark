@@ -1,9 +1,14 @@
 package com.example.pocketmark.service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 
 import com.example.pocketmark.domain.main.Item;
 import com.example.pocketmark.domain.main.QItem;
@@ -14,6 +19,7 @@ import com.example.pocketmark.dto.main.TagDto.TagCreateBulkReq;
 import com.example.pocketmark.dto.main.TagDto.TagCreateReq;
 import com.example.pocketmark.dto.main.TagDto.TagDeleteBulkReq;
 import com.example.pocketmark.dto.main.TagDto.TagDeleteReq;
+import com.example.pocketmark.dto.main.TagDto.TagIdOnly;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.dto.main.TagDto.TagResWithItemId;
 import com.example.pocketmark.dto.main.TagDto.TagCreateReq.TagCreateServiceReq;
@@ -22,7 +28,9 @@ import com.example.pocketmark.repository.TagRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -37,37 +45,71 @@ public class TagService {
     private final ItemRepository itemRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
+    private final EntityManagerFactory emf;
     
 
     //Create
-    // N*insert + 1 update
+    // 1 Select + (if(new) N*insert) + (if(dup is exist) 1update) + 1 update
+    // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean createTags(
         TagCreateBulkReq req, Long userId
     ){ 
-        List<Tag> tags = new ArrayList<>();
+        List<TagCreateReq> tagReqs = req.getTags();
+        if(req.getTags().size()==0) return true;
+
+        Set<String> tagIdList= tagReqs.stream().map(o->{
+            return Tag.makePK(o.getItemId(), userId, o.getName());
+        }).collect(Collectors.toSet());
+
         
-        List<Long> itemIdList = new ArrayList<>();
-        //no select item query created
-        Long itemId; Item item;
-        for(TagCreateReq singleReq : req.getTags()){
-            itemId = singleReq.getItemId();
-            // item = itemRepository.getById(new ItemPK(itemId, userId));
-            item = itemRepository.getById(Item.makePK(itemId, userId));
-            itemIdList.add(itemId);
-            tags.add(singleReq.toEntity(itemId,userId,item));
+        //지워진 태그랑 동일한 태그네임으로 다시 생성되었을때 체크
+        List<String> duplicateIdList = tagRepository.findByIdIn(tagIdList).stream().map(TagIdOnly::getId).collect(Collectors.toList());
+        //중복된 request 제거
+        for(String tagPk :duplicateIdList){
+            tagIdList.remove(tagPk);
         }
 
+        List<Long> itemIdList = new ArrayList<>();
+        //no select item query created
+        Long itemId; Item item; 
+        String name; List<Tag> tags=new ArrayList<>();
+        for(String tagPk : tagIdList){
+            itemId = Long.valueOf(tagPk.split(", ")[0]);
+            name = tagPk.split(", ")[2];
+            item = itemRepository.getById(Item.makePK(itemId, userId));
+            itemIdList.add(itemId); // for item update
+            tags.add(new Tag(itemId, userId, name, item));
+        }
         tagRepository.saveAll(tags);
+
         em.flush();
         em.clear();
+        
+        
+
+        
+        QTag qTag = QTag.tag;
+        JPAUpdateClause update= new JPAUpdateClause(em, qTag);
+        if(duplicateIdList.size()!=0){
+            update.set(qTag.deleted, false)
+                .where(qTag.id.in(duplicateIdList))
+                .execute();
+        }
+
+    
+
+        
+        
 
         QItem qItem = QItem.item;
-        JPAUpdateClause update= new JPAUpdateClause(em, qItem);
+        update= new JPAUpdateClause(em, qItem);
     
         update.set(qItem.tagExist, true)
             .where(qItem.itemId.in(itemIdList))
             .execute();
 
+        em.flush();
+        em.clear();
         return true;
     }
 
@@ -102,17 +144,17 @@ public class TagService {
         QTag qTag = QTag.tag;
         
         //대리키로 N회 update -> 1회 update
-        List<String> itemPkList= new ArrayList<>();
+        List<String> tagIdList= new ArrayList<>();
         for(TagDeleteReq singleReq : req.getTags()){
-            itemPkList.add(
-                Item.makePK(singleReq.getItemId(), userId) 
+            tagIdList.add(
+                Tag.makePK(singleReq.getItemId(),userId, singleReq.getName())
             );
         }
         
         JPAUpdateClause update= new JPAUpdateClause(em, qTag);
         
         update.set(qTag.deleted, true)
-            .where(qTag.itemPk.in(itemPkList))
+            .where(qTag.id.in(tagIdList))
             .execute();            
 
         // Tag 변경기록이 추후 데이터사이언스에서 유용한 정보로 사용할 수 있을까?

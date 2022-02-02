@@ -13,11 +13,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.example.pocketmark.domain.base.BaseImmutableEntity;
 
+import org.hibernate.annotations.SQLInsert;
 import org.hibernate.annotations.Where;
+import org.springframework.data.domain.Persistable;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,11 +37,31 @@ import lombok.ToString;
 @Getter @ToString
 @Where(clause = "deleted = false")
 @Table(indexes = @Index(name="i_tag_name", columnList = "name"))
-public class Tag extends BaseImmutableEntity {
+public class Tag extends BaseImmutableEntity implements Persistable<String>{
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ToString.Exclude
-    private Long id;
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name ="id")
+    private String id;
+
+    @Transient
+    private boolean isNew=true;
+
+    @Override
+    public String getId() {
+        return this.id;
+    }
+
+    @Override
+    public boolean isNew(){
+        return this.isNew;
+    }
+
+    public void setIsNew(boolean isNew){
+        this.isNew = isNew;
+    }
+
+
 
     //데이터분석 때 itemId, userId 랑 태그를 같이 xml로 만들어야할텐데
     //한 아이템을 두고 다른별칭을 어떻게 지었는가를 볼 수 있는 지표 (자연어 동의어 학습데이터)
@@ -80,13 +105,26 @@ public class Tag extends BaseImmutableEntity {
     //     this.item = item;
     // }
 
-    @Builder
+    
     public Tag(Long itemId, Long userId, String name, Item item){
+        this.id=makePK(itemId, userId, name);
         this.itemId=itemId;
         this.userId=userId;
         this.name=name;
         this.item=item;
     }
+
+    public static String makePK(Long itemId, Long userId, String name){
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.valueOf(itemId));
+        sb.append(", ");
+        sb.append(String.valueOf(userId));
+        sb.append(", ");
+        sb.append(name);
+        return sb.toString();
+    }
+
+
 
     /* 생성과 삭제는 Tag 컨트롤러로 */
     /* 업데이트는 프론트 UI에 없음 */

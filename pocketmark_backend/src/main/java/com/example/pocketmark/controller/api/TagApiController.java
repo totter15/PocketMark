@@ -20,6 +20,7 @@ import com.example.pocketmark.service.TagService;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,7 +66,7 @@ public class TagApiController {
         @RequestBody TagCreateBulkReq req
     ){
         tagService.createTags(req, getUserId());
-        return ApiDataResponse.empty();
+        return ApiDataResponse.of(HttpStatus.OK.value(), "태그가 성공적으로 생성되었습니다.", null);
     }
 
     //Delete
@@ -74,7 +75,7 @@ public class TagApiController {
         @RequestBody TagDeleteBulkReq req
     ){
         tagService.deleteTagsInBatch(req, getUserId());
-        return ApiDataResponse.empty();
+        return ApiDataResponse.of(HttpStatus.OK.value(), "태그가 성공적으로 삭제되었습니다.", null);
     }   
 
 

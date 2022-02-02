@@ -11,6 +11,7 @@ import com.example.pocketmark.service.DataService;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,7 +55,7 @@ public class DataApiController {
         @RequestBody DataCreateReq req
     ){
         dataService.createData(req.toServiceReq(), getUserId());
-        return ApiDataResponse.empty();
+        return ApiDataResponse.of(HttpStatus.OK.value(), "데이터가 성공적으로 생성되었습니다.", null);
     }
 
     //R

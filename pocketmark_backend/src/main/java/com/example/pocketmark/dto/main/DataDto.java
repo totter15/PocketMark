@@ -24,7 +24,7 @@ public class DataDto {
     @AllArgsConstructor @NoArgsConstructor // for objectMapper
     @Builder @Getter
     public static class DataRes{
-        Long parentId;
+        Long targetId;
         List<FolderResWithTag> folders;
         List<BookmarkResWithTag> bookmarks;
     }
