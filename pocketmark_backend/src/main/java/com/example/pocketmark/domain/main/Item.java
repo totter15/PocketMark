@@ -60,9 +60,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Where(clause = "deleted = false")
 @Table(indexes = @Index(name="i_item_parent_id", columnList = "parent_id"))
-public class Item extends BaseEntity 
-    // implements Persistable<String>
-     {
+public class Item extends BaseEntity implements Persistable<String>{
     
     /* Table-Field Area */
     @Id
@@ -70,21 +68,21 @@ public class Item extends BaseEntity
     @Column(name="pk")
     private String pk;
 
-    // @Transient
-    // private boolean isNew=true;
-    // @Override
-    // public String getId() {
-    //     return this.pk;
-    // }
+    @Transient
+    private boolean isNew=true;
+    @Override
+    public String getId() {
+        return this.pk;
+    }
 
-    // @Override
-    // public boolean isNew(){
-    //     return this.isNew;
-    // }
+    @Override
+    public boolean isNew(){
+        return this.isNew;
+    }
 
-    // public void setIsNew(boolean isNew){
-    //     this.isNew = isNew;
-    // }
+    public void setIsNew(boolean isNew){
+        this.isNew = isNew;
+    }
     
     
     @Column(name="item_id") 

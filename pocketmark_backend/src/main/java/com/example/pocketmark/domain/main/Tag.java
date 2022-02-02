@@ -37,31 +37,29 @@ import lombok.ToString;
 @Getter @ToString
 @Where(clause = "deleted = false")
 @Table(indexes = @Index(name="i_tag_name", columnList = "name"))
-public class Tag extends BaseImmutableEntity 
-    // implements Persistable<String>  
-    {
+public class Tag extends BaseImmutableEntity implements Persistable<String>{
     
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="id")
     private String id;
 
-    // @Transient
-    // private boolean isNew=true;
+    @Transient
+    private boolean isNew=true;
 
-    // @Override
-    // public String getId() {
-    //     return this.id;
-    // }
+    @Override
+    public String getId() {
+        return this.id;
+    }
 
-    // @Override
-    // public boolean isNew(){
-    //     return this.isNew;
-    // }
+    @Override
+    public boolean isNew(){
+        return this.isNew;
+    }
 
-    // public void setIsNew(boolean isNew){
-    //     this.isNew = isNew;
-    // }
+    public void setIsNew(boolean isNew){
+        this.isNew = isNew;
+    }
 
 
 
