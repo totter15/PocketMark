@@ -6,6 +6,7 @@ import com.example.pocketmark.repository.EmailAuthenticationCodeRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -31,6 +32,7 @@ public class EmailService {
     }
 
 
+    @Async
     public void sendSignUpAuthenticationMail(SendAuthenticationEmailDto dto){
         String authenticationCode = makeEmailAuthenticationCode();
 
@@ -43,7 +45,7 @@ public class EmailService {
         final MimeMessagePreparator preparator = message -> {
             final MimeMessageHelper helper = new MimeMessageHelper(message);
             helper.setTo(dto.getEmail());
-            helper.setSubject("PocketMark 회원가입 이메일 인증코드");
+            helper.setSubject("[PocketMark] 회원가입 이메일 인증코드");
             helper.setText(authenticationCode);
         };
 
