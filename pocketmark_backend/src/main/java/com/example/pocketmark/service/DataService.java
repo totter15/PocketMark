@@ -51,7 +51,7 @@ public class DataService {
 
         List<FolderResWithTag> folders = folderService.getAllFolders(userId);
         List<BookmarkResWithTag> bookmarks = bookmarkService.getAllBookmarks(userId);
-        DataRes data = DataRes.builder().parentId(0L).folders(folders).bookmarks(bookmarks).build();
+        DataRes data = DataRes.builder().targetId(0L).folders(folders).bookmarks(bookmarks).build();
 
         return data;
     }
@@ -62,7 +62,7 @@ public class DataService {
         if(parentId != null && userId != null){
             List<FolderResWithTag> folders = folderService.getFoldersByParentId(userId, parentId, pageable).getContent();
             List<BookmarkResWithTag> bookmarks = bookmarkService.getBoomarkByParentId(userId, parentId, pageable).getContent();
-            DataRes data = DataRes.builder().parentId(parentId).folders(folders).bookmarks(bookmarks).build();
+            DataRes data = DataRes.builder().targetId(parentId).folders(folders).bookmarks(bookmarks).build();
             return data;
         }else{
             return null;

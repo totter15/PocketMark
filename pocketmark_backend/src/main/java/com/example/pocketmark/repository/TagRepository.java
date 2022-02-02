@@ -1,15 +1,17 @@
 package com.example.pocketmark.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.example.pocketmark.domain.main.Tag;
 import com.example.pocketmark.domain.main.Item.ItemPK;
+import com.example.pocketmark.dto.main.TagDto.TagIdOnly;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.dto.main.TagDto.TagResWithItemId;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TagRepository extends JpaRepository<Tag, Long>{
+public interface TagRepository extends JpaRepository<Tag, String>{
     //공유게시판 태그검색
     List<TagResWithItemId> findByName(String name);
 
@@ -25,4 +27,8 @@ public interface TagRepository extends JpaRepository<Tag, Long>{
 
     //Read-ALL
     List<TagRes> findByUserId(Long userId);
+
+    //중복 태그 발견
+    List<TagIdOnly> findByIdIn(Collection<String> idList);
+
 }

@@ -23,8 +23,8 @@ public class JwtUtil {
 
     // deploy - 15분
     // developOnly - 6 hours
-    public static long ACCESS_TOKEN_EXPIRATION_TIME = 900000L;
-    // public static long ACCESS_TOKEN_EXPIRATION_TIME = Duration.ofMinutes(60*6).toMillis();
+    // public static long ACCESS_TOKEN_EXPIRATION_TIME = 900000L;
+    public static long ACCESS_TOKEN_EXPIRATION_TIME = Duration.ofMinutes(60*6).toMillis();
 
     // 24주
     public static long REFRESH_TOKEN_EXPIRATION_TIME = 604800000L;

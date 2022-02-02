@@ -37,6 +37,7 @@ import org.hibernate.annotations.PolymorphismType;
 import org.hibernate.annotations.Where;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Immutable;
+import org.springframework.data.domain.Persistable;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -59,13 +60,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Where(clause = "deleted = false")
 @Table(indexes = @Index(name="i_item_parent_id", columnList = "parent_id"))
-public class Item extends BaseEntity{
+public class Item extends BaseEntity 
+    // implements Persistable<String>
+     {
     
     /* Table-Field Area */
     @Id
     // 조인속도향상 및 JPQL, DSL IN절 사용가능
     @Column(name="pk")
     private String pk;
+
+    // @Transient
+    // private boolean isNew=true;
+    // @Override
+    // public String getId() {
+    //     return this.pk;
+    // }
+
+    // @Override
+    // public boolean isNew(){
+    //     return this.isNew;
+    // }
+
+    // public void setIsNew(boolean isNew){
+    //     this.isNew = isNew;
+    // }
+    
     
     @Column(name="item_id") 
     private Long itemId; 
@@ -148,5 +168,8 @@ public class Item extends BaseEntity{
         private Long itemId;
         private Long userId;
     }
+
+
+    
 
 }
