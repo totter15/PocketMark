@@ -28,7 +28,7 @@ public class EmailService {
     public static int leftEmailAuthenticationCodeLimit = 48;    // 0
     public static int rightEmailAuthenticationCodeLimit = 122;  // z
     public static int emailAuthenticationCodeLength = 10;
-    public static Long expireSignUpEmailAuthentication = 3L;
+    public static Long expireSignUpEmailAuthentication = 5L;
 
     public EmailService(JavaMailSender emailSender, EmailAuthenticationCodeRepository emailAuthenticationCodeRepository) {
         this.emailSender = emailSender;
