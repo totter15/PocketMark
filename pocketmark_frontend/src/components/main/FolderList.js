@@ -11,7 +11,9 @@ const FolderList = ({
   folderModalOpen,
   folderSelect,
   selectFolder,
+  childFolder,
 }) => {
+  console.log(childFolder, "child");
   return (
     <div className="folderList">
       <div
@@ -28,17 +30,26 @@ const FolderList = ({
 
       {folders.length > 0 &&
         folders.map((folder) => {
-          if (folder.parent === 0) {
-            return (
-              <>
-                <FolderListItem
-                  key={folder.folderId}
-                  id={folder.folderId}
-                  name={folder.name}
+          console.log(childFolder[0]);
+          return (
+            <>
+              <FolderListItem
+                key={folder.folderId}
+                id={folder.folderId}
+                name={folder.name}
+                folderSelect={folderSelect}
+                select={folder.folderId === selectFolder}
+              />
+              {childFolder[0] && childFolder[0].parent === folder.folderId ? (
+                <FolderChildList
+                  childFolder={childFolder}
+                  selectFolder={selectFolder}
                   folderSelect={folderSelect}
-                  select={folder.folderId === selectFolder}
                 />
-                {folders.map((fol) => {
+              ) : (
+                <></>
+              )}
+              {/* {folders.map((fol) => {
                   if (fol.parent === folder.folderId) {
                     return (
                       <FolderListItem
@@ -51,10 +62,9 @@ const FolderList = ({
                       />
                     );
                   }
-                })}
-              </>
-            );
-          }
+                })} */}
+            </>
+          );
         })}
     </div>
   );
