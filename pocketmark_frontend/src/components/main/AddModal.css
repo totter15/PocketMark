@@ -19,7 +19,7 @@
 
 .addModal .components {
   width: 350px;
-  /* height: 350px; */
+  height: 350px;
   background-color: white;
   position: absolute;
   border-radius: 20px;
@@ -75,6 +75,6 @@
   }
 }
 
-.addModal .components > form > div:last-child {
-  margin-top: 14px;
+select {
+  border: 1px solid black;
 }
