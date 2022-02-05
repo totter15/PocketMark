@@ -1,4 +1,4 @@
-package com.example.pocketmark.domain;
+package com.example.pocketmark.domain.base;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

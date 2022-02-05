@@ -20,9 +20,16 @@ public class ApiDataResponse<T> extends ApiErrorResponse {
         super(true, ErrorCode.OK.getCode(), ErrorCode.OK.getMessage());
         this.data = data;
     }
+    private ApiDataResponse(Integer errorCode, String customMessage, T data) {
+        super(true, errorCode, customMessage);
+        this.data = data;
+    }
 
     public static <T> ApiDataResponse<T> of(T data) {
         return new ApiDataResponse<>(data);
+    }
+    public static <T> ApiDataResponse<T> of(Integer errorCode, String customMessage, T data) {
+        return new ApiDataResponse<>(errorCode,customMessage,data);
     }
 
     public static <T> ApiDataResponse<T> empty() {
