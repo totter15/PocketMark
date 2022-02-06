@@ -16,12 +16,13 @@ const AddFolderModal = ({
   const [options, setOptions] = useState([]);
 
   const getOptions = useCallback(() => {
-    let options = [];
+    let options = [{ label: "내 폴더", value: 0 }];
     folders.forEach((folder) => {
-      options.push({
-        value: folder.itemId,
-        label: folder.name,
-      });
+      folder.parentId === 0 && //부모 폴더만 리스트에 뜨게
+        options.push({
+          value: folder.itemId,
+          label: folder.name,
+        });
     });
     setOptions(options);
   }, [folders]);
@@ -30,11 +31,17 @@ const AddFolderModal = ({
     getOptions();
   }, [folders]);
 
+  //폴더 수정시 원래이름을 기본값으로
+  useEffect(() => {
+    editFolder && setName(editFolder[0].name);
+    setSelect(options.find((o) => o.value === editFolder[0].parentId));
+  }, [editFolder]);
+
   const onMake = (e) => {
     e.preventDefault();
     !edit
-      ? makeFolder(name, select ? select.value : 0)
-      : editFolders(name, select.value);
+      ? makeFolder(name, select ? select.value : 0) //폴더 만들기
+      : editFolders(name, select.value); //폴더 수정하기
     setName("");
     setSelect({ label: "내 폴더", value: 0 });
     folderModalClose();

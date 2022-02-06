@@ -57,6 +57,7 @@ const Main = () => {
   useEffect(() => {
     GetData(0).then((res) => {
       setBookmarks(res.data.data.bookmarks);
+      console.log("dd", selectFolder);
     });
     GetAllFolders().then((res) => {
       setFolders(res.data.data.folders.slice(1));
@@ -64,7 +65,7 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    setInterval(() => axios(server.current), 1000 * 30); //5분
+    setInterval(() => axios(server.current), 1000 * 10); //5분
   }, [server]);
 
   useEffect(() => {
@@ -72,46 +73,49 @@ const Main = () => {
     getRoute(selectFolder);
   }, [selectFolder]);
 
-  const axios = useCallback((server) => {
-    const { post, put, del } = server;
-    PostData(post)
-      .then(() => {
-        if (put.folders.length > 0 || put.bookmarks.length > 0) PutData(put);
-      })
-      .then(() => {
-        if (del.folderIdList.length > 0 || del.bookmarkIdList.length > 0)
-          DeleteData(del);
-      })
-      .then(() => GetData(selectFolder))
-      .then((res) => {
-        setBookmarks(res.data.data.bookmarks);
-      })
-      .then(() => {
-        server.post = {
-          folders: [],
-          bookmarks: [],
-        };
-        server.put = {
-          folders: [],
-          bookmarks: [],
-        };
-        server.del = {
-          folderIdList: [],
-          bookmarkIdList: [],
-        };
-      })
-      .then(() =>
-        GetAllFolders().then((res) => {
-          setFolders(res.data.data.folders.slice(1));
+  const axios = useCallback(
+    (server) => {
+      const { post, put, del } = server;
+      PostData(post)
+        .then(() => {
+          if (put.folders.length > 0 || put.bookmarks.length > 0) PutData(put);
         })
-      )
-      .then(() => setCookie("lastId", itemId.current - 1)) //다음 id상태라
-      .catch((e) => console.log(e));
-  }, []);
+        .then(() => {
+          if (del.folderIdList.length > 0 || del.bookmarkIdList.length > 0)
+            DeleteData(del);
+        })
+        .then(() => GetData(selectFolder))
+        .then((res) => {
+          console.log(res.data.data, "bookmarks", selectFolder);
+          setBookmarks(res.data.data.bookmarks);
+        })
+        .then(() => {
+          server.post = {
+            folders: [],
+            bookmarks: [],
+          };
+          server.put = {
+            folders: [],
+            bookmarks: [],
+          };
+          server.del = {
+            folderIdList: [],
+            bookmarkIdList: [],
+          };
+        })
+        .then(() =>
+          GetAllFolders().then((res) => {
+            setFolders(res.data.data.folders.slice(1));
+          })
+        )
+        .then(() => setCookie("lastId", itemId.current - 1)) //다음 id상태라
+        .catch((e) => console.log(e));
+    },
+    [selectFolder]
+  );
 
   const makeFolder = useCallback(
     (folderName, parent) => {
-      console.log(itemId);
       setFolders([
         ...folders,
         {
@@ -232,7 +236,17 @@ const Main = () => {
       //서버용
       del.bookmarkIdList = [...del.bookmarkIdList, itemId];
     },
+
     [bookmarks, del]
+  );
+
+  const deleteFolders = useCallback(
+    (itemId) => {
+      setFolders(folders.filter((folder) => folder.itemId !== itemId));
+      del.folderIdList = [...del.folderIdList, itemId];
+      setSelectFolder(0);
+    },
+    [folders, del]
   );
 
   const folderSelect = useCallback(
@@ -261,7 +275,7 @@ const Main = () => {
   //폴더 수정 모달 열기
   const editFolderModalOpen = (folderId) => {
     setEdit(folderId);
-    setEditFolder(folders.filter((f) => f.folderId === folderId));
+    setEditFolder(folders.filter((f) => f.itemId === folderId));
     setFolderModal(true);
   };
 
@@ -354,7 +368,7 @@ const Main = () => {
                     }}
                   />
                 </button>
-                <button>
+                <button onClick={() => deleteFolders(selectFolder)}>
                   <RiDeleteBin6Line
                     style={{
                       color: "darkgray",
@@ -397,6 +411,7 @@ const Main = () => {
         editBookmarks={editBookmarks}
         edit={edit}
         editBookmark={editBookmark}
+        selectFolder={selectFolder}
       />
     </>
   );

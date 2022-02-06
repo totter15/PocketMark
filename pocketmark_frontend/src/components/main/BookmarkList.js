@@ -3,16 +3,16 @@ import BookmarkListItem from "./BookmarkListItem";
 import "./BookmarkList.css";
 
 const BookmarkList = ({
+  bookmarks,
   bookmarkList,
   editModalOpen,
   deleteBookmarks,
-  selectFolder,
 }) => {
   return (
     <div className="bookmarkList">
       <div className="contents">
-        {bookmarkList &&
-          bookmarkList.map((bookmark, index) => (
+        {bookmarks &&
+          bookmarks.map((bookmark, index) => (
             <BookmarkListItem
               key={`${index}_${bookmark.name}`}
               bookmark={bookmark}

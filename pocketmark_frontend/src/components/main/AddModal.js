@@ -13,6 +13,7 @@ const AddModal = ({
   edit,
   editBookmarks,
   editBookmark,
+  selectFolder,
 }) => {
   const [data, setData] = useState({
     name: "",
@@ -30,14 +31,15 @@ const AddModal = ({
 
   const options = folders.map((folder) => {
     const option = {};
-    option.value = folder.folderId;
+    option.value = folder.itemId;
     option.label = folder.name;
     return option;
   });
 
   useEffect(() => {
-    // if (edit) setData(editBookmark[0]);
-  }, [edit]);
+    editBookmark && setData(editBookmark[0]);
+    selectFolder && setSelect(options.find((o) => o.value === selectFolder));
+  }, [selectFolder]);
 
   const onMake = (e) => {
     e.preventDefault();
