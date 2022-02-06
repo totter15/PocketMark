@@ -43,6 +43,7 @@ const FolderList = ({
                   )}
                   selectFolder={selectFolder}
                   folderSelect={folderSelect}
+                  select={folder.folderId === selectFolder}
                 />
               </div>
             );

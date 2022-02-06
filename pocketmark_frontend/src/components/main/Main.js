@@ -18,6 +18,7 @@ import {
 import { getCookis, setCookie } from "../../lib/cookie";
 
 const Main = () => {
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
   //folders/bookmarks
@@ -338,8 +339,8 @@ const Main = () => {
             folderModalOpen={folderModalOpen}
             folderSelect={folderSelect}
             selectFolder={selectFolder}
-            childFolder={childFolder}
           />
+
           <section className="bookmark">
             <div className="route">
               내 폴더 {getRoute(selectFolder)}

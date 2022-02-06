@@ -10,25 +10,29 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import com.example.pocketmark.constant.ErrorCode;
-import com.example.pocketmark.domain.Bookmark;
-import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.domain.QBookmark;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkRes;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkResImpl;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkUpdateServiceReq;
-import com.example.pocketmark.dto.BookmarkDto.BookmarkCreateReq.BookmarkCreateServiceReq;
-import com.example.pocketmark.dto.FolderDto.FolderResImpl;
+import com.example.pocketmark.domain.main.Bookmark;
+import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.domain.main.Item;
+import com.example.pocketmark.domain.main.QBookmark;
+import com.example.pocketmark.domain.main.QItem;
+import com.example.pocketmark.domain.main.Item.ItemPK;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkCreateReq;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkRes;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkResWithTag;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
+import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq.BookmarkUpdateServiceReq;
+import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.BookmarkQueryRepository;
 import com.example.pocketmark.repository.BookmarkRepository;
 import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
+import com.example.pocketmark.repository.ItemRepository;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,54 +43,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
-    private final BookmarkQueryRepository BookmarkQueryRepository;
-    private final FolderRepository folderRepository;
-    private final FolderQueryRepository folderQueryRepository;
+    private final BookmarkQueryRepository bookmarkQueryRepository;
     private final EntityManager em;
+    private final TagService tagService;
 
-    // //c
-    public BookmarkResImpl saveByCreateReq(BookmarkCreateServiceReq req){
-        Folder folder = folderRepository.getById(req.getFolderId());
-        Bookmark bookmark= req.toEntity(folder);
-        
-        return bookmarkRepository.save(bookmark).toJson();
-    }
-
-    // @Transactional
-    // public boolean saveAllByCreateReq(List<BookmarkCreateReq> req){
-    //     Folder folder;
-        
-    //     List<Bookmark> bookmarks= new ArrayList<>();
-    //     for(BookmarkCreateReq singleReq : req){
-    //         folder = folderRepository.getById(singleReq.getTempFolderId());
-    //         bookmarks.add(singleReq.toEntity(folder));
-    //     }
-    //     bookmarkRepository.saveAll(bookmarks);
-
-    //     return true;
-    // }
+    //Create - 완료
     @Transactional
     public boolean saveAllByCreateReq(
         List<BookmarkCreateReq> req,
         Long userId
     ){
         if(req.size() ==0) return true;
-        
-        Set<Long> folderIdSet = req.stream()
-                            .map(BookmarkCreateReq::getFolderId)
-                            .collect(Collectors.toSet());
 
-        // (Key,Value) - (tempFolderId, DBFolderId)
-        // 눈물의 select......
-        // folder Persist 이후 
-        Map<Long,Long> map =folderQueryRepository.getFoldersIdMapByFolderId(userId, folderIdSet);
+        // folder Persist 이후 (영속성 존재)
 
-        
-        Folder folder;
         List<Bookmark> bookmarks= new ArrayList<>();
         for(BookmarkCreateReq singleReq : req){
-            folder = folderRepository.getById(map.get(singleReq.getFolderId()));
-            bookmarks.add(singleReq.toEntity(folder, userId));            
+            bookmarks.add(singleReq.toEntity(userId));            
         }
         
         bookmarkRepository.saveAll(bookmarks);
@@ -95,61 +68,123 @@ public class BookmarkService {
 
 
 
-
-    //r
-    public List<BookmarkRes> getBookmark(Long folderId){
-        return bookmarkRepository.findByFolderId(folderId);
-    } 
-
-    public Slice<BookmarkRes> getBoomarkByFolderId(Long userId, Long folderId, Pageable pageable){
-        return bookmarkRepository.findByFolder_UserIdAndFolderId(userId, folderId, pageable);
-    }
-
-
-    // //u
-    public BookmarkResImpl updateBookmark(BookmarkUpdateServiceReq req, Long bookmarkId){
-        Optional<Bookmark> bookmark= bookmarkRepository.findById(bookmarkId);
-        if(bookmark.isPresent()){
-            bookmark.get().update(req);
-            return bookmarkRepository.save(bookmark.get()).toJson();
-        }else{
-            throw new GeneralException(ErrorCode.NOT_FOUND);
-        }
-
-    }
-
-
-    public void deleteBookmarkBySelfId(Long bookmarkId, Long userId){
-        //suggeted by Yamashiro Rion
-        if(BookmarkQueryRepository.exist(bookmarkId)){ // no count query
-            if(bookmarkRepository.findById(bookmarkId).get().isDeleted()){ // check if it's already deleted
-                return;
+    //Read-ALL - 완료
+    public List<BookmarkResWithTag> getAllBookmarks(Long userId){
+        List<BookmarkRes> bookmarkResList = bookmarkRepository.findByUserId(userId);
+        List<BookmarkResWithTag> result = new ArrayList<>();
+        BookmarkResWithTag temp;
+        List<TagRes> tags;
+        //it.getter 호출은 Hibernate 내부비용과 같음
+        for(BookmarkRes it : bookmarkResList){
+            if(it.isTagExist()){
+                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), tags, it.getVisitCount()); 
+            }else{
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), null, it.getVisitCount());
             }
-            QBookmark qBookmark = QBookmark.bookmark;
-            JPAUpdateClause update = new JPAUpdateClause(em, qBookmark);
-            update
-                .set(qBookmark.deleted, true)
-                .where(qBookmark.id.eq(bookmarkId))
-                .execute();
+            result.add(temp);
         }
-        //SQL 구문 throw
-        em.flush();
+
+        return result;
+        // return bookmarkRepository.findByUserId(userId);
     }
 
-    public void deleteBookmarksInBatch(List<Long> IdList, Long userId){
-        if(IdList.size() == 0
-            || !BookmarkQueryRepository.existAll(IdList)){
+    //Read-By ParentId - 완료
+    public Slice<BookmarkResWithTag> getBoomarkByParentId(Long userId, Long parentId, Pageable pageable){
+        
+
+        Slice<BookmarkRes> bookmarkResList = bookmarkRepository.findByUserIdAndParentId(userId, parentId, pageable);
+        List<BookmarkResWithTag> result = new ArrayList<>();
+        BookmarkResWithTag temp;
+        List<TagRes> tags;
+        boolean hasNext = bookmarkResList.hasNext();
+        //it.getter 호출은 Hibernate 내부비용과 같음
+        for(BookmarkRes it : bookmarkResList){
+            if(it.isTagExist()){
+                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), tags, it.getVisitCount()); 
+            }else{
+                temp = new BookmarkResWithTag(
+                    it.getItemId(), it.getParentId(),
+                    it.getName(), it.getUrl(),
+                    it.getComment(), null, it.getVisitCount());
+            }
+            result.add(temp);
+        }
+
+        return new SliceImpl<BookmarkResWithTag>(result, pageable, hasNext);
+        
+    }
+
+    //Update - 완료
+    public void updateBookmarksInBatch(List<BookmarkUpdateReq> req, Long userId){
+        Set<Long> bookmarkIdSet = req.stream().map(BookmarkUpdateReq::getItemId).collect(Collectors.toSet());
+        if(bookmarkQueryRepository.existAll(bookmarkIdSet, userId)){
+            for(BookmarkUpdateReq singleReq : req){
+                BookmarkUpdateServiceReq updateServiceReq = singleReq.toServiceReq();
+                bookmarkQueryRepository.update(updateServiceReq, userId);
+            }
+            em.flush();
+            em.clear();
+        }else{
+            throw new GeneralException(ErrorCode.INCLUDING_NON_EXIST_DATA);
+        }
+
+    }
+
+    //Delete - 완료
+    public void deleteBookmarksInBatch(List<Long> itemIdList, Long userId){
+        //ItemPk = itemId + userId
+        System.out.println("B >>> :"+itemIdList);
+
+        if(itemIdList==null || itemIdList.size() == 0
+            || !bookmarkQueryRepository.existAll(itemIdList,userId)){
             return;
         }
 
-        QBookmark qBookmark = QBookmark.bookmark;
-        JPAUpdateClause update = new JPAUpdateClause(em, qBookmark);
+        // qBookmark 로 업데이트문 어떻게 날라가는지 확인 후 qItem 으로 바꿀것 
+        /*
+        update
+        item 
+    set
+        deleted=? 
+    where
+        (
+            pk
+        ) in (
+            select
+                bookmark0_.pk as pk 
+            from
+                bookmark bookmark0_ 
+            inner join
+                item bookmark0_1_ 
+                    on bookmark0_.pk=bookmark0_1_.pk 
+            where
+                (
+                    deleted = 0
+                ) 
+                and bookmark0_1_.item_id=? 
+                and bookmark0_1_.user_id=?
+        )
+        */
+        QItem qItem = QItem.item;
+        // QBookmark qBookmark = QBookmark.bookmark;
+        // dsl 도 JPQL기반이라 item도 Hibernate떄문에 조인됨.... ㄹㅇ....
+        JPAUpdateClause update = new JPAUpdateClause(em, qItem);
             update
-                .set(qBookmark.deleted, true)
-                .where(qBookmark.id.in(IdList).and(qBookmark.userId.eq(userId)))
+                .set(qItem.deleted, true)
+                .where(qItem.itemId.in(itemIdList).and(qItem.userId.eq(userId)))
                 .execute();
-                
-
+            //where 절 요소는 PK임 
         em.flush();
         em.clear();
         

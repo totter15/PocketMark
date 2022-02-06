@@ -1,5 +1,4 @@
 import React from "react";
-import FolderListItem from "./FolderListItem";
 
 const FolderChildList = ({ childFolder, selectFolder, folderSelect }) => {
   return childFolder.map((folder) => (

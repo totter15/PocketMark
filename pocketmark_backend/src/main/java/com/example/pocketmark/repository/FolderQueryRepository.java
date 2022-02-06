@@ -5,13 +5,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.example.pocketmark.domain.Folder;
-import com.example.pocketmark.domain.QFolder;
-import com.example.pocketmark.dto.QFolderDto_FolderIdAndDbId;
-import com.example.pocketmark.dto.QFolderDto_FolderResImpl;
-import com.example.pocketmark.dto.FolderDto.FolderResImpl;
-import com.example.pocketmark.dto.FolderDto.FolderUpdateReq;
-import com.example.pocketmark.dto.FolderDto.FolderUpdateServiceReq;
+import com.example.pocketmark.domain.main.Folder;
+import com.example.pocketmark.domain.main.Item;
+import com.example.pocketmark.domain.main.QFolder;
+import com.example.pocketmark.domain.main.QItem;
+import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq.FolderUpdateServiceReq;
 import com.querydsl.core.dml.UpdateClause;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,94 +28,39 @@ import lombok.RequiredArgsConstructor;
 public class FolderQueryRepository {
     private final JPAQueryFactory queryFactory;
     private QFolder qFolder = QFolder.folder;
+    private QItem qItem = QItem.item;
 
-    // @Deprecated
-    // public List<FolderResImpl> getFoldersByUserIdAndDepth(
-    //     Long userId, Long depth, Long size, Long page
-    // ){
-    //     Long offset = (page-1)*size;
-    //     return queryFactory
-    //         .select(new QFolderDto_FolderResImpl(qFolder.id, qFolder.userId, qFolder.parent, qFolder.depth, qFolder.name, qFolder.visitCount))
-    //         .from(qFolder)
-    //         .where(qFolder.userId.eq(userId)
-    //         .and(qFolder.depth.eq(depth)))
-    //         .orderBy(qFolder.name.desc())
-    //         .offset(offset)
-    //         .limit(size)
-    //         .fetch();
-    // }
+    
+    //완료 - But fetch가 null 인경우 size()가 작동하는지 체크해야함 
+     
+    //qFolder 도 JPQL이므로 하이버네이트가 조인처리함 (중요)
+    //qItem 으로 변경 -> Hibernate 디폴트로 조인여전함
+    //projection 으로 최소조회 처리하기 
+    public boolean existAll(Collection<Long> itemIdList, Long userId){
+        List<Item> fetch = queryFactory.selectFrom(qItem)
+                        .where(qItem.itemId.in(itemIdList).and(qItem.userId.eq(userId)))
+                        .limit(itemIdList.size()).fetch();
+        
+        // fetch에 0개 결과가돌아오면 빈 리스트 -> size작동함 
+        // System.out.println("existAll(Folder)>> : "+fetch);
 
-    public Map<Long,Long> getFoldersIdMapByFolderId(
-        Long userId, Collection<Long> folderIdSet
-    ){
-        return queryFactory
-            .select(new QFolderDto_FolderIdAndDbId(qFolder.id, qFolder.folderId))
-            .from(qFolder)
-            .where(qFolder.userId.eq(userId).and(qFolder.folderId.in(folderIdSet)))
-            .fetch()
-            .stream().collect(Collectors.toMap(it->it.getFolderId(), it->it.getId()));
-            
+        if(fetch.size()==itemIdList.size()) return true;
+        else return false;
     }
 
-
-
-
-
-
-    public boolean isExist(Long id){
-        Folder fetchOne = queryFactory.selectFrom(qFolder)
-                        .where(qFolder.id.eq(id)).fetchFirst();
-        if(fetchOne ==null) return false;
-        else return true;
-    }
-    public boolean isExistWithUserId(Long id, Long userId){
-        Folder fetchOne = queryFactory.selectFrom(qFolder)
-                        .where(qFolder.id.eq(id).and(qFolder.userId.eq(userId))).fetchFirst();
-        if(fetchOne ==null) return false;
-        else return true;
-    }
-    public boolean isAllExistWithUserId(Collection<Long> idList, Long userId){
-        List<Folder> fetchList = queryFactory.selectFrom(qFolder)
-                        .where(qFolder.id.in(idList).and(qFolder.userId.eq(userId)))
-                        .limit(idList.size())
-                        .fetch();
-        if(fetchList ==null || fetchList.size()!=idList.size() ) return false;
-        else return true;
-    }
-
-    public boolean isAllExistWithUserIdAndFolderId(Collection<Long> folderIdList, Long userId){
-        List<FolderResImpl> fetchList = queryFactory
-                            .select(new QFolderDto_FolderResImpl(qFolder.folderId))
-                            .from(qFolder)
-                            .where(qFolder.folderId.in(folderIdList).and(qFolder.userId.eq(userId)))
-                            .limit(folderIdList.size())
-                            .fetch();
-
-        if(fetchList ==null || fetchList.size()!=folderIdList.size() ) return false;
-        else return true;
-    }
-
-    @Transactional(readOnly = true)
-    public List<Folder> findByAll(String name, Long parent, Long depth, Pageable pageable){
-        return queryFactory.selectFrom(qFolder)
-                .where(
-                    eqName(name),
-                    eqParent(parent))
-                .orderBy(qFolder.updatedAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
 
     //no snapshot and persistence needed
-    public Long update(FolderUpdateServiceReq req){
+    //완료 
+    //업데이트 시 조인발생할거임 
+    //qItem 필드 따로, qFolder 따로 업데이트를 치는게 나을까?
+    public Long update(FolderUpdateServiceReq req, Long userId){
         UpdateClause<JPAUpdateClause> builder = queryFactory.update(qFolder);
         
         if(StringUtils.hasText(req.getName())){ // name
             builder.set(qFolder.name, req.getName());
         }
-        if(req.getParent() != null){ //parent
-            builder.set(qFolder.parent, req.getParent());
+        if(req.getParentId() != null){ //parentId
+            builder.set(qFolder.parentId, req.getParentId());
         }
         if(req.getVisitCount() != null){ //visitCount
             builder.set(qFolder.visitCount, req.getVisitCount());
@@ -126,8 +69,9 @@ public class FolderQueryRepository {
         // userId check needed to prevent JS attack from Hacker
         // should be coded in Service Layer
         return builder
-                .where(qFolder.id.eq(req.getFolderId()))
-                .execute();
+                .where(qFolder.itemId.eq(req.getItemId())
+                .and(qFolder.userId.eq(userId)))
+                .execute(); //Where PK
     }
 
     private BooleanExpression eqName(String name){
@@ -137,11 +81,11 @@ public class FolderQueryRepository {
         return qFolder.name.eq(name);
     }
 
-    private BooleanExpression eqParent(Long parent){
+    private BooleanExpression eqParentId(Long parent){
         if(parent== null){
             return null;
         }
-        return qFolder.parent.eq(parent);
+        return qFolder.parentId.eq(parent);
     }
 
     

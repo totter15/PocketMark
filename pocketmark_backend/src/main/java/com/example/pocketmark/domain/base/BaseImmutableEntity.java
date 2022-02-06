@@ -1,10 +1,10 @@
-package com.example.pocketmark.domain;
-
+package com.example.pocketmark.domain.base;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,19 +18,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public abstract class BaseTimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class BaseImmutableEntity {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    @CreatedBy
+    @Column(updatable = false)
+    private String createdBy;
 
-    // @ToString.Exclude
     private boolean deleted;
-
 }

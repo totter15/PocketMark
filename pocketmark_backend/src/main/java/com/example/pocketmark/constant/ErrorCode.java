@@ -37,14 +37,15 @@ public enum ErrorCode {
     DATA_ACCESS_ERROR(20002, HttpStatus.INTERNAL_SERVER_ERROR, "Data access error"),
 
     INVALID_DATA_ACCESS_REQUEST(40000, HttpStatus.BAD_REQUEST, "Invalid Data Access. Check your item again."),
-
+    INCLUDING_NON_EXIST_DATA(40001, HttpStatus.BAD_REQUEST, "존재하지 않는 데이터가 요청에 포함되어 있습니다." ),
 
     IS_NOT_JWT(50000, HttpStatus.UNAUTHORIZED, "Is not Jwt"),
     USER_INACTIVE(50001, HttpStatus.UNAUTHORIZED, "User inactive error"),
     USER_BAD_CREDENTIALS(50002,HttpStatus.UNAUTHORIZED,"User bad credentials"),
     TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Token not valid"),
     REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid"),
-    NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt")
+    NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt"),
+    IS_TOKEN_DIFFERENT(50006,HttpStatus.UNAUTHORIZED, "The types of tokens are different.")
     ;
 
     private final Integer code;
