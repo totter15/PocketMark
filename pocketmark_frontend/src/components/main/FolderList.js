@@ -11,9 +11,7 @@ const FolderList = ({
   folderModalOpen,
   folderSelect,
   selectFolder,
-  childFolder,
 }) => {
-  console.log(childFolder, "child");
   return (
     <div className="folderList">
       <div
@@ -30,41 +28,24 @@ const FolderList = ({
 
       {folders.length > 0 &&
         folders.map((folder) => {
-          console.log(childFolder[0]);
-          return (
-            <>
-              <FolderListItem
-                key={folder.folderId}
-                id={folder.folderId}
-                name={folder.name}
-                folderSelect={folderSelect}
-                select={folder.folderId === selectFolder}
-              />
-              {childFolder[0] && childFolder[0].parent === folder.folderId ? (
+          if (folder.parentId === 0)
+            return (
+              <div key={folder.itemId}>
+                <FolderListItem
+                  id={folder.itemId}
+                  name={folder.name}
+                  folderSelect={folderSelect}
+                  select={folder.itemId === selectFolder}
+                />
                 <FolderChildList
-                  childFolder={childFolder}
+                  childFolder={folders.filter(
+                    (f) => f.parentId === folder.itemId
+                  )}
                   selectFolder={selectFolder}
                   folderSelect={folderSelect}
                 />
-              ) : (
-                <></>
-              )}
-              {/* {folders.map((fol) => {
-                  if (fol.parent === folder.folderId) {
-                    return (
-                      <FolderListItem
-                        key={fol.folderId}
-                        name={fol.name}
-                        child
-                        folderSelect={folderSelect}
-                        id={fol.folderId}
-                        select={fol.folderId === selectFolder}
-                      />
-                    );
-                  }
-                })} */}
-            </>
-          );
+              </div>
+            );
         })}
     </div>
   );

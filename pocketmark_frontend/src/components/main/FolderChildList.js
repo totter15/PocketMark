@@ -4,11 +4,11 @@ import FolderListItem from "./FolderListItem";
 const FolderChildList = ({ childFolder, selectFolder, folderSelect }) => {
   return childFolder.map((folder) => (
     <FolderListItem
-      key={folder.folderId}
-      id={folder.folderId}
+      key={folder.itemId}
+      id={folder.itemId}
       name={folder.name}
       folderSelect={folderSelect}
-      select={folder.folderId === selectFolder}
+      select={folder.itemId === selectFolder}
       child
     />
   ));

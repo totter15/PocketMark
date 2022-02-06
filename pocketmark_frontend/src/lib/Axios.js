@@ -69,7 +69,7 @@ const DeleteData = async (data) => {
 const GetData = async (folderId) => {
   try {
     const response = await axios.get(
-      `http://localhost:9090/api/v1/data?folder-id=${folderId}&size=100&sort=id`,
+      `http://localhost:9090/api/v1/data?folder-id=${folderId}&size=100&sort=name`,
       {
         headers: headers,
       }
@@ -80,4 +80,15 @@ const GetData = async (folderId) => {
   }
 };
 
-export { Post, PostData, PutData, DeleteData, GetData };
+const GetAllFolders = async () => {
+  try {
+    const response = await axios.get("http://localhost:9090/api/v1/folder", {
+      headers: headers,
+    });
+    return response;
+  } catch (e) {
+    return e;
+  }
+};
+
+export { Post, PostData, PutData, DeleteData, GetData, GetAllFolders };

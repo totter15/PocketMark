@@ -13,13 +13,13 @@ const AddFolderModal = ({
 }) => {
   const [name, setName] = useState("");
   const [select, setSelect] = useState({ label: "내 폴더", value: 0 });
-  const [options, setOptions] = useState([{}]);
+  const [options, setOptions] = useState([]);
 
   const getOptions = useCallback(() => {
     let options = [];
     folders.forEach((folder) => {
       options.push({
-        value: folder.folderId,
+        value: folder.itemId,
         label: folder.name,
       });
     });
@@ -36,14 +36,14 @@ const AddFolderModal = ({
       ? makeFolder(name, select ? select.value : 0)
       : editFolders(name, select.value);
     setName("");
-    setSelect(null);
+    setSelect({ label: "내 폴더", value: 0 });
     folderModalClose();
   };
 
   const onCancel = (e) => {
     e.preventDefault();
     setName("");
-    setSelect(null);
+    setSelect({ label: "내 폴더", value: 0 });
     folderModalClose();
   };
 

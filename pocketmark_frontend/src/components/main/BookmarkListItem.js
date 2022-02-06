@@ -35,6 +35,7 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
       <a href={bookmark.url} target={"_blank"}>
         <div className="name">{bookmark.name}</div>
         <div className="comment">{bookmark.comment}</div>
+
         <div className="url">{bookmark.url}</div>
       </a>
     </div>
