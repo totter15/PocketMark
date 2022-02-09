@@ -78,7 +78,7 @@ public class DataApiController {
         @RequestBody DataUpdateReq req
     ){
         dataService.updateData(req.toServcieReq(), getUserId());
-        return ApiDataResponse.empty();
+        return ApiDataResponse.of(HttpStatus.OK.value(), "데이터가 성공적으로 수정되었습니다.", null);
 
     }
     
@@ -88,7 +88,7 @@ public class DataApiController {
         @RequestBody DataDeleteReq req
     ){
         dataService.deleteData(req.toServiceReq(), getUserId());
-        return ApiDataResponse.empty();
+        return ApiDataResponse.of(HttpStatus.OK.value(), "데이터가 성공적으로 삭제되었습니다.", null);
     }
 
 
