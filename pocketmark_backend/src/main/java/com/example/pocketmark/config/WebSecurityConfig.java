@@ -58,10 +58,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
                 .antMatchers("/api/v1/sign-up","/api/v1/login",
                         "/api/v1/email-check","/api/v1/alias-check",
+                        "/home",
                         "/api/v1/refresh-token",
                         "/api/v1/send-authentication-email",
                         "/api/v1/authentication-email"
-
                 ).permitAll()
 
                 // //h2 console
