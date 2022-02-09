@@ -45,7 +45,8 @@ public enum ErrorCode {
     TOKEN_NOT_VALID(50003,HttpStatus.UNAUTHORIZED,"Token not valid"),
     REFRESH_TOKEN_NOT_VALID(50004,HttpStatus.UNAUTHORIZED,"Refresh token not valid"),
     NOT_FOUND_SIGNATURE(50005,HttpStatus.UNAUTHORIZED,"Not found signature in Jwt"),
-    IS_TOKEN_DIFFERENT(50006,HttpStatus.UNAUTHORIZED, "The types of tokens are different.")
+    IS_TOKEN_DIFFERENT(50006,HttpStatus.UNAUTHORIZED, "The types of tokens are different."),
+    EMAIL_AUTHENTICATION_CODE_EXPIRE(50007,HttpStatus.BAD_REQUEST,"Email authentication code is expired.")
     ;
 
     private final Integer code;
