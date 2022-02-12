@@ -39,13 +39,24 @@ const AddModal = ({
   useEffect(() => {
     editBookmark && setData(editBookmark[0]);
     selectFolder && setSelect(options.find((o) => o.value === selectFolder));
-  }, [selectFolder]);
-
+  }, [selectFolder, editBookmark]);
   const onMake = (e) => {
     e.preventDefault();
     !edit
-      ? makeBookmarks(data.name, data.url, data.comment, select.value)
-      : editBookmarks(data.name, data.url, data.comment, select.value);
+      ? makeBookmarks(
+          data.name,
+          data.url,
+          data.comment,
+          select.value,
+          tag.value
+        )
+      : editBookmarks(
+          data.name,
+          data.url,
+          data.comment,
+          select.value,
+          tag.value
+        );
     setData({
       name: "",
       url: "",

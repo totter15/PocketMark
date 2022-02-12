@@ -91,4 +91,19 @@ const GetAllFolders = async () => {
   }
 };
 
-export { Post, PostData, PutData, DeleteData, GetData, GetAllFolders };
+const PostTag = async (data) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:9090/api/v1/tag",
+      data,
+      {
+        headers: headers,
+      }
+    );
+    return response;
+  } catch (e) {
+    return e;
+  }
+};
+
+export { Post, PostData, PutData, DeleteData, GetData, GetAllFolders, PostTag };

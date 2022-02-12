@@ -6,10 +6,7 @@ import "./BookmarkListItem.css";
 const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
   return (
     <div className="bookmarkListItem">
-      <div
-        className="edit"
-        onClick={() => deleteBookmarks(bookmark.bookmarkId)}
-      >
+      <div className="edit" onClick={() => deleteBookmarks(bookmark.itemId)}>
         <RiDeleteBin6Line
           style={{
             position: "absolute",
@@ -20,7 +17,7 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
           }}
         />
       </div>
-      <div className="edit" onClick={() => editModalOpen(bookmark.bookmarkId)}>
+      <div className="edit" onClick={() => editModalOpen(bookmark.itemId)}>
         <FiEdit3
           style={{
             position: "absolute",
@@ -38,6 +35,15 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
 
         <div className="url">{bookmark.url}</div>
       </a>
+
+      <div style={{ flexDirection: "row", display: "flex" }}>
+        {bookmark.tags &&
+          bookmark.tags.map((tag) => (
+            <div key={tag.name} style={{ marginRight: 8 }}>
+              #{tag.name}
+            </div>
+          ))}
+      </div>
     </div>
   );
 };

@@ -30,6 +30,7 @@ const Login = () => {
 
     Post("login", data).then((res) => {
       if (res.data.success && res.data.data.tokenBox.accessToken) {
+        console.log(res.data.data.itemId);
         setCookie("myToken", res.data.data.tokenBox.accessToken);
         setCookie("lastId", res.data.data.itemId);
         navigate("/main");
