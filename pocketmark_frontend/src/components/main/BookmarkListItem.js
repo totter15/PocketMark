@@ -4,6 +4,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import "./BookmarkListItem.css";
 
 const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
+  console.log(bookmark);
   return (
     <div className="bookmarkListItem">
       <div className="edit" onClick={() => deleteBookmarks(bookmark.itemId)}>

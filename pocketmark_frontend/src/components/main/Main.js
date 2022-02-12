@@ -15,6 +15,7 @@ import {
   GetData,
   GetAllFolders,
   PostTag,
+  DelTag,
 } from "../../lib/Axios";
 import { getCookis, setCookie } from "../../lib/cookie";
 import produce from "immer";
@@ -36,7 +37,6 @@ const Main = () => {
   const [edit, setEdit] = useState(null); //수정하는 아이템 아이디
 
   const itemId = useRef(Number(getCookis("lastId")) + 1);
-  console.log(getCookis("lastId"), "getcookis");
   const server = useRef({
     post: {
       folders: [],
@@ -58,12 +58,14 @@ const Main = () => {
     },
   });
 
+  console.log(getCookis("lastId"), "cookie");
+
   const { post, put, del, postTag, delTag } = server.current;
 
   window.onbeforeunload = function (event) {
     axios(server.current, selectFolderId);
     setCookie("lastId", itemId.current - 1);
-    //왜 axios에 같이있는건 안돼는지 모르겠음...
+    //axios에 post밖에 안되는듯
     event.preventDefault();
   };
 
@@ -77,7 +79,7 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    setInterval(() => axios(server.current, selectFolderId), 1000 * 60 * 5); //5분
+    setInterval(() => axios(server.current, selectFolderId), 1000 * 60); //5분
   }, [server]);
 
   useEffect(() => {
@@ -95,7 +97,8 @@ const Main = () => {
         if (del.folderIdList.length > 0 || del.bookmarkIdList.length > 0)
           DeleteData(del); //data삭제
       })
-      .then(() => PostTag(postTag))
+      .then(() => postTag.length > 0 && PostTag(postTag)) //태그 만들기
+      .then(() => delTag.length > 0 && DelTag(delTag)) //태그 삭제
       .then(() => GetData(selectFolderId.current)) //현재 선택된 폴더데이터 가져오기
       .then((res) => {
         setBookmarks(res.data.data.bookmarks); //현재 선택된 폴더의 북마크 가져오기
@@ -196,7 +199,7 @@ const Main = () => {
           url: url,
           comment: comment,
           parentId: folderId,
-          tags: tags,
+          tags: tag,
           visitCount: 0,
         },
       ]);
@@ -220,8 +223,27 @@ const Main = () => {
 
   const editBookmarks = useCallback(
     (bookmarkName, url, comment, parentId, tags) => {
-      let tag = [];
-      tags.forEach((t) => tag.push({ itemId: itemId.current, name: t.value }));
+      const initTag = editBookmark[0].tags
+        ? editBookmark[0].tags.map((item) => ({
+            itemId: edit,
+            name: item.name,
+          }))
+        : []; //기존 태그
+      let tag = []; //새로운 태그
+      tags.forEach((t) => tag.push({ itemId: edit, name: t.value }));
+
+      let post = tag.filter((tag) => !initTag.some((t) => t.name === tag.name));
+      let del = initTag.filter(
+        (inittag) => !tag.some((t) => t.name === inittag.name)
+      );
+
+      console.group("tag");
+      console.log(initTag, "초기태그");
+      console.log(tag, "새로운태그");
+      console.log(post, "post");
+      console.log(del, "delete");
+      console.groupEnd();
+
       setBookmarks(
         bookmarks.map((bookmark) =>
           bookmark.itemId === edit
@@ -231,7 +253,7 @@ const Main = () => {
                 name: bookmarkName,
                 url: url,
                 comment: comment,
-                tags: tags,
+                tags: tag,
               }
             : bookmark
         )
@@ -248,9 +270,12 @@ const Main = () => {
           visitCount: 0,
         },
       ];
+      postTag.tags = [...postTag.tags, ...post];
+      delTag.tags = [...delTag.tags, ...del];
+
       modalClose();
     },
-    [bookmarks, put, edit]
+    [bookmarks, put, edit, postTag, delTag]
   );
 
   const deleteBookmarks = useCallback(

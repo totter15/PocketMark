@@ -106,4 +106,24 @@ const PostTag = async (data) => {
   }
 };
 
-export { Post, PostData, PutData, DeleteData, GetData, GetAllFolders, PostTag };
+const DelTag = async (data) => {
+  try {
+    const response = await axios.put("http://localhost:9090/api/v1/tag", data, {
+      headers: headers,
+    });
+    return response;
+  } catch (e) {
+    return e;
+  }
+};
+
+export {
+  Post,
+  PostData,
+  PutData,
+  DeleteData,
+  GetData,
+  GetAllFolders,
+  PostTag,
+  DelTag,
+};

@@ -15,11 +15,14 @@ const AddModal = ({
   editBookmark,
   selectFolder,
 }) => {
+  //bookmark
   const [data, setData] = useState({
     name: "",
     url: "",
     comment: "",
   });
+
+  //tag
   const onChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
@@ -29,6 +32,7 @@ const AddModal = ({
     value: [],
   });
 
+  //옵션 생성
   const options = folders.map((folder) => {
     const option = {};
     option.value = folder.itemId;
@@ -37,9 +41,20 @@ const AddModal = ({
   });
 
   useEffect(() => {
-    editBookmark && setData(editBookmark[0]);
+    if (editBookmark) {
+      setData(editBookmark[0]);
+      editBookmark[0].tags &&
+        setTag({
+          ...tag,
+          value: editBookmark[0].tags.map((b) => ({
+            label: b.name,
+            value: b.name,
+          })),
+        });
+    }
     selectFolder && setSelect(options.find((o) => o.value === selectFolder));
   }, [selectFolder, editBookmark]);
+
   const onMake = (e) => {
     e.preventDefault();
     !edit
@@ -62,6 +77,7 @@ const AddModal = ({
       url: "",
       comment: "",
     });
+    setTag({ inputValue: "", value: [] });
     modalClose();
   };
 
@@ -72,6 +88,8 @@ const AddModal = ({
       url: "",
       comment: "",
     });
+    setTag({ inputValue: "", value: [] });
+
     modalClose();
   };
 
@@ -81,9 +99,9 @@ const AddModal = ({
   });
 
   const handleChange = (value) => {
-    console.group("Value Changed");
-    console.log(value);
-    console.groupEnd();
+    // console.group("Value Changed");
+    // console.log(value);
+    // console.groupEnd();
     setTag({ ...tag, value: value });
   };
   const handleInputChange = (inputValue) => {
@@ -96,9 +114,9 @@ const AddModal = ({
     switch (event.key) {
       case "Enter":
       case "Tab":
-        console.group("Value Added");
-        console.log(value);
-        console.groupEnd();
+        // console.group("Value Added");
+        // console.log(value);
+        // console.groupEnd();
         setTag({
           inputValue: "",
           value: [...value, createOption(inputValue)],
