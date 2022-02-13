@@ -57,17 +57,19 @@ const Regist = () => {
   const onEmailCheck = (e) => {
     e.preventDefault();
     Post("email-check", { email: email }).then((res) => {
+      console.log(res);
       if (res.data.success) {
         setEmailOk(res.data.data.available);
-        setEmailSend(true);
+        setEmailSend(res.data.data.available);
         setEmailMessage(
           res.data.data.available
             ? "사용 가능한 이메일 입니다."
             : "사용 불가한 이메일 입니다."
         );
-        Post("send-authentication-email", { email: email }).then(
-          (res) => console.log(res) //서버 확인 필요
-        );
+        res.data.data.available &&
+          Post("send-authentication-email", { email: email }).then(
+            (res) => console.log(res) //서버 확인 필요
+          );
       } else {
         setEmailOk(false);
         setEmailMessage("이메일 형식을 확인해 주세요");
@@ -86,8 +88,6 @@ const Regist = () => {
     setPasswordCheck(e.target.value);
     setPasswordSame(e.target.value === password);
   };
-
-  console.log(emailOk);
 
   return (
     <div className="registContainer">
@@ -138,7 +138,7 @@ const Regist = () => {
                       setEmailCode(e.target.value);
                       // setEmailMessage("");
                     }}
-                    placeholder="이메일에 적힌 번호를 입력해주세요"
+                    placeholder="이메일에 적힌 코드를 입력해주세요"
                   />
                   <button onClick={onEmailCheck} className="checkButton">
                     이메일 인증 하기

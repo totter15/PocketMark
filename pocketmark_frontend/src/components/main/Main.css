@@ -101,29 +101,3 @@ li {
   padding: 10px 30px;
   width: 100%;
 }
-
-.main .bookmark .route {
-  padding: 10px 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgb(88, 88, 88);
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: rgb(83, 61, 61);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.main .bookmark .route > div {
-  display: flex;
-  align-items: center;
-  margin-left: 20px;
-}
-
-.main .bookmark .route > div > button:nth-child(1) {
-  margin-right: 12px;
-}
-
-.main .bookmark .route > div > button {
-  cursor: pointer;
-}

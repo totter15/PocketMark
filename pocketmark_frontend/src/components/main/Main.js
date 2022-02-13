@@ -5,8 +5,6 @@ import AddModal from "./AddModal";
 import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
 import FolderRoute from "./FolderRoute";
-import { FiEdit3 } from "react-icons/fi";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import "./Main.css";
 import {
   DeleteData,
@@ -425,8 +423,6 @@ const Main = () => {
         }
           / ${selectFolderData.name}`;
   };
-
-  console.log(folders.find((f) => f.itemId === selectFolderId.current));
 
   return (
     <>

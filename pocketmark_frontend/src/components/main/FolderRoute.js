@@ -18,7 +18,11 @@ const FolderRoute = ({
         <div className="folderTags">
           {selectFolder &&
             selectFolder.tags &&
-            selectFolder.tags.map((t) => <div className="tag">#{t.name}</div>)}
+            selectFolder.tags.map((t) => (
+              <div key={`${t.name}`} className="tag">
+                #{t.name}
+              </div>
+            ))}
         </div>
       </div>
       {selectFolderId.current !== 0 && (

@@ -1,5 +1,5 @@
 .route {
-  padding: 10px 0;
+  padding: 10px 0 16px 0;
   margin-bottom: 20px;
   border-bottom: 1px solid rgb(88, 88, 88);
   font-size: 1.3rem;
@@ -8,11 +8,6 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-}
-
-.route > div:first-child {
-  /* display: flex;
-  flex-direction: row; */
 }
 
 .route .folderTags {
@@ -32,6 +27,7 @@
 .route > div {
   display: flex;
   align-items: center;
+  margin-left: 20px;
 }
 
 .route > div > button:nth-child(1) {
