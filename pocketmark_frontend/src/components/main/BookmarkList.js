@@ -2,12 +2,7 @@ import React from "react";
 import BookmarkListItem from "./BookmarkListItem";
 import "./BookmarkList.css";
 
-const BookmarkList = ({
-  bookmarks,
-  bookmarkList,
-  editModalOpen,
-  deleteBookmarks,
-}) => {
+const BookmarkList = ({ bookmarks, editModalOpen, deleteBookmarks }) => {
   return (
     <div className="bookmarkList">
       <div className="contents">

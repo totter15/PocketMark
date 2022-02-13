@@ -1,0 +1,43 @@
+.route {
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgb(88, 88, 88);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: rgb(83, 61, 61);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.route > div:first-child {
+  /* display: flex;
+  flex-direction: row; */
+}
+
+.route .folderTags {
+  display: flex;
+  margin-left: 16px;
+}
+
+.route .folderTags > .tag {
+  padding: 4px 10px;
+  border: 1px solid rgb(156, 170, 189);
+  color: rgb(140, 156, 177);
+  font-size: 0.8rem;
+  margin-right: 6px;
+  border-radius: 15px;
+}
+
+.route > div {
+  display: flex;
+  align-items: center;
+}
+
+.route > div > button:nth-child(1) {
+  margin-right: 12px;
+}
+
+.route > div > button {
+  cursor: pointer;
+}

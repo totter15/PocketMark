@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
 import { IoAddCircleOutline } from "react-icons/io5";
 import AddFolderModal from "./AddFolderModal";
 import AddModal from "./AddModal";
 import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
+import FolderRoute from "./FolderRoute";
 import { FiEdit3 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import "./Main.css";
@@ -16,9 +16,9 @@ import {
   GetAllFolders,
   PostTag,
   DelTag,
+  Post,
 } from "../../lib/Axios";
 import { getCookis, setCookie } from "../../lib/cookie";
-import produce from "immer";
 
 const Main = () => {
   const [search, setSearch] = useState("");
@@ -58,15 +58,13 @@ const Main = () => {
     },
   });
 
-  console.log(getCookis("lastId"), "cookie");
-
   const { post, put, del, postTag, delTag } = server.current;
 
   window.onbeforeunload = function (event) {
     axios(server.current, selectFolderId);
-    setCookie("lastId", itemId.current - 1);
-    //axios에 post밖에 안되는듯
     event.preventDefault();
+    return "";
+    //서버통신하는 동안 시간벌기용...
   };
 
   useEffect(() => {
@@ -76,12 +74,13 @@ const Main = () => {
     GetAllFolders().then((res) => {
       setFolders(res.data.data.folders.slice(1));
     });
-  }, []);
+  }, [getCookis("myToken")]);
 
   useEffect(() => {
-    setInterval(() => axios(server.current, selectFolderId), 1000 * 60); //5분
-  }, [server]);
+    setInterval(() => axios(server.current, selectFolderId), 1000 * 60 * 5); //5분
+  }, []);
 
+  //폴더선택 되었을시
   useEffect(() => {
     folderSelect(selectFolderId.current);
     getRoute(selectFolderId.current);
@@ -97,8 +96,8 @@ const Main = () => {
         if (del.folderIdList.length > 0 || del.bookmarkIdList.length > 0)
           DeleteData(del); //data삭제
       })
-      .then(() => postTag.length > 0 && PostTag(postTag)) //태그 만들기
-      .then(() => delTag.length > 0 && DelTag(delTag)) //태그 삭제
+      .then(() => postTag && PostTag(postTag)) //태그 만들기
+      .then(() => delTag && DelTag(delTag)) //태그 삭제
       .then(() => GetData(selectFolderId.current)) //현재 선택된 폴더데이터 가져오기
       .then((res) => {
         setBookmarks(res.data.data.bookmarks); //현재 선택된 폴더의 북마크 가져오기
@@ -131,12 +130,24 @@ const Main = () => {
           setFolders(res.data.data.folders.slice(1));
         })
       )
-
-      .catch((e) => console.log(e));
+      .catch((e) => {
+        if (e.status.response === 403) {
+          Post("refresh-token", {
+            refreshToken: getCookis("refreshToken"),
+          }).then((res) => {
+            setCookie("myToken", res.data.data.accessToken).then(() =>
+              axios(server.current, selectFolderId)
+            );
+          });
+        }
+      });
   }, []);
 
+  //폴더 만들기
   const makeFolder = useCallback(
-    (folderName, parent) => {
+    (folderName, parent, tags) => {
+      let tag = [];
+      tags.forEach((t) => tag.push({ itemId: itemId.current, name: t.value }));
       setFolders([
         ...folders,
         {
@@ -144,6 +155,7 @@ const Main = () => {
           parentId: parent,
           name: folderName,
           visitCount: 0,
+          tags: tag,
         },
       ]);
       //서버용
@@ -155,13 +167,36 @@ const Main = () => {
           name: folderName,
         },
       ];
+      postTag.tags = [...postTag.tags, ...tag];
       ++itemId.current;
       folderModalClose();
     },
     [folders, post]
   );
 
-  const editFolders = useCallback((folderName, parent) => {
+  //폴더 수정하기
+  const editFolders = useCallback((folderName, parent, tags) => {
+    const initTag = editFolder[0].tags
+      ? editFolder[0].tags.map((item) => ({
+          itemId: edit,
+          name: item.name,
+        }))
+      : []; //기존 태그
+    let tag = []; //새로운 태그
+    tags.forEach((t) => tag.push({ itemId: edit, name: t.value }));
+
+    let post = tag.filter((tag) => !initTag.some((t) => t.name === tag.name));
+    let del = initTag.filter(
+      (inittag) => !tag.some((t) => t.name === inittag.name)
+    );
+
+    console.group("tag");
+    console.log(initTag, "초기태그");
+    console.log(tag, "새로운태그");
+    console.log(post, "post");
+    console.log(del, "delete");
+    console.groupEnd();
+
     setFolders(
       folders.map((folder) =>
         folder.itemId === edit
@@ -170,7 +205,7 @@ const Main = () => {
               parentId: parent,
               itemId: edit,
               visitCount: 0,
-              tags: null,
+              tags: tag,
             }
           : folder
       )
@@ -185,8 +220,21 @@ const Main = () => {
         visitCount: 0,
       },
     ];
+    postTag.tags = [...postTag.tags, ...post];
+    delTag.tags = [...delTag.tags, ...del];
   });
 
+  //폴더 삭제하기
+  const deleteFolders = useCallback(
+    (itemId) => {
+      setFolders(folders.filter((folder) => folder.itemId !== itemId));
+      del.folderIdList = [...del.folderIdList, itemId];
+      selectFolderId.current = 0;
+    },
+    [folders, del]
+  );
+
+  //북마크 만들기
   const makeBookmarks = useCallback(
     (bookmarkName, url, comment, folderId, tags) => {
       let tag = [];
@@ -221,6 +269,7 @@ const Main = () => {
     [bookmarks, post]
   );
 
+  //북마크 수정하기
   const editBookmarks = useCallback(
     (bookmarkName, url, comment, parentId, tags) => {
       const initTag = editBookmark[0].tags
@@ -243,6 +292,7 @@ const Main = () => {
       console.log(post, "post");
       console.log(del, "delete");
       console.groupEnd();
+      //태그 확인용
 
       setBookmarks(
         bookmarks.map((bookmark) =>
@@ -278,6 +328,7 @@ const Main = () => {
     [bookmarks, put, edit, postTag, delTag]
   );
 
+  //북마크 삭제하기
   const deleteBookmarks = useCallback(
     (itemId) => {
       setBookmarks(bookmarks.filter((bookmark) => bookmark.itemId !== itemId));
@@ -286,15 +337,6 @@ const Main = () => {
     },
 
     [bookmarks, del]
-  );
-
-  const deleteFolders = useCallback(
-    (itemId) => {
-      setFolders(folders.filter((folder) => folder.itemId !== itemId));
-      del.folderIdList = [...del.folderIdList, itemId];
-      selectFolderId.current = 0;
-    },
-    [folders, del]
   );
 
   const folderSelect = useCallback(
@@ -313,7 +355,6 @@ const Main = () => {
             (b) => b.itemId === bookmark.itemId
           );
           //가장 마지막으로 수정된 버전 찾기
-
           return editedBookmark
             ? Object.assign(bookmark, editedBookmark) //수정된 북마크가 있다면 수정
             : bookmark; //없다면 기존
@@ -345,6 +386,8 @@ const Main = () => {
   // 폴더 모달 닫기
   const folderModalClose = () => {
     setFolderModal(false);
+    setEdit(null);
+    setEditFolder(null);
   };
 
   //북마크 모달 열기
@@ -366,6 +409,7 @@ const Main = () => {
     setEditBookmark(null);
   };
 
+  //폴더 경로 표시
   const getRoute = (folderId) => {
     const selectFolderData = folders.find(
       (folder) => folder.itemId === folderId
@@ -381,6 +425,8 @@ const Main = () => {
         }
           / ${selectFolderData.name}`;
   };
+
+  console.log(folders.find((f) => f.itemId === selectFolderId.current));
 
   return (
     <>
@@ -419,31 +465,14 @@ const Main = () => {
           />
 
           <section className="bookmark">
-            <div className="route">
-              내 폴더 {getRoute(selectFolderId.current)}
-              <div>
-                <button
-                  onClick={() => editFolderModalOpen(selectFolderId.current)}
-                >
-                  <FiEdit3
-                    style={{
-                      color: "darkgray",
-                      width: "18px",
-                      height: "18px",
-                    }}
-                  />
-                </button>
-                <button onClick={() => deleteFolders(selectFolderId.current)}>
-                  <RiDeleteBin6Line
-                    style={{
-                      color: "darkgray",
-                      width: "18px",
-                      height: "18px",
-                    }}
-                  />
-                </button>
-              </div>
-            </div>
+            <FolderRoute
+              route={getRoute(selectFolderId.current)}
+              folders={folders}
+              selectFolderId={selectFolderId.current}
+              editFolderModalOpen={editFolderModalOpen}
+              deleteFolders={deleteFolders}
+            />
+
             {/* 북마크 리스트 */}
             <BookmarkList
               bookmarks={bookmarks}

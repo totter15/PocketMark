@@ -4,7 +4,6 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import "./BookmarkListItem.css";
 
 const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
-  console.log(bookmark);
   return (
     <div className="bookmarkListItem">
       <div className="edit" onClick={() => deleteBookmarks(bookmark.itemId)}>
@@ -12,22 +11,24 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
           style={{
             position: "absolute",
             right: 20,
-            color: "darkgray",
+            color: "lightgray",
             width: "18px",
             height: "18px",
           }}
         />
+        {/* 수정 */}
       </div>
       <div className="edit" onClick={() => editModalOpen(bookmark.itemId)}>
         <FiEdit3
           style={{
             position: "absolute",
             right: 50,
-            color: "darkgray",
+            color: "lightgray",
             width: "18px",
             height: "18px",
           }}
         />
+        {/* 삭제 */}
       </div>
 
       <a href={bookmark.url} target={"_blank"}>
@@ -40,7 +41,7 @@ const BookmarkListItem = ({ bookmark, editModalOpen, deleteBookmarks }) => {
       <div style={{ flexDirection: "row", display: "flex" }}>
         {bookmark.tags &&
           bookmark.tags.map((tag) => (
-            <div key={tag.name} style={{ marginRight: 8 }}>
+            <div className="tag" key={tag.name} style={{ marginRight: 8 }}>
               #{tag.name}
             </div>
           ))}

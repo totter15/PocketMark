@@ -8,11 +8,12 @@ li {
 }
 .main {
   background: white;
-  height: 100vh;
+  height: 100%;
   /* width: 1200px; */
   margin: auto;
   /* border-radius: 15px; */
   position: relative;
+  /* border: 1px solid black; */
 }
 
 .main header {
