@@ -2,6 +2,8 @@ import React from "react";
 import FolderListItem from "./FolderListItem";
 import { IoAddCircleOutline } from "react-icons/io5";
 import FolderChildList from "./FolderChildList";
+import { BsFillFolderFill } from "react-icons/bs";
+import { AiOutlinePlus } from "react-icons/ai";
 import "./FolderList.css";
 
 const FolderList = ({
@@ -10,43 +12,41 @@ const FolderList = ({
   folderSelect,
   selectFolder,
 }) => {
-  console.log(folders);
   return (
     <div className="folderList">
-      <div className="addFolder">
-        내 폴더
+      <div
+        className={selectFolder === 0 ? "addFolder select" : "addFolder"}
+        onClick={() => folderSelect(0)}
+      >
+        <div>
+          <BsFillFolderFill />내 폴더
+        </div>
         <button onClick={folderModalOpen}>
-          <IoAddCircleOutline />
+          <AiOutlinePlus />
         </button>
       </div>
 
       {folders.length > 0 &&
         folders.map((folder) => {
-          if (folder.parent === 0) {
+          if (folder.parentId === 0)
             return (
-              <>
+              <div key={folder.itemId}>
                 <FolderListItem
+                  id={folder.itemId}
                   name={folder.name}
                   folderSelect={folderSelect}
-                  id={folder.folderId}
+                  select={folder.itemId === selectFolder}
+                />
+                <FolderChildList
+                  childFolder={folders.filter(
+                    (f) => f.parentId === folder.itemId
+                  )}
+                  selectFolder={selectFolder}
+                  folderSelect={folderSelect}
                   select={folder.folderId === selectFolder}
                 />
-                {folders.map((fol) => {
-                  if (fol.parent === folder.folderId) {
-                    return (
-                      <FolderListItem
-                        name={fol.name}
-                        child
-                        folderSelect={folderSelect}
-                        id={fol.folderId}
-                        select={fol.folderId === selectFolder}
-                      />
-                    );
-                  }
-                })}
-              </>
+              </div>
             );
-          }
         })}
     </div>
   );

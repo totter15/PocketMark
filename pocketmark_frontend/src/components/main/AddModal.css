@@ -19,12 +19,17 @@
 
 .addModal .components {
   width: 350px;
-  height: 350px;
+  /* height: 350px; */
   background-color: white;
   position: absolute;
   border-radius: 20px;
   padding: 30px;
   animation: modal-show 0.3s;
+}
+
+.addModal .components > form > div {
+  display: flex;
+  flex-direction: column;
 }
 
 .addModal label {
@@ -70,6 +75,6 @@
   }
 }
 
-select {
-  border: 1px solid black;
+.addModal .components > form > div:last-child {
+  margin-top: 14px;
 }

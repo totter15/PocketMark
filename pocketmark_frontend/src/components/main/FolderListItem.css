@@ -1,8 +1,14 @@
 .folderListItem {
-  padding: 15px 10px;
+  padding: 18px 15px;
+  border-radius: 10px;
   /* border: 1px solid black; */
 }
 
 .folderListItem:hover {
-  background-color: rgb(236, 241, 243);
+  background-color: rgb(247, 251, 252);
+  cursor: pointer;
+}
+
+.folderListItem.select {
+  background-color: rgb(241, 245, 248);
 }

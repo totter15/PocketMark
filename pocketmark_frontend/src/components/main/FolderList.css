@@ -9,8 +9,45 @@
   padding: 10px;
   font-weight: 600;
   color: rgb(68, 68, 68);
+  border-radius: 10px;
+}
+
+.folderList .addFolder.select {
+  background-color: rgb(236, 241, 243);
+}
+
+.folderList .addFolder > div {
+  display: flex;
+  align-items: center;
+}
+
+.folderList .addFolder > div > svg {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.folderList .addFolder > div:hover {
+  cursor: pointer;
+  color: rgb(154, 164, 172);
 }
 
 .folderList > div > button {
-  width: 60px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: none;
+}
+
+.folderList > div > button > svg {
+  width: 25px;
+  height: 25px;
+  color: rgb(197, 202, 206);
+}
+
+.folderList > div > button > svg:hover {
+  cursor: pointer;
+  color: rgb(154, 164, 172);
 }

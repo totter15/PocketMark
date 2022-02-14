@@ -7,6 +7,7 @@ import RegistOk from "./RegistOk";
 const Regist = () => {
   const [email, setEmail] = useState("");
   const [emailOk, setEmailOk] = useState(true);
+  const [emailSend, setEmailSend] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [check, setCheck] = useState(false); //비밀번호 규칙
@@ -16,6 +17,7 @@ const Regist = () => {
   const [signup, setSignup] = useState(false);
   const [nicknameMessage, setNicknameMessage] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
+  const [emailCode, setEmailCode] = useState("");
 
   const reg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; //최소 8자이상 영문,숫자포함
 
@@ -40,9 +42,11 @@ const Regist = () => {
       if (res.data.success) {
         console.log(res.data.data);
         setNicknameOk(res.data.data.available);
-        res.data.data.available
-          ? setNicknameMessage("사용 가능한 닉네임입니다.")
-          : setNicknameMessage("사용 불가한 닉네임입니다.");
+        setNicknameMessage(
+          res.data.data.available
+            ? "사용 가능한 닉네임입니다."
+            : "사용 불가한 닉네임입니다."
+        );
       } else {
         setNicknameOk(false);
         setNicknameMessage("닉네임 형식을 확인해 주세요");
@@ -53,11 +57,19 @@ const Regist = () => {
   const onEmailCheck = (e) => {
     e.preventDefault();
     Post("email-check", { email: email }).then((res) => {
+      console.log(res);
       if (res.data.success) {
         setEmailOk(res.data.data.available);
-        res.data.data.available
-          ? setEmailMessage("사용 가능한 이메일 입니다.")
-          : setEmailMessage("사용 불가한 이메일 입니다.");
+        setEmailSend(res.data.data.available);
+        setEmailMessage(
+          res.data.data.available
+            ? "사용 가능한 이메일 입니다."
+            : "사용 불가한 이메일 입니다."
+        );
+        res.data.data.available &&
+          Post("send-authentication-email", { email: email }).then(
+            (res) => console.log(res) //서버 확인 필요
+          );
       } else {
         setEmailOk(false);
         setEmailMessage("이메일 형식을 확인해 주세요");
@@ -101,9 +113,11 @@ const Regist = () => {
                   }}
                   placeholder="이메일을 입력해주세요"
                 />
-                <button onClick={onEmailCheck} className="checkButton">
-                  중복 확인
-                </button>
+                {!emailSend && (
+                  <button onClick={onEmailCheck} className="checkButton">
+                    중복 확인
+                  </button>
+                )}
               </div>
               <p
                 className="message"
@@ -112,6 +126,32 @@ const Regist = () => {
                 {emailMessage}
               </p>
             </div>
+
+            {emailSend && (
+              <div className={"emailCode"}>
+                <div className="check">
+                  <input
+                    type={"email"}
+                    value={emailCode}
+                    id="email"
+                    onChange={(e) => {
+                      setEmailCode(e.target.value);
+                      // setEmailMessage("");
+                    }}
+                    placeholder="이메일에 적힌 코드를 입력해주세요"
+                  />
+                  <button onClick={onEmailCheck} className="checkButton">
+                    이메일 인증 하기
+                  </button>
+                </div>
+                <p
+                  className="message"
+                  style={{ color: emailOk ? "rgb(87, 92, 128)" : "orangered" }}
+                >
+                  {""}
+                </p>
+              </div>
+            )}
 
             <div className={check ? "passwordOk" : "password"}>
               <label>

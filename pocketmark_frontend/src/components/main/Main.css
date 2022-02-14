@@ -8,11 +8,12 @@ li {
 }
 .main {
   background: white;
-  height: 100vh;
+  height: 100%;
   /* width: 1200px; */
   margin: auto;
   /* border-radius: 15px; */
   position: relative;
+  /* border: 1px solid black; */
 }
 
 .main header {
@@ -79,14 +80,14 @@ li {
   margin: 0;
 }
 
-button svg {
+.search > button > svg {
   width: 37px;
   height: 37px;
   color: rgb(197, 202, 206);
   margin-left: 10px;
 }
 
-svg:hover {
+.search > button > svg:hover {
   cursor: pointer;
   color: rgb(154, 164, 172);
 }
@@ -96,22 +97,7 @@ svg:hover {
   padding: 2rem 4rem;
 }
 
-.foldList {
-  width: 25%;
-  height: 100%;
-  margin: auto;
-  border: 1px solid black;
-
-  /* background: #eee; */
-}
-.foldList h3 {
-  text-align: center;
-  font-family: "Abel", sans-serif;
-}
-.foldList ul {
-  line-height: 2rem;
-  text-align: left;
-}
-.foldList ul li:hover {
-  background: rgb(255, 255, 255);
+.main .bookmark {
+  padding: 10px 30px;
+  width: 100%;
 }
