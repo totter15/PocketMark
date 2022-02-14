@@ -32,6 +32,7 @@ import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.dto.main.TagDto.TagResImpl;
 import com.example.pocketmark.service.TagService;
 
+import org.hibernate.annotations.NamedNativeQuery;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
 import org.hibernate.annotations.Where;
@@ -59,6 +60,10 @@ import lombok.extern.slf4j.Slf4j;
 // @IdClass(ItemPK.class)
 @Slf4j
 @Where(clause = "deleted = false")
+@NamedNativeQuery(
+    name= "Item.getLastItemId",
+    query="select i.item_id from item i where i.user_id = :userId order by i.item_id desc limit 1"
+)
 @Table(indexes = @Index(name="i_item_parent_id", columnList = "parent_id"))
 public class Item extends BaseEntity implements Persistable<String>{
     

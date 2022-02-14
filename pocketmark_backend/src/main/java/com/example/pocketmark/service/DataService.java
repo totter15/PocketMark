@@ -118,7 +118,8 @@ public class DataService {
     
     @Transactional(readOnly = true)
     public Long getLastItemId(Long userId){
-        return itemRepository.findFirstByUserIdOrderByItemIdDesc(userId).getItemId();
+        return itemRepository.getLastItemId(userId);
+        // return itemRepository.findFirstByUserIdOrderByItemIdDesc(userId).getItemId();
     }
 
 

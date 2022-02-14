@@ -42,6 +42,7 @@ public class Tag extends BaseImmutableEntity implements Persistable<String>{
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="id")
+    //"itemId, name, userId"
     private String id;
 
     @Transient
