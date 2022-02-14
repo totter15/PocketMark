@@ -1,9 +1,9 @@
-package com.example.pocketmark.domain;
+// package com.example.pocketmark.domain;
 
-public class BookmarkTest {
+// public class BookmarkTest {
     
 
-    void updateTest(){
+//     void updateTest(){
         
-    }
-}
+//     }
+// }

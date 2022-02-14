@@ -70,7 +70,7 @@ public class TagApiController {
     }
 
     //Delete
-    @PutMapping(value="/tag-delete")
+    @PutMapping(value="/tag/delete")
     public ApiDataResponse<TagRes> deleteTag(
         @RequestBody TagDeleteBulkReq req
     ){
