@@ -20,7 +20,8 @@
 + NginX
 + AWS S3, EC2, ELB, Cloudfront 등
 
-## 프로젝트 개념도
+## 프로젝트 아키텍쳐
+![프로젝트 개념도](https://user-images.githubusercontent.com/54466276/154622405-50ec28ae-4476-49d1-97ad-27608636af09.png)
 
 
 ## ERD
