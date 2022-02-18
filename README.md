@@ -18,7 +18,7 @@
 + Spring
 + React
 + MariaDB
-+ NginX
++ NginX, 
 + AWS S3, EC2, ELB, Cloudfront 등
 
 ## 프로젝트 아키텍쳐
