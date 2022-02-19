@@ -27,7 +27,6 @@
 .route > div {
   display: flex;
   align-items: center;
-  margin-left: 20px;
 }
 
 .route > div > button:nth-child(1) {

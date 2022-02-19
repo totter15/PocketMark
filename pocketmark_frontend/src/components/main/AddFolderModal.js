@@ -73,7 +73,6 @@ const AddFolderModal = ({
   };
 
   const createOption = (label) => {
-    console.log(label);
     return {
       label,
       value: label,
@@ -90,17 +89,14 @@ const AddFolderModal = ({
   const handleKeyDown = (event) => {
     const { inputValue, value } = tag;
     if (!inputValue) return;
-
     switch (event.key) {
       case "Enter":
       case "Tab":
-        setTag({
-          inputValue: "",
-          value: event.nativeEvent.isComposing
-            ? //한글자판은 2번눌려져서 isComming이 true일때만 value생성
-              [...value, createOption(inputValue)]
-            : [...value],
-        });
+        !event.nativeEvent.isComposing &&
+          setTag({
+            inputValue: "",
+            value: [...value, createOption(inputValue)],
+          });
         event.preventDefault();
     }
   };

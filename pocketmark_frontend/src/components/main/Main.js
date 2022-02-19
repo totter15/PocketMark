@@ -5,6 +5,8 @@ import AddModal from "./AddModal";
 import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
 import FolderRoute from "./FolderRoute";
+import { useNavigate } from "react-router-dom";
+
 import "./Main.css";
 import {
   DeleteData,
@@ -16,7 +18,7 @@ import {
   DelTag,
   Post,
 } from "../../lib/Axios";
-import { getCookis, setCookie } from "../../lib/cookie";
+import { getCookis, removeCookie, setCookie } from "../../lib/cookie";
 
 const Main = () => {
   const [search, setSearch] = useState("");
@@ -33,6 +35,8 @@ const Main = () => {
   const [editBookmark, setEditBookmark] = useState(null);
   const [editFolder, setEditFolder] = useState(null);
   const [edit, setEdit] = useState(null); //수정하는 아이템 아이디
+
+  const navigate = useNavigate();
 
   const itemId = useRef(Number(getCookis("lastId")) + 1);
   const server = useRef({
@@ -72,10 +76,11 @@ const Main = () => {
     GetAllFolders().then((res) => {
       setFolders(res.data.data.folders.slice(1));
     });
-  }, [getCookis("myToken")]);
+  }, [itemId]);
+  //처음 랜더링될때 token이 참조안되는거 해결..
 
   useEffect(() => {
-    setInterval(() => axios(server.current, selectFolderId), 1000 * 60 * 5); //5분
+    setInterval(() => axios(server.current, selectFolderId), 1000 * 10); //5분
   }, []);
 
   //폴더선택 되었을시
@@ -94,8 +99,8 @@ const Main = () => {
         if (del.folderIdList.length > 0 || del.bookmarkIdList.length > 0)
           DeleteData(del); //data삭제
       })
-      .then(() => postTag && PostTag(postTag)) //태그 만들기
-      .then(() => delTag && DelTag(delTag)) //태그 삭제
+      .then(() => postTag.tags.length > 0 && PostTag(postTag)) //태그 만들기
+      .then(() => delTag.tags.length > 0 && DelTag(delTag)) //태그 삭제
       .then(() => GetData(selectFolderId.current)) //현재 선택된 폴더데이터 가져오기
       .then((res) => {
         setBookmarks(res.data.data.bookmarks); //현재 선택된 폴더의 북마크 가져오기
@@ -129,6 +134,7 @@ const Main = () => {
         })
       )
       .catch((e) => {
+        console.log(e);
         if (e.status.response === 403) {
           Post("refresh-token", {
             refreshToken: getCookis("refreshToken"),
@@ -266,7 +272,6 @@ const Main = () => {
     },
     [bookmarks, post]
   );
-
   //북마크 수정하기
   const editBookmarks = useCallback(
     (bookmarkName, url, comment, parentId, tags) => {
@@ -407,6 +412,15 @@ const Main = () => {
     setEditBookmark(null);
   };
 
+  const onLogout = () => {
+    removeCookie("myToken");
+    setTimeout(() => {
+      navigate("/");
+      console.log("ddd");
+      console.log(getCookis("myToken"));
+    }, 500);
+  };
+
   //폴더 경로 표시
   const getRoute = (folderId) => {
     const selectFolderData = folders.find(
@@ -445,10 +459,12 @@ const Main = () => {
             </button>
           </div>
 
-          {/* <div className="nav">
-            <Link to="/">My</Link>
-            <Link to="/">Logout</Link>
-          </div> */}
+          <div className="nav">
+            {/* <Link to="/">My</Link> */}
+            <div onClick={onLogout} className="logout">
+              Logout
+            </div>
+          </div>
         </header>
 
         <main>

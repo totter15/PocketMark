@@ -85,19 +85,12 @@ public class DataApiController {
         return ApiDataResponse.of(HttpStatus.OK.value(), "데이터가 성공적으로 삭제되었습니다.", null);
     }
 
-<<<<<<< HEAD
-=======
-
-    //Read ALL Folders
-    @GetMapping(value="/folder")
+    // Read ALL Folders
+    @GetMapping(value = "/folder")
     public ApiDataResponse<AllFolderResWithTag> getAllFolders(
-        
-    ){
+
+    ) {
         return ApiDataResponse.of(dataService.getAllFolders(getUserId()));
     }
 
-    
-    
-    
->>>>>>> mainVersion1
 }

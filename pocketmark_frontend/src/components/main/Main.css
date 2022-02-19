@@ -37,6 +37,9 @@ li {
 .main header .nav {
   font-family: "Abel", sans-serif;
 }
+.main header .nav > .logout {
+  cursor: pointer;
+}
 .nav a:link {
   padding: 5px 20px;
   border: 1px solid #000;

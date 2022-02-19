@@ -6,10 +6,13 @@ const headers = {
   Authorization: `Bearer ${getCookis("myToken")}`,
 };
 
+const testUrl = "http://localhost:9090";
+const awsUrl = "http://back.pocketmark.site:9090";
+
 const Post = async (post, data) => {
   try {
     const response = await axios.post(
-      `http://localhost:9090/api/v1/${post}`,
+      `${awsUrl}/api/v1/${post}`,
       JSON.stringify(data),
       {
         headers: {
@@ -29,11 +32,9 @@ const Post = async (post, data) => {
 
 const PostData = async (data) => {
   try {
-    const response = await axios.post(
-      `http://localhost:9090/api/v1/data`,
-      data,
-      { headers: headers }
-    );
+    const response = await axios.post(`${awsUrl}/api/v1/data`, data, {
+      headers: headers,
+    });
     return response;
   } catch (e) {
     return e;
@@ -42,11 +43,9 @@ const PostData = async (data) => {
 
 const PutData = async (data) => {
   try {
-    const response = await axios.put(
-      `http://localhost:9090/api/v1/data`,
-      data,
-      { headers: headers }
-    );
+    const response = await axios.put(`${awsUrl}/api/v1/data`, data, {
+      headers: headers,
+    });
     return response;
   } catch (e) {
     return e;
@@ -55,11 +54,9 @@ const PutData = async (data) => {
 
 const DeleteData = async (data) => {
   try {
-    const response = await axios.put(
-      `http://localhost:9090/api/v1/data/delete`,
-      data,
-      { headers: headers }
-    );
+    const response = await axios.put(`${awsUrl}/api/v1/data/delete`, data, {
+      headers: headers,
+    });
     return response;
   } catch (e) {
     return e;
@@ -69,7 +66,7 @@ const DeleteData = async (data) => {
 const GetData = async (folderId) => {
   try {
     const response = await axios.get(
-      `http://localhost:9090/api/v1/data?folder-id=${folderId}&size=100&sort=itemId`,
+      `${awsUrl}/api/v1/data?folder-id=${folderId}&size=100&sort=itemId`,
       {
         headers: headers,
       }
@@ -82,7 +79,7 @@ const GetData = async (folderId) => {
 
 const GetAllFolders = async () => {
   try {
-    const response = await axios.get("http://localhost:9090/api/v1/folder", {
+    const response = await axios.get(`${awsUrl}/api/v1/folder`, {
       headers: headers,
     });
     return response;
@@ -93,13 +90,9 @@ const GetAllFolders = async () => {
 
 const PostTag = async (data) => {
   try {
-    const response = await axios.post(
-      "http://localhost:9090/api/v1/tag",
-      data,
-      {
-        headers: headers,
-      }
-    );
+    const response = await axios.post(`${awsUrl}/api/v1/tag`, data, {
+      headers: headers,
+    });
     return response;
   } catch (e) {
     return e;
@@ -108,7 +101,7 @@ const PostTag = async (data) => {
 
 const DelTag = async (data) => {
   try {
-    const response = await axios.put("http://localhost:9090/api/v1/tag", data, {
+    const response = await axios.put(`${awsUrl}/api/v1/tag/delete`, data, {
       headers: headers,
     });
     return response;

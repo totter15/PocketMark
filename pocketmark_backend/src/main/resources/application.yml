@@ -14,8 +14,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: 공용이메일주소
-    password: smtp 비밀번호
+    username: PocketMarkDev@gmail.com
+    password: uejfbhhxcsibwqel
     properties:
       mail:
         smtp:

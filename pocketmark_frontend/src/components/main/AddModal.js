@@ -114,13 +114,19 @@ const AddModal = ({
     switch (event.key) {
       case "Enter":
       case "Tab":
-        // console.group("Value Added");
-        // console.log(value);
-        // console.groupEnd();
-        setTag({
-          inputValue: "",
-          value: [...value, createOption(inputValue)],
-        });
+        !event.nativeEvent.isComposing &&
+          setTag({
+            inputValue: "",
+            value: [...value, createOption(inputValue)],
+          });
+        // setTag({
+        //   inputValue: "",
+        //   value: !event.nativeEvent.isComposing
+        //     ? //한글자판은 2번눌려져서 isComming이 true일때만 value생성
+        //       //이러니까 영어가 안쳐짐..
+        //       [...value, createOption(inputValue)]
+        //     : [...value],
+        // });
         event.preventDefault();
     }
   };
