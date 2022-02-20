@@ -3,11 +3,31 @@ import { getCookis } from "./cookie";
 
 const headers = {
   "Content-Type": "application/json",
-  Authorization: `Bearer ${getCookis("myToken")}`,
 };
 
 const testUrl = "http://localhost:9090";
 const awsUrl = "http://back.pocketmark.site:9090";
+
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    if (error.request.status === 403) {
+      const res = Post("refresh-token", {
+        refreshToken: getCookis("refreshToken"),
+      })
+        .then((res) => {
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.data.accessToken}`;
+        })
+        .then(() => axios(error.config));
+      return res;
+    }
+    return Promise.reject(error);
+  }
+);
 
 const Post = async (post, data) => {
   try {
@@ -25,9 +45,7 @@ const Post = async (post, data) => {
       }
     );
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const PostData = async (data) => {
@@ -36,9 +54,7 @@ const PostData = async (data) => {
       headers: headers,
     });
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const PutData = async (data) => {
@@ -47,9 +63,7 @@ const PutData = async (data) => {
       headers: headers,
     });
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const DeleteData = async (data) => {
@@ -58,9 +72,7 @@ const DeleteData = async (data) => {
       headers: headers,
     });
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const GetData = async (folderId) => {
@@ -72,9 +84,7 @@ const GetData = async (folderId) => {
       }
     );
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const GetAllFolders = async () => {
@@ -83,9 +93,7 @@ const GetAllFolders = async () => {
       headers: headers,
     });
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const PostTag = async (data) => {
@@ -94,9 +102,7 @@ const PostTag = async (data) => {
       headers: headers,
     });
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 const DelTag = async (data) => {
@@ -105,9 +111,7 @@ const DelTag = async (data) => {
       headers: headers,
     });
     return response;
-  } catch (e) {
-    return e;
-  }
+  } catch (e) {}
 };
 
 export {

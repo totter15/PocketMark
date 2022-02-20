@@ -5,7 +5,7 @@ import AddModal from "./AddModal";
 import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
 import FolderRoute from "./FolderRoute";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import "./Main.css";
 import {
@@ -36,7 +36,10 @@ const Main = () => {
   const [editFolder, setEditFolder] = useState(null);
   const [edit, setEdit] = useState(null); //수정하는 아이템 아이디
 
+  const [refresh, setRefresh] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   const itemId = useRef(Number(getCookis("lastId")) + 1);
   const server = useRef({
@@ -70,17 +73,14 @@ const Main = () => {
   };
 
   useEffect(() => {
-    GetData(0).then((res) => {
-      setBookmarks(res.data.data.bookmarks);
-    });
+    GetData(0).then((res) => setBookmarks(res.data.data.bookmarks));
     GetAllFolders().then((res) => {
       setFolders(res.data.data.folders.slice(1));
     });
-  }, [itemId]);
-  //처음 랜더링될때 token이 참조안되는거 해결..
+  }, [refresh]);
 
   useEffect(() => {
-    setInterval(() => axios(server.current, selectFolderId), 1000 * 10); //5분
+    setInterval(() => axios(server.current, selectFolderId), 1000 * 60 * 5); //5분
   }, []);
 
   //폴더선택 되었을시
@@ -133,18 +133,7 @@ const Main = () => {
           setFolders(res.data.data.folders.slice(1));
         })
       )
-      .catch((e) => {
-        console.log(e);
-        if (e.status.response === 403) {
-          Post("refresh-token", {
-            refreshToken: getCookis("refreshToken"),
-          }).then((res) => {
-            setCookie("myToken", res.data.data.accessToken).then(() =>
-              axios(server.current, selectFolderId)
-            );
-          });
-        }
-      });
+      .catch((e) => {});
   }, []);
 
   //폴더 만들기
@@ -194,12 +183,12 @@ const Main = () => {
       (inittag) => !tag.some((t) => t.name === inittag.name)
     );
 
-    console.group("tag");
-    console.log(initTag, "초기태그");
-    console.log(tag, "새로운태그");
-    console.log(post, "post");
-    console.log(del, "delete");
-    console.groupEnd();
+    // console.group("tag");
+    // console.log(initTag, "초기태그");
+    // console.log(tag, "새로운태그");
+    // console.log(post, "post");
+    // console.log(del, "delete");
+    // console.groupEnd();
 
     setFolders(
       folders.map((folder) =>
@@ -289,12 +278,12 @@ const Main = () => {
         (inittag) => !tag.some((t) => t.name === inittag.name)
       );
 
-      console.group("tag");
-      console.log(initTag, "초기태그");
-      console.log(tag, "새로운태그");
-      console.log(post, "post");
-      console.log(del, "delete");
-      console.groupEnd();
+      // console.group("tag");
+      // console.log(initTag, "초기태그");
+      // console.log(tag, "새로운태그");
+      // console.log(post, "post");
+      // console.log(del, "delete");
+      // console.groupEnd();
       //태그 확인용
 
       setBookmarks(
@@ -416,8 +405,6 @@ const Main = () => {
     removeCookie("myToken");
     setTimeout(() => {
       navigate("/");
-      console.log("ddd");
-      console.log(getCookis("myToken"));
     }, 500);
   };
 

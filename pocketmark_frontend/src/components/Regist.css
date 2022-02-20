@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Abel&display=swap");
 
 .registContainer {
-  width: 400px;
+  max-width: 400px;
   margin-left: auto;
   margin-right: auto;
   margin-top: 1rem;

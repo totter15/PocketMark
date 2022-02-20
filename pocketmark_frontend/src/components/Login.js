@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { Post } from "../lib/Axios";
 import { setCookie } from "../lib/cookie";
+import axios from "axios";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -28,14 +29,17 @@ const Login = () => {
       pw: input.pw,
     };
 
-    Post("login", data).then((res) => {
-      if (res.data.success && res.data.data.tokenBox.accessToken) {
-        setCookie("myToken", res.data.data.tokenBox.accessToken);
-        setCookie("refreshToken", res.data.data.tokenBox.refreshToken);
-        setCookie("lastId", res.data.data.itemId);
-        navigate("/main");
-      }
-    });
+    Post("login", data)
+      .then((res) => {
+        if (res.data.success && res.data.data.tokenBox.accessToken) {
+          setCookie("refreshToken", res.data.data.tokenBox.refreshToken);
+          setCookie("lastId", res.data.data.itemId);
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.data.tokenBox.accessToken}`;
+        }
+      })
+      .then(() => navigate("/main"));
   };
 
   return (

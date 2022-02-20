@@ -44,7 +44,6 @@ const Regist = () => {
     e.preventDefault();
     Post("alias-check", { nickName: nickname }).then((res) => {
       if (res.data.success) {
-        console.log(res.data);
         setNicknameOk(res.data.data.available);
         setNicknameMessage(
           res.data.available
@@ -61,7 +60,6 @@ const Regist = () => {
   const onEmailCheck = (e) => {
     e.preventDefault();
     Post("email-check", { email: email }).then((res) => {
-      console.log(res);
       if (res.data.success) {
         setEmailOk(res.data.data.available);
         setEmailSend(res.data.data.available);
