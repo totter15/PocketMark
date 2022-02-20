@@ -29,7 +29,7 @@
 
 .folderList .addFolder > div:hover {
   cursor: pointer;
-  color: rgb(154, 164, 172);
+  /* color: rgb(154, 164, 172); */
 }
 
 .folderList > div > button {
@@ -50,4 +50,33 @@
 .folderList > div > button > svg:hover {
   cursor: pointer;
   color: rgb(154, 164, 172);
+}
+
+@media screen and (max-width: 768px) {
+  .folderList {
+    width: 30%;
+    font-size: 0.8rem;
+  }
+
+  .folderList > .addFolder {
+    flex-direction: column;
+  }
+
+  .folderList > .addFolder > div > svg {
+    display: none;
+  }
+
+  .folderList > .addFolder > button {
+    order: -1;
+    margin-bottom: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 20px;
+  }
+
+  .folderList > .addFolder > button > svg {
+    color: rgb(134, 134, 134);
+    width: 16px;
+    height: 16px;
+  }
 }

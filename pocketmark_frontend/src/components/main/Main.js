@@ -402,7 +402,8 @@ const Main = () => {
   };
 
   const onLogout = () => {
-    removeCookie("myToken");
+    removeCookie("autoLogin");
+
     setTimeout(() => {
       navigate("/");
     }, 500);

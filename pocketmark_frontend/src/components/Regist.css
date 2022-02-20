@@ -28,7 +28,7 @@ h1 {
   font-weight: 500;
 }
 
-input {
+.registContainer input {
   /* width: 100%; */
   flex: 1;
   padding: 12px 20px;

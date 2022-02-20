@@ -73,3 +73,10 @@
   font-weight: 500;
   margin-bottom: 8px;
 }
+
+@media screen and (max-width: 768px) {
+  .bookmarkListItem {
+    width: 100%;
+    margin: 8px;
+  }
+}

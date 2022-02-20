@@ -10,9 +10,16 @@
   align-items: flex-end;
 }
 
+.route > div:last-child > button > svg {
+  color: darkgray;
+  width: 18px;
+  height: 18px;
+}
+
 .route .folderTags {
   display: flex;
   margin-left: 16px;
+  flex-wrap: wrap;
 }
 
 .route .folderTags > .tag {
@@ -35,4 +42,38 @@
 
 .route > div > button {
   cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .route {
+    margin-bottom: 10px;
+    padding: 0 0 5px 0;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .route > div:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+
+  .route > div:last-child {
+    align-self: flex-end;
+    position: absolute;
+  }
+
+  .route > div:last-child > button > svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .route > div > .folderTags {
+    margin: 0;
+    margin-top: 10px;
+  }
+
+  .route > div > .folderTags > .tag {
+    margin-bottom: 6px;
+  }
 }

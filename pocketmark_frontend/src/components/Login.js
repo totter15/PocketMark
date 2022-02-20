@@ -1,17 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { Post } from "../lib/Axios";
-import { setCookie } from "../lib/cookie";
+import { setCookie, getCookis } from "../lib/cookie";
 import axios from "axios";
 
 const Login = () => {
+  const [checked, setChecked] = useState(false);
   const [input, setInput] = useState({
     email: "",
     pw: "",
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getCookis("autoLogin") && navigate("/main");
+  }, []);
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -28,6 +33,10 @@ const Login = () => {
       email: input.email,
       pw: input.pw,
     };
+
+    if (checked) {
+      setCookie("autoLogin", true);
+    }
 
     Post("login", data)
       .then((res) => {
@@ -67,7 +76,18 @@ const Login = () => {
           />
         </div>
         <button>로그인</button>
+        <div className="autoLogin">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={() => {
+              setChecked(!checked);
+            }}
+          />
+          자동 로그인
+        </div>
       </form>
+
       <div className="regist">
         아직 회원이 아니세요?
         <Link className="link" to="/regist">

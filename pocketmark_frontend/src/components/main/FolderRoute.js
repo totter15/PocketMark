@@ -25,25 +25,13 @@ const FolderRoute = ({
             ))}
         </div>
       </div>
-      {selectFolderId.current !== 0 && (
+      {selectFolderId !== 0 && (
         <div>
           <button onClick={() => editFolderModalOpen(selectFolderId)}>
-            <FiEdit3
-              style={{
-                color: "darkgray",
-                width: "18px",
-                height: "18px",
-              }}
-            />
+            <FiEdit3 />
           </button>
           <button onClick={() => deleteFolders(selectFolderId)}>
-            <RiDeleteBin6Line
-              style={{
-                color: "darkgray",
-                width: "18px",
-                height: "18px",
-              }}
-            />
+            <RiDeleteBin6Line />
           </button>
         </div>
       )}

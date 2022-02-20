@@ -12,3 +12,9 @@
 .folderListItem.select {
   background-color: rgb(241, 245, 248);
 }
+
+@media screen and (max-width: 768px) {
+  .folderListItem {
+    padding: 14px 10px;
+  }
+}

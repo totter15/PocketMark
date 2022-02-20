@@ -27,11 +27,29 @@
   border-radius: 10px;
   box-sizing: border-box;
   outline: none;
+  flex: 1;
 }
 .login input:nth-child(1):focus,
 .login input:nth-child(2):focus {
   border: 1px solid #8e9cad;
 }
+.login > form > .autoLogin {
+  display: flex;
+  width: 100%;
+  /* justify-content: center; */
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 8px;
+  color: rgb(87, 92, 128);
+  cursor: pointer;
+}
+.login > form > .autoLogin > input {
+  width: auto;
+  flex: none;
+  margin-right: 8px;
+}
+
 .login button {
   margin-bottom: 10px;
 }
