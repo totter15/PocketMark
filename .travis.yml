@@ -1,0 +1,28 @@
+matrix:
+  include:
+    -
+      before_script:
+        - "cd pocketmark_backend"
+      jdk: openjdk8
+      language: java
+      script: "./gradlew clean build"
+    -
+      before_script:
+        - "cd pocketmark_frontend"
+      cache:
+        directories:
+          - node_modules
+      language: node_js
+      script: "npm run build"
+    
+
+
+branches:
+  only:
+    - mainVersion1
+    
+notifications:
+  email:
+    recipients:
+      - sim2626@naver.com
+sudo: required
