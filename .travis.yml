@@ -1,0 +1,97 @@
+# matrix 는 병렬실행, jobs는 순차적실행같음
+# 그래서 cd .. 필요없을듯 (디스크공간은 쉐어하려나...)
+matrix:
+  include:
+    -
+      before_script:
+        - "cd pocketmark_backend"
+      cache:
+        directories:
+          - '$HOME/.m2/repository'
+          - '$HOME/.gradle'
+      jdk: openjdk8
+      language: java
+      script: "./gradlew clean build"
+    -
+      before_script:
+        - "cd pocketmark_frontend"
+      cache:
+        directories:
+          - node_modules
+      language: node_js
+      script: "npm run build"
+    
+
+
+branches:
+  only:
+    - mainVersion1
+    
+# Travis CI는 디렉토리 단위로만 업로드 가능
+before_deploy:
+  - mkdir -p before-deploy
+  # Shell Script
+  - cp scripts/*.sh before-deploy/
+  # AWS CodeDeploy
+  - cp appspec.yml before-deploy/
+  # Spring
+  - cp pocketmark_backend/build/libs/*.jar before-deploy/
+  # 이거 압축풀면 before-deploy 폴더부터 시작
+  - zip -r pocketmark.zip before-deploy/
+  
+  # React (EC2 까지 갈필요없음)
+  - mkdir -p front
+  - cp -r pocketmark_frontend/build front/
+  
+  - mkdir -p server
+  - mv pocketmark.zip server/
+  
+deploy:
+  - 
+    ### SSL 정적 호스팅 s3버킷 업로드 ###
+    provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    # S3 버킷이름
+    bucket: pocketmark-deploy 
+    region: ap-northeast-2
+    skip_cleanup: true
+    # You can tell Travis CI to only upload a single folder to S3
+    local_dir: front
+    #  You can use the 'upload-dir' option to set the S3 destination folder.
+    
+  -
+    ### JAR 배포 s3버킷 ###
+    provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: pocketmark-server
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private
+    local_dir: server
+    wait-until-deploy: true
+  -
+    ### CodeDeploy ###
+    provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    # CD에서 참조하는 버킷, key(전달받을 버킷의 내용물)
+    bucket: pocketmark-server
+    key: pocketmark.zip
+    bundle_type: zip
+    
+    ## AWS 콘솔에 등록한 CodeDeploy App
+    application: pocketmark-server
+    # AWS 콘솔에 등록한 CodeDeploy 배포 그룹
+    deployment_group: pocketmark-server-group
+    region: ap-northeast-2
+    wait-until-deploy: true
+    
+    
+    
+notifications:
+  email:
+    recipients:
+      - sim2626@naver.com
+sudo: required
