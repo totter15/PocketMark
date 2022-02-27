@@ -6,6 +6,7 @@ import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
 import FolderRoute from "./FolderRoute";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import "./Main.css";
 import {
@@ -462,7 +463,7 @@ const Main = () => {
           </div>
 
           <div className="nav">
-            {/* <Link to="/">My</Link> */}
+            <div>{/* <Link to="/mypage">My</Link> */}</div>
             <div onClick={onLogout} className="logout">
               Logout
             </div>

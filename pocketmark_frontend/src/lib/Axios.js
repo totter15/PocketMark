@@ -49,6 +49,15 @@ const Post = async (post, data) => {
   } catch (e) {}
 };
 
+const Put = async (put, data) => {
+  try {
+    const response = await axios.post(`${awsUrl}/api/v1/${put}`, data, {
+      headers: headers,
+    });
+    return response;
+  } catch (e) {}
+};
+
 const PostData = async (data) => {
   try {
     const response = await axios.post(`${awsUrl}/api/v1/data`, data, {
@@ -117,6 +126,7 @@ const DelTag = async (data) => {
 
 export {
   Post,
+  Put,
   PostData,
   PutData,
   DeleteData,
