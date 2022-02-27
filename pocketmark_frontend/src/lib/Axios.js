@@ -6,7 +6,7 @@ const headers = {
 };
 
 const testUrl = "http://localhost:9090";
-const awsUrl = "http://back.pocketmark.site:9090";
+const awsUrl = "https://back.pocketmark.site";
 
 axios.interceptors.response.use(
   function (response) {
