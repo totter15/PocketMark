@@ -2,6 +2,7 @@ package com.example.pocketmark.service;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class TagService {
         
         
 
-        
+        // 지워진 태그 복구 
         QTag qTag = QTag.tag;
         JPAUpdateClause update= new JPAUpdateClause(em, qTag);
         if(duplicateIdList.size()!=0){
@@ -101,12 +102,12 @@ public class TagService {
         
         
 
-        QItem qItem = QItem.item;
-        update= new JPAUpdateClause(em, qItem);
+        // QItem qItem = QItem.item;
+        // update= new JPAUpdateClause(em, qItem);
     
-        update.set(qItem.tagExist, true)
-            .where(qItem.itemId.in(itemIdList))
-            .execute();
+        // update.set(qItem.tagExist, true)
+        //     .where(qItem.itemId.in(itemIdList))
+        //     .execute();
 
         em.flush();
         em.clear();
@@ -136,6 +137,15 @@ public class TagService {
         // return tagRepository.findByFK(itemPK);
         return tagRepository.findByItemPk(itemPK);
     }
+    
+    ///Read By SuperEntity - test
+    @Transactional(readOnly = true)
+    public List<TagResWithItemId> getTagsByItemPKIn(Collection<String> itemPKList){
+        // return tagRepository.findByFK(itemPK);
+        return tagRepository.findByItemPkIn(itemPKList);
+    }
+    
+
 
     //Delete
     //1*update

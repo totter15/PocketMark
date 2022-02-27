@@ -100,9 +100,6 @@ public class Item extends BaseEntity implements Persistable<String>{
     private String name;
     private BigDecimal visitCount;
 
-    private boolean tagExist;
-
-
 
     /* Non-Table-Field Area */
     @ManyToOne(
@@ -120,12 +117,7 @@ public class Item extends BaseEntity implements Persistable<String>{
     private Tags tags = new Tags();
 
     public List<Tag> getTags(){
-        if(this.tagExist){
-            return this.tags.getTags();
-        }
-        else{
-            return new ArrayList<>();
-        }
+        return this.tags.getTags();
     }
 
     public static String makePK(Long itemId, Long userId){

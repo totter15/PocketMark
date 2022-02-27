@@ -58,6 +58,12 @@ public class Tag extends BaseImmutableEntity implements Persistable<String>{
         return this.isNew;
     }
 
+    @PostPersist
+    @PostLoad
+    void markNotNew(){
+        this.isNew=false;
+    }
+
     public void setIsNew(boolean isNew){
         this.isNew = isNew;
     }

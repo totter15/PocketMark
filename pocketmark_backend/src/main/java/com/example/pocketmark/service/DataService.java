@@ -49,7 +49,7 @@ public class DataService {
     public DataRes getAll(Long userId){
         
 
-        List<FolderResWithTag> folders = folderService.getAllFolders(userId);
+        List<FolderResWithTag> folders = folderService.getAllFoldersWithBatchSize(userId);
         List<BookmarkResWithTag> bookmarks = bookmarkService.getAllBookmarks(userId);
         DataRes data = DataRes.builder().targetId(0L).folders(folders).bookmarks(bookmarks).build();
 

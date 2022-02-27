@@ -10,6 +10,8 @@ import com.example.pocketmark.domain.main.Tag;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
 import com.example.pocketmark.dto.main.TagDto.TagResImpl;
 
+import org.hibernate.annotations.BatchSize;
+
 import lombok.Getter;
 
 
@@ -18,6 +20,7 @@ import lombok.Getter;
 public class Tags {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "item"
     ,targetEntity = Tag.class)
+    @BatchSize(size=100)
     private List<Tag> tags = new ArrayList<>();
     
     

@@ -13,7 +13,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:*")
+                .allowedOriginPatterns("https://pocketmark.site/*","http://pocketmark-deploy.s3-website.ap-northeast-2.amazonaws.com/")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .maxAge(MAX_AGE_SECS);

@@ -22,6 +22,8 @@ import com.example.pocketmark.dto.main.ItemDto.BookmarkResWithTag;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq;
 import com.example.pocketmark.dto.main.ItemDto.BookmarkUpdateReq.BookmarkUpdateServiceReq;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.dto.main.TagDto.TagResImpl;
+import com.example.pocketmark.dto.main.TagDto.TagResWithItemId;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.BookmarkQueryRepository;
 import com.example.pocketmark.repository.BookmarkRepository;
@@ -72,23 +74,36 @@ public class BookmarkService {
     public List<BookmarkResWithTag> getAllBookmarks(Long userId){
         List<BookmarkRes> bookmarkResList = bookmarkRepository.findByUserId(userId);
         List<BookmarkResWithTag> result = new ArrayList<>();
-        BookmarkResWithTag temp;
-        List<TagRes> tags;
-        //it.getter 호출은 Hibernate 내부비용과 같음
+        
+        //BatchSize 사용하려면 DTO 가 아닌 엔티티로 불러와야 됨. 
+        //즉, Full Select 실행 
+        
+        Set<String> ItemPkList = bookmarkResList.stream()
+                            .map(it ->{
+                                return Item.makePK(it.getItemId(), userId);
+                            })
+                            .collect(Collectors.toSet());
+        
+
+        Map<Long,List<String>> tagMap = tagService.getTagsByItemPKIn(ItemPkList)
+                                    .stream()
+                                    .collect(Collectors.groupingBy(
+                                        TagResWithItemId::getItemId, 
+                                        Collectors.mapping(TagResWithItemId::getName, Collectors.toList())
+                                    ));
+               
+                        
         for(BookmarkRes it : bookmarkResList){
-            if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
-                temp = new BookmarkResWithTag(
-                    it.getItemId(), it.getParentId(),
-                    it.getName(), it.getUrl(),
-                    it.getComment(), tags, it.getVisitCount()); 
-            }else{
-                temp = new BookmarkResWithTag(
-                    it.getItemId(), it.getParentId(),
-                    it.getName(), it.getUrl(),
-                    it.getComment(), null, it.getVisitCount());
+            List<TagRes> tags = new ArrayList<>();
+            List<String> names = tagMap.get(it.getItemId());
+            if(names != null){
+                for(String tagName : names){
+                    tags.add(new TagResImpl(tagName));
+                }
             }
-            result.add(temp);
+            result.add(
+                new BookmarkResWithTag(it.getItemId(), it.getParentId(), it.getName(), it.getUrl(), it.getComment(), tags.size()==0?null:tags, it.getVisitCount())
+            );
         }
 
         return result;
@@ -101,24 +116,35 @@ public class BookmarkService {
 
         Slice<BookmarkRes> bookmarkResList = bookmarkRepository.findByUserIdAndParentId(userId, parentId, pageable);
         List<BookmarkResWithTag> result = new ArrayList<>();
-        BookmarkResWithTag temp;
-        List<TagRes> tags;
+
         boolean hasNext = bookmarkResList.hasNext();
-        //it.getter 호출은 Hibernate 내부비용과 같음
+        
+        Set<String> ItemPkList = bookmarkResList.stream()
+                            .map(it ->{
+                                return Item.makePK(it.getItemId(), userId);
+                            })
+                            .collect(Collectors.toSet());
+        
+
+        Map<Long,List<String>> tagMap = tagService.getTagsByItemPKIn(ItemPkList)
+                                    .stream()
+                                    .collect(Collectors.groupingBy(
+                                        TagResWithItemId::getItemId, 
+                                        Collectors.mapping(TagResWithItemId::getName, Collectors.toList())
+                                    ));
+               
+                        
         for(BookmarkRes it : bookmarkResList){
-            if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
-                temp = new BookmarkResWithTag(
-                    it.getItemId(), it.getParentId(),
-                    it.getName(), it.getUrl(),
-                    it.getComment(), tags, it.getVisitCount()); 
-            }else{
-                temp = new BookmarkResWithTag(
-                    it.getItemId(), it.getParentId(),
-                    it.getName(), it.getUrl(),
-                    it.getComment(), null, it.getVisitCount());
+            List<TagRes> tags = new ArrayList<>();
+            List<String> names = tagMap.get(it.getItemId());
+            if(names != null){
+                for(String tagName : names){
+                    tags.add(new TagResImpl(tagName));
+                }
             }
-            result.add(temp);
+            result.add(
+                new BookmarkResWithTag(it.getItemId(), it.getParentId(), it.getName(), it.getUrl(), it.getComment(), tags.size()==0?null:tags, it.getVisitCount())
+            );
         }
 
         return new SliceImpl<BookmarkResWithTag>(result, pageable, hasNext);
