@@ -41,14 +41,19 @@ const Login = () => {
     Post("login", data)
       .then((res) => {
         if (res.data.success && res.data.data.tokenBox.accessToken) {
-          setCookie("refreshToken", res.data.data.tokenBox.refreshToken);
-          setCookie("lastId", res.data.data.itemId);
+          setCookie("refreshToken", res.data.data.tokenBox.refreshToken); //refresh token 저장
+          setCookie("lastId", res.data.data.itemId); //lastId 저장
           axios.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${res.data.data.tokenBox.accessToken}`;
         }
+        return res;
       })
-      .then(() => navigate("/main"));
+      .then((res) =>
+        res.status === 400
+          ? alert("이메일 혹은 비밀번호가 틀립니다!")
+          : navigate("/main")
+      );
   };
 
   return (

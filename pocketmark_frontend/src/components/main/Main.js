@@ -340,12 +340,27 @@ const Main = () => {
           ...res.data.data.bookmarks,
           ...post.bookmarks.filter((b) => b.parentId === folderId),
         ];
+
+        bookmarks.forEach((b) => {
+          let findTag = postTag.tags.filter((t) => t.itemId === b.itemId);
+          findTag.length > 0 && (b.tags = [...b.tags, ...findTag]);
+          //itemId에 맞는 태그 넣기
+
+          let deleteTag = delTag.tags.filter((t) => t.itemId === b.itemId);
+          b.tags &&
+            deleteTag &&
+            (b.tags = b.tags.filter(
+              (t) => !deleteTag.find((d) => d.name === t.name)
+            ));
+          //delTag에 들어간 tag 지우기
+        });
         //기존 북마크 + 새로만든 북마크
 
         const edited = bookmarks.map((bookmark) => {
           const editedBookmark = put.bookmarks.findLast(
             (b) => b.itemId === bookmark.itemId
           );
+
           //가장 마지막으로 수정된 버전 찾기
           return editedBookmark
             ? Object.assign(bookmark, editedBookmark) //수정된 북마크가 있다면 수정
@@ -357,11 +372,14 @@ const Main = () => {
         );
         //삭제리스트에 있다면 삭제
         setBookmarks(deleted);
+
+        console.log(bookmarks);
       });
     },
-
     [post, selectFolderId.current]
   );
+
+  console.log(postTag);
 
   // 폴더 모달 열기
   const folderModalOpen = () => {

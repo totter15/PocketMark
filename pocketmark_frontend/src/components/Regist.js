@@ -46,7 +46,7 @@ const Regist = () => {
       if (res.data.success) {
         setNicknameOk(res.data.data.available);
         setNicknameMessage(
-          res.data.available
+          res.data.data.available
             ? "사용 가능한 닉네임입니다."
             : "사용 불가한 닉네임입니다."
         );
