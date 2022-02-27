@@ -61,7 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                         "/home",
                         "/api/v1/refresh-token",
                         "/api/v1/send-authentication-email",
-                        "/api/v1/authentication-email"
+                        "/api/v1/authentication-email","/"
                 ).permitAll()
 
                 // //h2 console
