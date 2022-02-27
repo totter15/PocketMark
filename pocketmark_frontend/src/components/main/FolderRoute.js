@@ -26,7 +26,7 @@ const FolderRoute = ({
         </div>
       </div>
       {selectFolderId !== 0 && (
-        <div>
+        <div className="icon">
           <button onClick={() => editFolderModalOpen(selectFolderId)}>
             <FiEdit3 />
           </button>

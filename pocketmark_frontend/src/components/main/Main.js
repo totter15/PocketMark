@@ -372,14 +372,10 @@ const Main = () => {
         );
         //삭제리스트에 있다면 삭제
         setBookmarks(deleted);
-
-        console.log(bookmarks);
       });
     },
     [post, selectFolderId.current]
   );
-
-  console.log(postTag);
 
   // 폴더 모달 열기
   const folderModalOpen = () => {
