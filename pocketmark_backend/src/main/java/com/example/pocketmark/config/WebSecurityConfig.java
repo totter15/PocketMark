@@ -7,6 +7,7 @@ import com.example.pocketmark.service.UserService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,12 +19,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import lombok.RequiredArgsConstructor;
 
 
 @EnableWebSecurity(debug=false)
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
     private final UserService userService;
@@ -43,10 +51,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception {
         JwtLoginFilter loginFilter = new JwtLoginFilter(authenticationManager(), userService, jwtUtil);
         JwtCheckFilter checkFilter = new JwtCheckFilter(authenticationManager(), jwtUtil);
+        
         JwtCheckExceptionHandler checkExceptionHandler = new JwtCheckExceptionHandler(authenticationManager(),objectMapper);
         http
                 .cors()
+                // .configurationSource(corsConfigurationSource())
                 .and()
+                // .headers().cacheControl().disable().and()
                 .csrf().disable()
                 // //h2-console
                 // .headers().frameOptions().disable().and()
@@ -55,7 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-
+                // .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers("/api/v1/sign-up","/api/v1/login",
                         "/api/v1/email-check","/api/v1/alias-check",
                         "/home",
@@ -75,6 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper));
 
         http
+                .addFilterBefore(new CustomCorsFilter(), WebAsyncManagerIntegrationFilter.class)
                 .addFilterAt(loginFilter,UsernamePasswordAuthenticationFilter.class)
 
                 .addFilterAt(checkFilter, BasicAuthenticationFilter.class)
@@ -100,5 +112,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    // @Bean
+    // public CorsConfigurationSource corsConfigurationSource(){
+    //     CorsConfiguration config = new CorsConfiguration();
+
+    //     // config.addAllowedOrigin("https://pocketmark.site/*");
+    //     // config.addAllowedOrigin("http://pocketmark.site/*");
+    //     // config.addAllowedOrigin("https://back.pocketmark.site/*");
+    //     // config.addAllowedOrigin("http://back.pocketmark.site/*");
+    //     config.addAllowedOrigin("http://localhost:3000/");
+
+    //     config.addAllowedHeader("*");
+    //     config.addAllowedMethod("*");
+
+    //     config.setMaxAge(3600L);
+    //     config.addExposedHeader("*");
+
+    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    //     source.registerCorsConfiguration("/**", config);
+
+    //     return source;
+
+    // }
 
 }

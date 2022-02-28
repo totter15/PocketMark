@@ -20,7 +20,7 @@ then
     echo ">>> 현재 구동 중 어플리케이션 없음" >> bash_out.txt
 else
     echo ">>> 구동 중인 프로세스 PID $CURRENT_PID 를 종료합니다." >> bash_out.txt
-    echo ">>> kill -15 $CURRENT_PID"
+    echo ">>> kill -15 $CURRENT_PID" >> bash_out.txt
     kill -15 $CURRENT_PID >> bash_out.txt 2>&1
     sleep 5
 fi
@@ -35,6 +35,4 @@ chmod +x $JAR_NAME >> bash_out.txt 2>&1
 
 echo ">>> $JAR_NAME 을 실행합니다. " >> bash_out.txt
 
-nohup java -jar \
-    -Dspring.config.location=classpath:/application.yml,/home/ec2-user/app/app.yml \
-    $JAR_NAME > nohup.out 2>&1 & >> bash_out.txt 2>&1
+nohup java -jar $JAR_NAME > nohup.out 2>&1 &

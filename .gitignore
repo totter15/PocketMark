@@ -1,6 +1,8 @@
-/node_modules/
+## FRONTEND ##
 
-
+/pocketmark_frontend/node_modules/
+/pocketmark_frontend/package-lock.json
+/pocketmark_frontend/build/
 
 
 ### BACKEND ###
