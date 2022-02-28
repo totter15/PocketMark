@@ -8,6 +8,9 @@ matrix:
     -
       language: java
       jdk: openjdk11
+      branches:
+        only:
+          - mainVersion1
       sudo: required
       cache:
         directories:
@@ -77,6 +80,9 @@ matrix:
       language: node_js
       node_js:
         - "stable"
+      branches:
+        only:
+          - mainVersion1
       sudo: required
       
       env: 
