@@ -1,0 +1,46 @@
+.mypage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.mypage > section > h6 {
+  margin: 0 0 1.5rem 0;
+}
+
+.mypage > section > h4 {
+  margin: 1rem 0 0.5rem;
+}
+
+.mypage > section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.5rem;
+  width: 400px;
+  padding: 1rem 1rem;
+  box-sizing: border-box;
+}
+
+.mypage > section > div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.mypage > section > div > input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid rgb(226, 226, 226);
+  border-radius: 10px;
+  box-sizing: border-box;
+  outline: none;
+  flex: 1;
+}
+
+.mypage > section > div > label {
+  font-size: 0.8rem;
+}

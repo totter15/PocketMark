@@ -6,6 +6,7 @@ import FolderList from "./FolderList";
 import BookmarkList from "./BookmarkList";
 import FolderRoute from "./FolderRoute";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import "./Main.css";
 import {
@@ -340,12 +341,27 @@ const Main = () => {
           ...res.data.data.bookmarks,
           ...post.bookmarks.filter((b) => b.parentId === folderId),
         ];
+
+        bookmarks.forEach((b) => {
+          let findTag = postTag.tags.filter((t) => t.itemId === b.itemId);
+          findTag.length > 0 && (b.tags = [...b.tags, ...findTag]);
+          //itemId에 맞는 태그 넣기
+
+          let deleteTag = delTag.tags.filter((t) => t.itemId === b.itemId);
+          b.tags &&
+            deleteTag &&
+            (b.tags = b.tags.filter(
+              (t) => !deleteTag.find((d) => d.name === t.name)
+            ));
+          //delTag에 들어간 tag 지우기
+        });
         //기존 북마크 + 새로만든 북마크
 
         const edited = bookmarks.map((bookmark) => {
           const editedBookmark = put.bookmarks.findLast(
             (b) => b.itemId === bookmark.itemId
           );
+
           //가장 마지막으로 수정된 버전 찾기
           return editedBookmark
             ? Object.assign(bookmark, editedBookmark) //수정된 북마크가 있다면 수정
@@ -359,7 +375,6 @@ const Main = () => {
         setBookmarks(deleted);
       });
     },
-
     [post, selectFolderId.current]
   );
 
@@ -448,7 +463,7 @@ const Main = () => {
           </div>
 
           <div className="nav">
-            {/* <Link to="/">My</Link> */}
+            <div>{/* <Link to="/mypage">My</Link> */}</div>
             <div onClick={onLogout} className="logout">
               Logout
             </div>

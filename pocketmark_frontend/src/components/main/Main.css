@@ -38,30 +38,37 @@ li {
   font-size: 0.8rem;
   color: rgb(100, 100, 100);
   font-weight: 500;
+  display: flex;
+  text-decoration: none;
 }
 
-.main header .nav:hover {
+.main header .nav > div > a {
+  text-decoration: none;
+  color: rgb(100, 100, 100);
+}
+
+.main header .nav > div:hover {
   text-decoration: underline;
 }
 
 .main header .nav > .logout {
   cursor: pointer;
 }
-.nav a:link {
+/* .nav a:link {
   padding: 5px 20px;
   border: 1px solid #000;
   border-radius: 40px;
   text-decoration: none;
   color: #000;
-}
+} */
 .nav a:link:nth-child(1) {
   margin-right: 20px;
 }
 
-.nav a:link:hover {
+/* .nav a:link:hover {
   background: #eee;
   transition: 0.3s;
-}
+} */
 
 .main input {
   width: 40vw;

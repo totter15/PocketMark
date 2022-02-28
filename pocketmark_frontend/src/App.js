@@ -1,11 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Regist from "./components/Regist";
 import Login from "./components/Login";
 import Main from "./components/main/Main";
-import { useNavigate } from "react-router-dom";
-import { getCookis } from "./lib/cookie";
+import Mypage from "./components/Mypage";
 
 function App() {
   return (
@@ -14,6 +13,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/regist" element={<Regist />} />
         <Route path="/main" element={<Main />} />
+        <Route path="/mypage" element={<Mypage />} />
       </Routes>
     </>
   );

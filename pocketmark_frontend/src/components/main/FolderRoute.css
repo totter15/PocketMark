@@ -58,12 +58,12 @@
     margin-bottom: 4px;
   }
 
-  .route > div:last-child {
+  .route > .icon {
     align-self: flex-end;
     position: absolute;
   }
 
-  .route > div:last-child > button > svg {
+  .route > .icon > button > svg {
     width: 16px;
     height: 16px;
   }
