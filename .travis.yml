@@ -1,97 +1,189 @@
 # matrix 는 병렬실행, jobs는 순차적실행같음
 # 그래서 cd .. 필요없을듯 (디스크공간은 쉐어하려나...)
+
+
+
 matrix:
   include:
     -
-      before_script:
-        - "cd pocketmark_backend"
+      language: java
+      jdk: openjdk11
+      sudo: required
       cache:
         directories:
           - '$HOME/.m2/repository'
           - '$HOME/.gradle'
-      jdk: openjdk8
-      language: java
+          
+      
+      before_script:
+        - "cd pocketmark_backend"
+        - "ls"
       script: "./gradlew clean build"
+      after_success: "cd .."
+      
+      before_deploy:
+        - ls
+        - mkdir -p before-deploy
+        # Shell Script for deploy in EC2
+        - cp scripts/*.sh before-deploy/
+        # AWS CodeDeploy yml
+        - cp appspec.yml before-deploy/
+        # Spring JAR
+        - cp pocketmark_backend/build/libs/*.jar before-deploy/
+        # 이거 압축풀면 before-deploy 폴더부터 시작
+        - zip -r pocketmark.zip before-deploy/
+        
+        - mkdir -p server
+        - mv pocketmark.zip server/
+        
+      deploy:
+        - 
+          ### s3버킷에 JAR 배포 ###
+          provider: s3
+          access_key_id: $AWS_ACCESS_KEY
+          secret_access_key: $AWS_SECRET_KEY
+          bucket: pocketmark-server
+          region: ap-northeast-2
+          skip_cleanup: true
+          acl: private
+          local_dir: server
+          wait-until-deploy: true
+          on: 
+            all_branches: true
+          
+        -
+          ### CodeDeploy에서 S3버킷 참조 ###
+          provider: codedeploy
+          access_key_id: $AWS_ACCESS_KEY
+          secret_access_key: $AWS_SECRET_KEY
+          # CD에서 참조하는 버킷, key(전달받을 버킷의 내용물)
+          bucket: pocketmark-server
+          key: pocketmark.zip
+          bundle_type: zip
+
+          ## AWS 콘솔에 등록한 CodeDeploy App
+          application: pocketmark-server
+          # AWS 콘솔에 등록한 CodeDeploy 배포 그룹
+          deployment_group: pocketmark-server-group
+          region: ap-northeast-2
+          wait-until-deploy: true
+          on: 
+            all_branches: true
+      
+      
+      
+      
     -
+      language: node_js
+      node_js:
+        - "stable"
+      sudo: required
+      
+      env: 
+        CI: false
+        
+        
+      # Travis CI 업데이트에 따라 nodejs 는 cache 를 지우라고 한다...
+        
       before_script:
         - "cd pocketmark_frontend"
-      cache:
-        directories:
-          - node_modules
-      language: node_js
-      script: "npm run build"
-    
+        - "ls"
+        - "yarn install"
+      script: "yarn run build"
+      after_success:
+        - "ls"
+        - "ls build/"
+        - "cd .."
+      
+      before_deploy:
+        # React (EC2 까지 갈필요없음)
+        - mkdir -p front
+        - cp -r pocketmark_frontend/build front/
+        
+      deploy:
+        - 
+          ### SSL 정적 호스팅 s3버킷에 React 업로드 ###
+          provider: s3
+          access_key_id: $AWS_ACCESS_KEY
+          secret_access_key: $AWS_SECRET_KEY
+          # S3 버킷이름
+          bucket: pocketmark-deploy 
+          region: ap-northeast-2
+          skip_cleanup: true
+          # You can tell Travis CI to only upload a single folder to S3
+          local_dir: front/build
+          #  You can use the 'upload-dir' option to set the S3 destination folder.
+          on: 
+            all_branches: true
 
+# branches:
+#   only:
+#     - mainVersion1
 
-branches:
-  only:
-    - mainVersion1
     
 # Travis CI는 디렉토리 단위로만 업로드 가능
-before_deploy:
-  - mkdir -p before-deploy
-  # Shell Script
-  - cp scripts/*.sh before-deploy/
-  # AWS CodeDeploy
-  - cp appspec.yml before-deploy/
-  # Spring
-  - cp pocketmark_backend/build/libs/*.jar before-deploy/
-  # 이거 압축풀면 before-deploy 폴더부터 시작
-  - zip -r pocketmark.zip before-deploy/
+# before_deploy:
+#   - mkdir -p before-deploy
+#   # Shell Script for deploy in EC2
+#   - cp scripts/*.sh before-deploy/
+#   # AWS CodeDeploy yml
+#   - cp appspec.yml before-deploy/
+#   # Spring JAR
+#   - cp pocketmark_backend/build/libs/*.jar before-deploy/
+#   # 이거 압축풀면 before-deploy 폴더부터 시작
+#   - zip -r pocketmark.zip before-deploy/
   
-  # React (EC2 까지 갈필요없음)
-  - mkdir -p front
-  - cp -r pocketmark_frontend/build front/
+#   # React (EC2 까지 갈필요없음)
+#   - mkdir -p front
+#   - cp -r pocketmark_frontend/build front/
   
-  - mkdir -p server
-  - mv pocketmark.zip server/
+#   - mkdir -p server
+#   - mv pocketmark.zip server/
   
-deploy:
-  - 
-    ### SSL 정적 호스팅 s3버킷 업로드 ###
-    provider: s3
-    access_key_id: $AWS_ACCESS_KEY
-    secret_access_key: $AWS_SECRET_KEY
-    # S3 버킷이름
-    bucket: pocketmark-deploy 
-    region: ap-northeast-2
-    skip_cleanup: true
-    # You can tell Travis CI to only upload a single folder to S3
-    local_dir: front
-    #  You can use the 'upload-dir' option to set the S3 destination folder.
+# deploy:
+#   - 
+#     ### SSL 정적 호스팅 s3버킷 업로드 ###
+#     provider: s3
+#     access_key_id: $AWS_ACCESS_KEY
+#     secret_access_key: $AWS_SECRET_KEY
+#     # S3 버킷이름
+#     bucket: pocketmark-deploy 
+#     region: ap-northeast-2
+#     skip_cleanup: true
+#     # You can tell Travis CI to only upload a single folder to S3
+#     local_dir: front
+#     #  You can use the 'upload-dir' option to set the S3 destination folder.
     
-  -
-    ### JAR 배포 s3버킷 ###
-    provider: s3
-    access_key_id: $AWS_ACCESS_KEY
-    secret_access_key: $AWS_SECRET_KEY
-    bucket: pocketmark-server
-    region: ap-northeast-2
-    skip_cleanup: true
-    acl: private
-    local_dir: server
-    wait-until-deploy: true
-  -
-    ### CodeDeploy ###
-    provider: codedeploy
-    access_key_id: $AWS_ACCESS_KEY
-    secret_access_key: $AWS_SECRET_KEY
-    # CD에서 참조하는 버킷, key(전달받을 버킷의 내용물)
-    bucket: pocketmark-server
-    key: pocketmark.zip
-    bundle_type: zip
+#   -
+#     ### JAR 배포 s3버킷 ###
+#     provider: s3
+#     access_key_id: $AWS_ACCESS_KEY
+#     secret_access_key: $AWS_SECRET_KEY
+#     bucket: pocketmark-server
+#     region: ap-northeast-2
+#     skip_cleanup: true
+#     acl: private
+#     local_dir: server
+#     wait-until-deploy: true
+#   -
+#     ### CodeDeploy ###
+#     provider: codedeploy
+#     access_key_id: $AWS_ACCESS_KEY
+#     secret_access_key: $AWS_SECRET_KEY
+#     # CD에서 참조하는 버킷, key(전달받을 버킷의 내용물)
+#     bucket: pocketmark-server
+#     key: pocketmark.zip
+#     bundle_type: zip
     
-    ## AWS 콘솔에 등록한 CodeDeploy App
-    application: pocketmark-server
-    # AWS 콘솔에 등록한 CodeDeploy 배포 그룹
-    deployment_group: pocketmark-server-group
-    region: ap-northeast-2
-    wait-until-deploy: true
+#     ## AWS 콘솔에 등록한 CodeDeploy App
+#     application: pocketmark-server
+#     # AWS 콘솔에 등록한 CodeDeploy 배포 그룹
+#     deployment_group: pocketmark-server-group
+#     region: ap-northeast-2
+#     wait-until-deploy: true
     
     
     
-notifications:
-  email:
-    recipients:
-      - sim2626@naver.com
-sudo: required
+# notifications:
+#   email: false
+# sudo: required

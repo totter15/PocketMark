@@ -24,6 +24,7 @@ public interface TagRepository extends JpaRepository<Tag, String>{
     //     return findByItemIdAndUserId(pk.getItemId(), pk.getUserId());
     // }
     List<TagRes> findByItemPk(String itemPk);
+    List<TagResWithItemId> findByItemPkIn(Collection<String> itemPkList);
 
     //Read-ALL
     List<TagRes> findByUserId(Long userId);

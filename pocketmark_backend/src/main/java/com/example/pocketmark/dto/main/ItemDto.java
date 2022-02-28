@@ -12,6 +12,8 @@ import com.example.pocketmark.domain.main.Folder;
 import com.example.pocketmark.domain.main.Tag;
 import com.example.pocketmark.domain.main.embeddable.Tags;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.dto.main.TagDto.TagResImpl;
+import com.example.pocketmark.repository.TagRepository;
 import com.example.pocketmark.service.TagService;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -104,7 +106,6 @@ public class ItemDto {
         Long getItemId();
         Long getParentId();
         String getName();
-        boolean isTagExist();
         // List<TagRes> getTags();
         BigDecimal getVisitCount();
     }
@@ -206,7 +207,7 @@ public class ItemDto {
         String getUrl();
         String getComment();
         // List<TagRes> getTags();
-        boolean isTagExist();
+
         BigDecimal getVisitCount();
     }
 
@@ -259,7 +260,6 @@ public class ItemDto {
         private Long itemId;
         private Long parentId;
         private String name;
-        private boolean isTagExist;
         // private List<TagRes> tags;
         private BigDecimal visitCount; 
         
@@ -296,7 +296,6 @@ public class ItemDto {
         private String name;
         private String url;
         private String comment;
-        private boolean isTagExist;
         // private List<TagRes> tags;
         private BigDecimal visitCount;
         

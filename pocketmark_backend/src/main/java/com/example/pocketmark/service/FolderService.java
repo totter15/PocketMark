@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -25,10 +28,13 @@ import com.example.pocketmark.dto.main.ItemDto.ItemIdOnly;
 import com.example.pocketmark.dto.main.ItemDto.FolderCreateReq.FolderCreateServiceReq;
 import com.example.pocketmark.dto.main.ItemDto.FolderUpdateReq.FolderUpdateServiceReq;
 import com.example.pocketmark.dto.main.TagDto.TagRes;
+import com.example.pocketmark.dto.main.TagDto.TagResImpl;
+import com.example.pocketmark.dto.main.TagDto.TagResWithItemId;
 import com.example.pocketmark.exception.GeneralException;
 import com.example.pocketmark.repository.FolderQueryRepository;
 import com.example.pocketmark.repository.FolderRepository;
 import com.example.pocketmark.repository.ItemRepository;
+import com.example.pocketmark.repository.TagRepository;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 
 import org.springframework.data.domain.Pageable;
@@ -92,70 +98,95 @@ public class FolderService {
 
         List<FolderRes> folderResList = folderRepository.findByUserId(userId);
         List<FolderResWithTag> result = new ArrayList<>();
-        FolderResWithTag temp;
-        List<TagRes> tags;
         
-        //it.getter 호출은 Hibernate 내부비용과 같음
+        //BatchSize 사용하려면 DTO 가 아닌 엔티티로 불러와야 됨. 
+        //즉, Full Select 실행 
+        
+        Set<String> ItemPkList = folderResList.stream()
+                            .map(it ->{
+                                return Item.makePK(it.getItemId(), userId);
+                            })
+                            .collect(Collectors.toSet());
+        
+
+        Map<Long,List<String>> tagMap = tagService.getTagsByItemPKIn(ItemPkList)
+                                    .stream()
+                                    .collect(Collectors.groupingBy(
+                                        TagResWithItemId::getItemId, 
+                                        Collectors.mapping(TagResWithItemId::getName, Collectors.toList())
+                                    ));
+               
+                        
         for(FolderRes it : folderResList){
-            if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
-                temp = FolderResWithTag.builder()
-                    .itemId(it.getItemId())
-                    .parentId(it.getParentId())
-                    .name(it.getName())
-                    .tags(tags)
-                    .visitCount(it.getVisitCount())
-                    .build();
-            }else{
-                temp = FolderResWithTag.builder()
-                    .itemId(it.getItemId())
-                    .parentId(it.getParentId())
-                    .name(it.getName())
-                    .tags(null)
-                    .visitCount(it.getVisitCount())
-                    .build();
+            List<TagRes> tags = new ArrayList<>();
+            List<String> names = tagMap.get(it.getItemId());
+            if(names != null){
+                for(String tagName : names){
+                    tags.add(new TagResImpl(tagName));
+                }
             }
-            result.add(temp);
+            result.add(
+                new FolderResWithTag(it.getItemId(), it.getParentId(), it.getName(), tags.size()==0?null:tags, it.getVisitCount())
+            );
         }
-
         return result;
-
-
-        // return folderRepository.findByUserId(userId);
     } 
+
+    //Read-ALL Batchsize Test 
+    //동작하는데 Folder를 Full Select 해야하는 비용 
+    //Tag는 Full Select 할 필요 없음
+    public List<FolderResWithTag> getAllFoldersWithBatchSize(Long userId){
+        List<Folder> folderList = folderRepository.findFoldersByUserId(userId);
+        // for(Folder folder : folderList){
+        //     System.out.println(folder.getTags());
+        // }
+        System.out.println(folderList.get(0).getTags());
+        return null;
+    }
+
+    
+
+
 
     //Read-By ParentId
     public Slice<FolderResWithTag> getFoldersByParentId(Long userId, Long folderId, Pageable pageable){
-        Slice<FolderRes> folderResList = folderRepository.findByUserIdAndParentId(userId, folderId, pageable);
+        Slice<FolderRes> folderResList = folderRepository.findDistinctByUserIdAndParentId(userId, folderId, pageable);
         List<FolderResWithTag> result = new ArrayList<>();
-        FolderResWithTag temp;
-        List<TagRes> tags;
+        
         boolean hasNext=folderResList.hasNext();
-        //it.getter 호출은 Hibernate 내부비용과 같음
+        
+        Set<String> ItemPkList = folderResList.stream()
+                            .map(it ->{
+                                return Item.makePK(it.getItemId(), userId);
+                            })
+                            .collect(Collectors.toSet());
+        
+
+        Map<Long,List<String>> tagMap = tagService.getTagsByItemPKIn(ItemPkList)
+                                    .stream()
+                                    .collect(Collectors.groupingBy(
+                                        TagResWithItemId::getItemId, 
+                                        Collectors.mapping(TagResWithItemId::getName, Collectors.toList())
+                                    ));
+               
+                        
         for(FolderRes it : folderResList){
-            if(it.isTagExist()){
-                tags = tagService.getTagsByItemPK(Item.makePK(it.getItemId(), userId));
-                temp = FolderResWithTag.builder()
-                    .itemId(it.getItemId())
-                    .parentId(it.getParentId())
-                    .name(it.getName())
-                    .tags(tags)
-                    .visitCount(it.getVisitCount())
-                    .build();
-            }else{
-                temp = FolderResWithTag.builder()
-                    .itemId(it.getItemId())
-                    .parentId(it.getParentId())
-                    .name(it.getName())
-                    .tags(null)
-                    .visitCount(it.getVisitCount())
-                    .build();
+            List<TagRes> tags = new ArrayList<>();
+            List<String> names = tagMap.get(it.getItemId());
+            if(names != null){
+                for(String tagName : names){
+                    tags.add(new TagResImpl(tagName));
+                }
             }
-            result.add(temp);
+            result.add(
+                new FolderResWithTag(it.getItemId(), it.getParentId(), it.getName(), tags.size()==0?null:tags, it.getVisitCount())
+            );
         }
+
+
+        
         return new SliceImpl<FolderResWithTag>(result, pageable, hasNext);
         
-        // return result;
 
 
         // return folderRepository.findByUserIdAndParentId(userId, folderId, pageable);

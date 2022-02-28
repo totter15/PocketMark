@@ -18,6 +18,11 @@ repositories {
 	mavenCentral()
 }
 
+// no build plain.jar (since Spring Boot 2.5.0)
+jar{
+	enabled = false
+}
+
 project.ext {
 	querydslVersion = dependencyManagement.importedProperties['querydsl.version']
 }
