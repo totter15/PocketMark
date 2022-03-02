@@ -42,7 +42,7 @@ public class CustomCorsFilter implements Filter {
 
         if(flag){
             res.setHeader("Access-Control-Allow-Origin", origin);
-            res.setHeader("Access-Control-Allow-Method", "*");
+            res.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, OPTIONS");
             res.setHeader("Access-Control-Allow-Headers", "*");
             res.setHeader("Access-Control-Allow-Max-Age", "3600");    
         }
