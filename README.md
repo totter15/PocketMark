@@ -22,7 +22,7 @@
 + AWS S3, EC2, ELB, Cloudfront 등
 
 ## 프로젝트 아키텍쳐
-![image](https://user-images.githubusercontent.com/54466276/156335115-d95412a0-e22c-4a9d-8421-96212467958a.png)
+![image](https://user-images.githubusercontent.com/54466276/156715401-7eccccf6-414c-4462-85e2-3b799c621901.png)
 
 
 ## ERD
