@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
   config.activate.on-profile: default
   h2:
     console:

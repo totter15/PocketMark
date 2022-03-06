@@ -66,6 +66,7 @@ public class DataDto {
     @AllArgsConstructor @NoArgsConstructor
     @Builder @Getter
     public static class DataCreateReq{
+
         List<FolderCreateReq> folders;
         List<BookmarkCreateReq> bookmarks;
 

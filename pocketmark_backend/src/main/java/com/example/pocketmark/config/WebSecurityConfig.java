@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -40,6 +41,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+        .antMatchers(
+            "/v2/api-docs", "/v3/api-docs", 
+            "/configuration/ui",
+             "/swagger-resources/**", "/configuration/security",
+              "/swagger-ui.html", "/webjars/**","/swagger/**");
+
+    }
+
+    @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .authenticationProvider(jwtAuthenticationProvider())
@@ -62,7 +74,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 // //h2-console
                 // .headers().frameOptions().disable().and()
                 // //h2-console
-                .httpBasic().disable()
+                // .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
@@ -70,11 +82,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .antMatchers("/api/v1/sign-up","/api/v1/login",
                         "/api/v1/email-check","/api/v1/alias-check",
                         "/home",
+                        "/swagger-ui/**","/swagger-resources/**",
                         "/api/v1/refresh-token",
                         "/api/v1/send-authentication-email",
                         "/api/v1/authentication-email","/"
                 ).permitAll()
-
+                
                 // //h2 console
                 // .antMatchers("/h2-console/**","**").permitAll()
                 // //h2 console
