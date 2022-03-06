@@ -5,7 +5,7 @@ const FolderListItem = ({ name, child, folderSelect, id, select }) => {
   return (
     <div
       className={select ? "select folderListItem" : "folderListItem"}
-      onClick={() => folderSelect(id)}
+      onClick={() => !select && folderSelect(id)}
     >
       {child ? ` - ${name}` : name}
     </div>
