@@ -8,6 +8,14 @@ matrix:
     -
       language: java
       jdk: openjdk11
+      # blacklist
+      branches:
+        except:
+          - JyuKa
+          - frontend
+          - Ping9
+          - temp
+
       branches:
         only:
           - mainVersion1
