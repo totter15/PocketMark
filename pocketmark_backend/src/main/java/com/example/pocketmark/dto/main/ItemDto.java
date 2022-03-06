@@ -21,6 +21,7 @@ import com.querydsl.core.annotations.QueryProjection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,8 +60,10 @@ public class ItemDto {
     @AllArgsConstructor @NoArgsConstructor
     public static class FolderCreateReq{
         @NotNull @JsonProperty("itemId") @JsonAlias("item_id")
+        @ApiModelProperty(value = "폴더의 id", example = "1L",required = true)
         private Long itemId;
         @NotNull
+        @ApiModelProperty(value = "폴더의 부모폴더 id", example = "1L",required = false)
         private Long parentId;
 
         @NotNull @NotBlank @Size(max=50)

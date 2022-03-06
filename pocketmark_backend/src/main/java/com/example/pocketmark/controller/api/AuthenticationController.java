@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Api(tags={"인증관련 API (로그인, 토큰재발급, 이메일인증)"})
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;

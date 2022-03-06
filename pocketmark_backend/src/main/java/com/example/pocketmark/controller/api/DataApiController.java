@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/v1")
 @Slf4j
 @RequiredArgsConstructor
+@Api(tags={"Data API (폴더/북마크)"})
 public class DataApiController {
 
     private final DataService dataService;
@@ -43,12 +46,14 @@ public class DataApiController {
 
     // Test
     @GetMapping(value = "/data-all")
+    @ApiOperation(value="사용자의 모든 폴더/북마크를 가져옴")
     public ApiDataResponse<DataRes> getAll() {
         return ApiDataResponse.of(dataService.getAll(getUserId()));
     }
 
     // C
     @PostMapping(value = "/data")
+    @ApiOperation(value="사용자의 폴더/북마크를 일괄 생성")
     public ApiDataResponse<DataRes> createData(
             @RequestBody DataCreateReq req) {
         System.out.println("test");
@@ -58,6 +63,7 @@ public class DataApiController {
 
     // R
     @GetMapping(value = "/data") // /data?depth=1
+    @ApiOperation(value="folder-id를 부모로 하는 자식 폴더/북마크를 페이징처리하여 가져옴")
     public ApiDataResponse<DataRes> getData(
             // @RequestParam(value ="depth", required = false, defaultValue = "1")
             // Long depth,
@@ -70,6 +76,7 @@ public class DataApiController {
 
     // U
     @PutMapping(value = "/data")
+    @ApiOperation(value="사용자의 폴더/북마크를 일괄 변경")
     public ApiDataResponse<DataRes> updateData(
             @RequestBody DataUpdateReq req) {
         dataService.updateData(req.toServcieReq(), getUserId());
@@ -79,6 +86,7 @@ public class DataApiController {
 
     // D
     @PutMapping(value = "/data/delete")
+    @ApiOperation(value="사용자의 폴더/북마크를 일괄 삭제")
     public ApiDataResponse<DataRes> deleteData(
             @RequestBody DataDeleteReq req) {
         dataService.deleteData(req.toServiceReq(), getUserId());
@@ -89,6 +97,7 @@ public class DataApiController {
 
     //Read ALL Folders
     @GetMapping(value="/folder")
+    @ApiOperation(value="사용자의 모든폴더를 가져옴")
     public ApiDataResponse<AllFolderResWithTag> getAllFolders(
 
     ) {

@@ -11,12 +11,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.annotations.Api;
+
 import javax.validation.Valid;
 
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Api(tags={"User API (회원가입/개인페이지/로그아웃)"})
 public class UserApiController {
 
     private final LoginService loginService;
