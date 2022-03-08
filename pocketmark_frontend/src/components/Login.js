@@ -49,11 +49,18 @@ const Login = () => {
         }
         return res;
       })
-      .then((res) =>
-        res.status === 400
-          ? alert("이메일 혹은 비밀번호가 틀립니다!")
-          : navigate("/main")
-      );
+      .then((res) => {
+        switch (res.status) {
+          case 401:
+            alert("이메일정보가 없습니다.");
+            break;
+          case 400:
+            alert("이메일 혹은 비밀번호가 틀립니다!");
+            break;
+          case 200:
+            navigate("/main");
+        }
+      });
   };
 
   return (

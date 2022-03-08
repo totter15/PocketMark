@@ -17,7 +17,6 @@ import {
   GetAllFolders,
   PostTag,
   DelTag,
-  Post,
 } from "../../lib/Axios";
 import { getCookis, removeCookie, setCookie } from "../../lib/cookie";
 
@@ -78,17 +77,11 @@ const Main = () => {
     GetAllFolders().then((res) => {
       setFolders(res.data.data.folders.slice(1));
     });
-  }, [refresh]);
+  }, []);
 
   useEffect(() => {
     setInterval(() => axios(server.current, selectFolderId), 1000 * 60 * 5); //5분
   }, []);
-
-  //폴더선택 되었을시
-  useEffect(() => {
-    folderSelect(selectFolderId.current);
-    getRoute(selectFolderId.current);
-  }, [selectFolderId.current]);
 
   const axios = useCallback((server, selectFolderId) => {
     const { post, put, del, postTag, delTag } = server;
@@ -262,6 +255,7 @@ const Main = () => {
     },
     [bookmarks, post]
   );
+
   //북마크 수정하기
   const editBookmarks = useCallback(
     (bookmarkName, url, comment, parentId, tags) => {
@@ -334,35 +328,41 @@ const Main = () => {
 
   const folderSelect = useCallback(
     (folderId) => {
+      let initBookmarks = post.bookmarks;
       selectFolderId.current = folderId;
+      //useRef사용시 객체주소가 불러와져 다른변수에 할당한다해도 주소의 객체도 변경됨
+      //https://flyingsquirrel.medium.com/react-%EC%BD%94%EB%93%9C-%EA%B9%8C%EB%B3%B4%EA%B8%B0-useref%EB%8A%94-dom%EC%97%90-%EC%A0%91%EA%B7%BC%ED%95%A0-%EB%95%8C-%EB%BF%90%EB%A7%8C-%EC%95%84%EB%8B%88%EB%9D%BC-%EB%8B%A4%EC%96%91%ED%95%98%EA%B2%8C-%EC%9D%91%EC%9A%A9%ED%95%A0-%EC%88%98-%EC%9E%88%EC%96%B4%EC%9A%94-f0359ad23f3b
+
       //폴더 선택시 해당 폴더의 북마크 가져오기
       GetData(folderId).then((res) => {
         let bookmarks = [
           ...res.data.data.bookmarks,
-          ...post.bookmarks.filter((b) => b.parentId === folderId),
+          ...initBookmarks.filter((b) => b.parentId === folderId),
         ];
 
-        bookmarks.forEach((b) => {
+        const bookmarkHasTag = bookmarks.map((b) => {
           let findTag = postTag.tags.filter((t) => t.itemId === b.itemId);
-          findTag.length > 0 && (b.tags = [...b.tags, ...findTag]);
+          let tags = b.tags;
+          findTag.length > 0 &&
+            (tags = b.tags ? b.tags.concat(findTag) : findTag);
           //itemId에 맞는 태그 넣기
 
           let deleteTag = delTag.tags.filter((t) => t.itemId === b.itemId);
-          b.tags &&
-            deleteTag &&
-            (b.tags = b.tags.filter(
+          deleteTag &&
+            (tags = tags.filter(
               (t) => !deleteTag.find((d) => d.name === t.name)
             ));
           //delTag에 들어간 tag 지우기
+          return { ...b, tags: tags };
         });
         //기존 북마크 + 새로만든 북마크
 
-        const edited = bookmarks.map((bookmark) => {
-          const editedBookmark = put.bookmarks.findLast(
-            (b) => b.itemId === bookmark.itemId
-          );
-
+        const edited = bookmarkHasTag.map((bookmark) => {
+          const editedBookmark =
+            put.bookmarks.findLast &&
+            put.bookmarks.findLast((b) => b.itemId === bookmark.itemId);
           //가장 마지막으로 수정된 버전 찾기
+
           return editedBookmark
             ? Object.assign(bookmark, editedBookmark) //수정된 북마크가 있다면 수정
             : bookmark; //없다면 기존
@@ -375,7 +375,7 @@ const Main = () => {
         setBookmarks(deleted);
       });
     },
-    [post, selectFolderId.current]
+    [post]
   );
 
   // 폴더 모달 열기
