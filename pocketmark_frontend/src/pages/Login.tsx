@@ -49,9 +49,9 @@ const Login = () => {
 				client.defaults.headers.common[
 					'Authorization'
 				] = `Bearer ${accessToken}`;
+				navigate('main');
 			}
 		} catch (e) {
-			console.log(e);
 			// switch (res.status) {
 			// 	case 401:
 			// 		alert('이메일정보가 없습니다.');

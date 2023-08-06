@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './RegistOk.css';
 
-const registOk = () => {
+const RegistOk = () => {
 	return (
 		<div className='registOkContainer'>
 			<h2>회원가입 완료!</h2>
@@ -13,4 +13,4 @@ const registOk = () => {
 	);
 };
 
-export default registOk;
+export default RegistOk;
