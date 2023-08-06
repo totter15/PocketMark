@@ -5,6 +5,10 @@ const client = axios.create({
 	baseURL: 'http://localhost:9090/',
 });
 
+export const noAuthClient = axios.create({
+	baseURL: 'http://localhost:9090/',
+});
+
 client.interceptors.request.use(function (
 	config: InternalAxiosRequestConfig
 ): InternalAxiosRequestConfig {

@@ -7,6 +7,7 @@ import {
 	signUp,
 	emailCodeCheck,
 } from '../apis/user';
+import './Regist.css';
 
 const Regist = () => {
 	const navigate = useNavigate();
@@ -20,7 +21,6 @@ const Regist = () => {
 	const [passwordSame, setPasswordSame] = useState(false); //비밀번호 확인
 	const [nickname, setNickname] = useState('');
 	const [nicknameOk, setNicknameOk] = useState(true);
-	// const [signUpSuccess, setSignUpSuccess] = useState(false);
 	const [nicknameMessage, setNicknameMessage] = useState('');
 	const [emailMessage, setEmailMessage] = useState('');
 
@@ -30,12 +30,11 @@ const Regist = () => {
 
 	const reg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; //최소 8자이상 영문,숫자포함
 
-	async function onSubmit(e: ChangeEvent<HTMLFormElement>) {
-		e.preventDefault();
+	async function onSubmit() {
 		const data = {
-			email: email,
+			email,
 			pw: password,
-			nickname: nickname,
+			nickname,
 		};
 
 		const response = await signUp(data);
@@ -101,7 +100,7 @@ const Regist = () => {
 			</Link>
 
 			<h3 className='title'>회원가입</h3>
-			<form id='regist' onSubmit={onSubmit}>
+			<form onSubmit={(e) => e.preventDefault()}>
 				<div className={emailOk ? 'Ok' : 'email'}>
 					<label>이메일</label>
 					<div className='check'>
@@ -211,7 +210,7 @@ const Regist = () => {
 					</p>
 				</div>
 
-				<button>회원가입</button>
+				<button onClick={onSubmit}>회원가입</button>
 			</form>
 		</div>
 	);
