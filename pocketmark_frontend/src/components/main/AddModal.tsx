@@ -1,148 +1,56 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import { ActionMeta, OnChangeValue } from 'react-select';
-
-import './AddModal.css';
-import useFolderData from '../../hooks/useFolderData';
+import useBookmarkModalData from '../../hooks/useBookmarkModalData';
+import useBookmarkModalFolder from '../../hooks/useBookmarkModalFolder';
+import useBookmarkModalTag from '../../hooks/useBookmarkModalTag';
 import useEdit from '../../hooks/useEdit';
+import useFolderData from '../../hooks/useFolderData';
+import './AddModal.css';
 
-const AddModal = ({ open, modalClose, folders, selectFolder, lastId }: any) => {
-	const { editData, isEditBookmark, editDoneHandler } = useEdit();
-	const { addFolderData, editFolderData } = useFolderData(selectFolder);
+const AddModal = ({ open, modalClose, selectFolder, lastId }: any) => {
+	const { isEditBookmark, editData, editDoneHandler } = useEdit();
+	const { editFolderData, addFolderData } = useFolderData(selectFolder);
 
-	const [data, setData] = useState({
-		name: '',
-		url: '',
-		comment: '',
-	});
+	const { formData, formDataHandler, resetFormData } = useBookmarkModalData();
+	const { folderSelect, folderOptions, folderSelectHandler } =
+		useBookmarkModalFolder(selectFolder);
+	const { tag, handleChange, handleInputChange, handleKeyDown, resetTag } =
+		useBookmarkModalTag();
 
-	function makeBookmarks() {
-		const { name, url, comment } = data ?? {};
-
-		addFolderData.mutate({
-			bookmarks: [
-				{
-					comment,
-					itemId: lastId.current,
-					name,
-					parentId: selectFolder,
-					url,
-				},
-			],
-			folders: [],
-		});
-		lastId = lastId++;
-	}
-
-	function editBookmarks() {
-		const { name, url, comment } = data ?? {};
-		editFolderData.mutate({
-			bookmarks: [
-				{
-					comment,
-					itemId: editData.itemId,
-					name,
-					parentId: selectFolder,
-					url,
-					visitCount: 0,
-				},
-			],
-			folders: [],
-		});
+	function reset() {
+		resetFormData();
+		resetTag();
+		editDoneHandler();
+		modalClose();
 	}
 
 	const onMake = (e: any) => {
 		e.preventDefault();
+		const { name, url, comment } = formData ?? {};
+		const addData = {
+			comment,
+			itemId: isEditBookmark ? editData.itemId : lastId.current,
+			name,
+			parentId: folderSelect.value,
+			url,
+			visitCount: 0,
+		};
 
-		isEditBookmark ? editBookmarks() : makeBookmarks();
-		setData({
-			name: '',
-			url: '',
-			comment: '',
-		});
-		setTag({ inputValue: '', value: [] });
-		editDoneHandler();
-		modalClose();
-	};
-
-	//tag
-	const onChange = (e: any) => {
-		setData({ ...data, [e.target.name]: e.target.value });
-	};
-	const [select, setSelect] = useState({ label: '내 폴더', value: 0 });
-	const [tag, setTag] = useState({
-		inputValue: '',
-		value: [],
-	});
-
-	//옵션 생성
-	const options = folders.map((folder: any) => {
-		const option: any = {};
-		option.value = folder.itemId;
-		option.label = folder.name;
-		return option;
-	});
-
-	useEffect(() => {
-		if (isEditBookmark && editData) {
-			console.log(editData, 'd');
-			const { name, url, comment } = editData ?? {};
-			setData({ name, url, comment });
-
-			editData?.tags &&
-				setTag({
-					...tag,
-					value: editData?.tags.map((b: any) => ({
-						label: b.name,
-						value: b.name,
-					})),
-				});
+		if (isEditBookmark) {
+			editFolderData.mutate({ bookmarks: [addData], folders: [] });
 		}
-		selectFolder &&
-			setSelect(options.find((o: any) => o.value === selectFolder));
-	}, [editData, isEditBookmark]);
+		if (!isEditBookmark) {
+			addFolderData.mutate({ bookmarks: [addData], folders: [] });
+			lastId = lastId++;
+		}
+
+		reset();
+	};
 
 	const onCancel = (e: any) => {
 		e.preventDefault();
-		setData({
-			name: '',
-			url: '',
-			comment: '',
-		});
-		setTag({ inputValue: '', value: [] });
-		editDoneHandler();
-		modalClose();
-	};
-
-	const createOption = (label: any) => ({
-		label,
-		value: label,
-	});
-
-	const handleChange = (value: any) => {
-		// console.group("Value Changed");
-		// console.log(value);
-		// console.groupEnd();
-		setTag({ ...tag, value: value });
-	};
-	const handleInputChange = (inputValue: any) => {
-		setTag({ ...tag, inputValue: inputValue });
-	};
-
-	const handleKeyDown = (event: any) => {
-		const { inputValue, value } = tag;
-		if (!inputValue) return;
-		switch (event.key) {
-			case 'Enter':
-			case 'Tab':
-				!event.nativeEvent.isComposing &&
-					// setTag({
-					// 	inputValue: '',
-					// 	value: [...value, createOption(inputValue)],
-					// });
-					event.preventDefault();
-		}
+		reset();
 	};
 
 	return (
@@ -152,21 +60,29 @@ const AddModal = ({ open, modalClose, folders, selectFolder, lastId }: any) => {
 				<form>
 					<div>
 						<label>이름</label>
-						<input value={data.name} name='name' onChange={onChange} />
+						<input
+							value={formData.name}
+							name='name'
+							onChange={formDataHandler}
+						/>
 					</div>
 					<div>
 						<label>코멘트</label>
-						<input value={data.comment} name='comment' onChange={onChange} />
+						<input
+							value={formData.comment}
+							name='comment'
+							onChange={formDataHandler}
+						/>
 					</div>
 					<div>
 						<label>url</label>
-						<input value={data.url} name='url' onChange={onChange} />
+						<input value={formData.url} name='url' onChange={formDataHandler} />
 					</div>
 
 					<Select
-						onChange={(option: any) => setSelect(option)}
-						options={options}
-						value={select}
+						onChange={folderSelectHandler}
+						options={folderOptions}
+						value={folderSelect}
 					/>
 					<CreatableSelect
 						inputValue={tag.inputValue}
