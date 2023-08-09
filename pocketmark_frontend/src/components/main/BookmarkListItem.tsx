@@ -1,24 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FiEdit3 } from 'react-icons/fi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import './BookmarkListItem.css';
 import useEdit from '../../hooks/useEdit';
+import useFolderData from '../../hooks/useFolderData';
 
-const BookmarkListItem = ({
-	bookmark,
-	editModalOpen,
-	deleteBookmarks,
-}: any) => {
+const BookmarkListItem = ({ bookmark, editModalOpen }: any) => {
 	const { editBookmarkHandler } = useEdit();
+	const { deleteFolderData } = useFolderData(bookmark.parentId);
 
-	function edit() {
+	function editHandler() {
 		editBookmarkHandler(bookmark);
 		editModalOpen();
 	}
 
+	function deleteHandler() {
+		deleteFolderData.mutate({
+			folderIdList: [],
+			bookmarkIdList: [bookmark.itemId],
+		});
+	}
+
 	return (
 		<div className='bookmarkListItem'>
-			<div className='edit' onClick={() => deleteBookmarks(bookmark.itemId)}>
+			<div className='edit' onClick={deleteHandler}>
 				<RiDeleteBin6Line
 					style={{
 						position: 'absolute',
@@ -29,7 +34,7 @@ const BookmarkListItem = ({
 					}}
 				/>
 			</div>
-			<div className='edit' onClick={edit}>
+			<div className='edit' onClick={editHandler}>
 				<FiEdit3
 					style={{
 						position: 'absolute',
