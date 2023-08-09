@@ -7,7 +7,7 @@ export interface ResponseDataType {
 
 export interface ResponseFolderType {
 	data: {
-		folders: FolderType;
+		folders: FolderType[];
 	};
 	errorCode: number;
 	message: string;
@@ -25,8 +25,8 @@ export interface BookmarkType {
 	itemId: number;
 	name: string;
 	parentId: number;
-	tags?: TagType[];
 	url: string;
+	tags?: TagType[];
 	visitCount?: number;
 }
 
@@ -40,4 +40,14 @@ export interface FolderType {
 	parentId: number;
 	tags?: TagType[];
 	visitCount?: number;
+}
+
+export interface FolderDataType {
+	bookmarks: BookmarkType[];
+	folders: FolderType[];
+}
+
+export interface DeleteDataType {
+	bookmarkIdList: number[];
+	folderIdList: number[];
 }
