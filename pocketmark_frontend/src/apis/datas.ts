@@ -15,9 +15,8 @@ export async function getFolderData(
 	folderId: number
 ): Promise<ResponseDataType> {
 	const { data } = await client.get(
-		`api/v1/data?folder-id=${folderId}&pageSize=100`
+		`api/v1/data?folder-id=${folderId}&size=100&sort=itemId`
 	);
-	console.log(data);
 	return data;
 }
 
@@ -27,15 +26,12 @@ export async function getAllFolder(): Promise<ResponseFolderType> {
 }
 
 export async function editData(datas: FolderDataType) {
-	console.log({ datas }, 'edit');
-
 	const { data } = await client.put('api/v1/data', datas);
 	return data;
 }
 
 export async function createData(datas: FolderDataType) {
 	const { data } = await client.post('api/v1/data', datas);
-	console.log(data);
 	return data;
 }
 

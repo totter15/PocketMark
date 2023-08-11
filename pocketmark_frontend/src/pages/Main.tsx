@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import './Main.css';
 
-import { getCookis, removeCookie } from '../lib/cookie';
+import { getCookis, removeCookie, setCookie } from '../lib/cookie';
 import { getAllFolder, getFolderData } from '../apis/datas';
 
 const Main = () => {
@@ -36,6 +36,10 @@ const Main = () => {
 	const location = useLocation();
 
 	const itemId = useRef(Number(getCookis('lastId')) + 1);
+	function handleId() {
+		setCookie('itemId', itemId.current + 1);
+		itemId.current = itemId.current + 1;
+	}
 
 	// 폴더 모달 열기
 	const folderModalOpen = () => {
@@ -151,10 +155,10 @@ const Main = () => {
 
 			{/* 북마크 추가/수정 */}
 			<AddModal
-				lastId={itemId}
 				modalClose={modalClose}
 				open={addModal}
-				folders={folders}
+				itemId={itemId.current}
+				handleId={handleId}
 				selectFolder={selectFolderId}
 			/>
 		</>

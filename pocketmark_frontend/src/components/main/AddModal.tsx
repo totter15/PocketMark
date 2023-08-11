@@ -8,7 +8,13 @@ import useEdit from '../../hooks/useEdit';
 import useFolderData from '../../hooks/useFolderData';
 import './AddModal.css';
 
-const AddModal = ({ open, modalClose, selectFolder, lastId }: any) => {
+const AddModal = ({
+	open,
+	modalClose,
+	selectFolder,
+	itemId,
+	handleId,
+}: any) => {
 	const { isEditBookmark, editData, editDoneHandler } = useEdit();
 	const { editFolderData, addFolderData } = useFolderData(selectFolder);
 
@@ -30,7 +36,7 @@ const AddModal = ({ open, modalClose, selectFolder, lastId }: any) => {
 		const { name, url, comment } = formData ?? {};
 		const addData = {
 			comment,
-			itemId: isEditBookmark ? editData.itemId : lastId.current,
+			itemId: isEditBookmark ? editData.itemId : itemId,
 			name,
 			parentId: folderSelect.value,
 			url,
@@ -42,7 +48,7 @@ const AddModal = ({ open, modalClose, selectFolder, lastId }: any) => {
 		}
 		if (!isEditBookmark) {
 			addFolderData.mutate({ bookmarks: [addData], folders: [] });
-			lastId = lastId++;
+			handleId();
 		}
 
 		reset();
