@@ -20,7 +20,7 @@ const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 		useBookmarkModalTag();
 
 	useEffect(() => {
-		if (open) {
+		if (open && !isEditBookmark) {
 			resetFormData();
 			resetTag();
 			selectHandler({ label: currentFolder.name, value: currentFolder.itemId });
