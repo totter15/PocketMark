@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useQueryClient } from 'react-query';
 import Select from 'react-select';
-import { ResponseFolderType } from '../../interfaces/data';
+import { FolderType, ResponseFolderType } from '../../interfaces/data';
 
 export interface FolderSelectType {
 	label: string;
@@ -19,11 +19,13 @@ function FolderSelect({
 	const data = queryClient.getQueryData('folder') as ResponseFolderType;
 	const folders = data?.data.folders ?? [];
 
-	const folderOptions = folders.map((folder: any) => {
+	const parentFolders = folders.filter(
+		(folder: FolderType) => folder.parentId === 0
+	);
+	const folderOptions = parentFolders.map((folder: FolderType) => {
 		const option: any = {};
 		option.value = folder.itemId;
-		option.label =
-			folder.parentId === 0 || null ? `- ${folder.name}` : folder.name;
+		option.label = folder.name;
 		return option;
 	});
 
