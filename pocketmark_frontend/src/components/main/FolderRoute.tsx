@@ -3,16 +3,17 @@ import { FiEdit3 } from 'react-icons/fi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import './FolderRoute.css';
 import useEdit from '../../hooks/useEdit';
+import useFolder from '../../hooks/useFolder';
 
 const FolderRoute = ({
 	route,
 	folders,
 	selectFolderId,
 	editFolderModalOpen,
-	deleteFolders,
 }: any) => {
 	const selectFolder = folders.find((f: any) => f.itemId === selectFolderId);
 	const { editFolderHandler } = useEdit();
+	const { deleteFolder } = useFolder();
 
 	return (
 		<div className='route'>
@@ -38,7 +39,7 @@ const FolderRoute = ({
 					>
 						<FiEdit3 />
 					</button>
-					<button onClick={() => deleteFolders(selectFolderId)}>
+					<button onClick={() => deleteFolder.mutate(selectFolderId)}>
 						<RiDeleteBin6Line />
 					</button>
 				</div>

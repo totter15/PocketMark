@@ -10,7 +10,6 @@ const AddFolderModal = ({
 	open,
 	folderModalClose,
 	folders,
-	edit,
 	itemId,
 	handleId,
 }: any) => {
