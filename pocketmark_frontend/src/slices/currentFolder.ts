@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { FolderType } from '../interfaces/data';
 
-const initialState: FolderType = { name: 'Root', itemId: 0, parentId: null };
+export const initialState: FolderType = {
+	name: 'Root',
+	itemId: 0,
+	parentId: null,
+};
 
 export const currentFolderSlice = createSlice({
 	name: 'currentFolder',

@@ -75,24 +75,6 @@ const Main = () => {
 		}, 500);
 	};
 
-	//폴더 경로 표시
-	const getRoute = (folderId: any) => {
-		// const selectFolderData = folders?.find(
-		// 	(folder) => folder.itemId === folderId
-		// );
-		// if (folderId === 0) return;
-		// else
-		// 	return selectFolderData?.parentId == 0
-		// 		? ` / ${selectFolderData.name}`
-		// 		: ` /
-		// ${
-		// 			folders?.find((folder:any) => folder?.itemId === selectFolderData.parentId)
-		// 				.name
-		// 		}
-		//   / ${selectFolderData.name}`;
-		return '';
-	};
-
 	return (
 		<>
 			<div className='main'>
@@ -118,7 +100,6 @@ const Main = () => {
 
 					<section className='bookmark'>
 						<FolderRoute
-							route={getRoute(currentFolder.itemId)}
 							folders={folders}
 							selectFolderId={currentFolder.itemId}
 							editFolderModalOpen={editFolderModalOpen}

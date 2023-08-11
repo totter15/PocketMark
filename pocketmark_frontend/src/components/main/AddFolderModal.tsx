@@ -6,11 +6,13 @@ import useEdit from '../../hooks/useEdit';
 import { editDone } from '../../slices/editData';
 import FolderSelect from './FolderSelect';
 import useFolderSelect from '../../hooks/useFolderSelect';
+import useCurrentFolder from '../../hooks/useCurrentFolder';
 
 const AddFolderModal = ({ open, folderModalClose, itemId, handleId }: any) => {
 	const { addFolder, editFolder } = useFolder();
 	const { isEditFolder, editData } = useEdit();
 	const { selectFolder, selectHandler } = useFolderSelect();
+	const { selectCurrentFolder } = useCurrentFolder();
 
 	const [name, setName] = useState('');
 	const [tag, setTag] = useState({
@@ -61,6 +63,7 @@ const AddFolderModal = ({ open, folderModalClose, itemId, handleId }: any) => {
 			addFolder.mutate(folderData);
 			handleId();
 		}
+		selectCurrentFolder(folderData);
 		editDone();
 		folderModalClose();
 	};
