@@ -1,12 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import AddFolderModal from '../components/main/AddFolderModal';
 import AddModal from '../components/main/AddModal';
 import FolderList from '../components/main/FolderList';
 import BookmarkList from '../components/main/BookmarkList';
 import FolderRoute from '../components/main/FolderRoute';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import './Main.css';
 
