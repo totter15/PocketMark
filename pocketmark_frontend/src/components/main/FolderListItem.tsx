@@ -1,11 +1,11 @@
 import React from 'react';
 import './FolderListItem.css';
 
-const FolderListItem = ({ name, child, folderSelect, id, select }: any) => {
+const FolderListItem = ({ name, child, folderSelect, isSelect }: any) => {
 	return (
 		<div
-			className={select ? 'select folderListItem' : 'folderListItem'}
-			onClick={() => !select && folderSelect(id)}
+			className={isSelect ? 'select folderListItem' : 'folderListItem'}
+			onClick={folderSelect}
 		>
 			{child ? ` - ${name}` : name}
 		</div>

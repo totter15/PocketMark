@@ -1,35 +1,31 @@
-import React from 'react';
-import Select from 'react-select';
+import React, { useEffect } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import useBookmarkModalData from '../../hooks/useBookmarkModalData';
-import useBookmarkModalFolder from '../../hooks/useBookmarkModalFolder';
 import useBookmarkModalTag from '../../hooks/useBookmarkModalTag';
 import useEdit from '../../hooks/useEdit';
 import useFolderData from '../../hooks/useFolderData';
 import './AddModal.css';
+import FolderSelect from './FolderSelect';
+import useFolderSelect from '../../hooks/useFolderSelect';
+import useCurrentFolder from '../../hooks/useCurrentFolder';
 
-const AddModal = ({
-	open,
-	modalClose,
-	selectFolder,
-	itemId,
-	handleId,
-}: any) => {
+const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
+	const { currentFolder } = useCurrentFolder();
 	const { isEditBookmark, editData, editDoneHandler } = useEdit();
-	const { editFolderData, addFolderData } = useFolderData(selectFolder);
+	const { editFolderData, addFolderData } = useFolderData(currentFolder.itemId);
 
 	const { formData, formDataHandler, resetFormData } = useBookmarkModalData();
-	const { folderSelect, folderOptions, folderSelectHandler } =
-		useBookmarkModalFolder(selectFolder);
+	const { selectFolder, selectHandler } = useFolderSelect();
 	const { tag, handleChange, handleInputChange, handleKeyDown, resetTag } =
 		useBookmarkModalTag();
 
-	function reset() {
-		resetFormData();
-		resetTag();
-		editDoneHandler();
-		modalClose();
-	}
+	useEffect(() => {
+		if (open) {
+			resetFormData();
+			resetTag();
+			selectHandler({ label: currentFolder.name, value: currentFolder.itemId });
+		}
+	}, [open, currentFolder]);
 
 	const onMake = (e: any) => {
 		e.preventDefault();
@@ -38,7 +34,7 @@ const AddModal = ({
 			comment,
 			itemId: isEditBookmark ? editData.itemId : itemId,
 			name,
-			parentId: folderSelect.value,
+			parentId: selectFolder.value,
 			url,
 			visitCount: 0,
 		};
@@ -51,12 +47,14 @@ const AddModal = ({
 			handleId();
 		}
 
-		reset();
+		editDoneHandler();
+		modalClose();
 	};
 
 	const onCancel = (e: any) => {
 		e.preventDefault();
-		reset();
+		editDoneHandler();
+		modalClose();
 	};
 
 	return (
@@ -85,11 +83,7 @@ const AddModal = ({
 						<input value={formData.url} name='url' onChange={formDataHandler} />
 					</div>
 
-					<Select
-						onChange={folderSelectHandler}
-						options={folderOptions}
-						value={folderSelect}
-					/>
+					<FolderSelect select={selectFolder} selectHandler={selectHandler} />
 					<CreatableSelect
 						inputValue={tag.inputValue}
 						isClearable

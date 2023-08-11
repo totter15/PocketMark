@@ -37,7 +37,7 @@ export interface TagType {
 export interface FolderType {
 	itemId: number;
 	name: string;
-	parentId: number;
+	parentId: number | null;
 	tags?: TagType[];
 	visitCount?: number;
 }

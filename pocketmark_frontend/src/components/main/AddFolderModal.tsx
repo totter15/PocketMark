@@ -1,58 +1,47 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import Select from 'react-select';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import './AddFolderModal.css';
 import useFolder from '../../hooks/useFolder';
 import useEdit from '../../hooks/useEdit';
 import { editDone } from '../../slices/editData';
+import FolderSelect from './FolderSelect';
+import useFolderSelect from '../../hooks/useFolderSelect';
 
-const AddFolderModal = ({
-	open,
-	folderModalClose,
-	folders,
-	itemId,
-	handleId,
-}: any) => {
+const AddFolderModal = ({ open, folderModalClose, itemId, handleId }: any) => {
 	const { addFolder, editFolder } = useFolder();
 	const { isEditFolder, editData } = useEdit();
+	const { selectFolder, selectHandler } = useFolderSelect();
 
 	const [name, setName] = useState('');
-	const [select, setSelect] = useState({ label: '내 폴더', value: 0 });
-	const [options, setOptions] = useState<any>([]);
 	const [tag, setTag] = useState({
 		inputValue: '',
 		value: [],
 	});
 
-	const getOptions = useCallback(() => {
-		let options = [{ label: '내 폴더', value: 0 }];
-		folders.forEach((folder: any) => {
-			folder.parentId === 0 && //부모 폴더만 리스트에 뜨게
-				options.push({
-					value: folder.itemId,
-					label: folder.name,
-				});
-		});
-		setOptions(options);
-	}, [folders]);
+	function onChangeName(e: ChangeEvent<HTMLInputElement>) {
+		setName(e.target.value);
+	}
 
 	useEffect(() => {
-		getOptions();
-	}, [folders]);
+		if (open) {
+			selectHandler({ label: 'Root', value: 0 });
+			setName('');
+			setTag({ inputValue: '', value: [] });
+		}
+	}, [open]);
 
 	// 폴더 수정시 원래이름을 기본값으로
 	useEffect(() => {
 		if (isEditFolder && editData) {
 			setName(editData.name);
-			setSelect(options.find((o: any) => o.value === editData.parentId));
-			editData.tags &&
-				setTag({
-					inputValue: '',
-					value: editData.tags.map((b: any) => ({
-						label: b.name,
-						value: b.name,
-					})),
-				});
+			// editData.tags &&
+			// 	setTag({
+			// 		inputValue: '',
+			// 		value: editData.tags.map((b: any) => ({
+			// 			label: b.name,
+			// 			value: b.name,
+			// 		})),
+			// 	});
 		}
 	}, [editData]);
 
@@ -62,7 +51,7 @@ const AddFolderModal = ({
 		const folderData = {
 			name,
 			itemId: isEditFolder ? editData.itemId : itemId,
-			parentId: select ? select.value : 0,
+			parentId: selectFolder ? selectFolder.value : 0,
 		};
 
 		if (isEditFolder) {
@@ -72,20 +61,13 @@ const AddFolderModal = ({
 			addFolder.mutate(folderData);
 			handleId();
 		}
-		setName('');
 		editDone();
-		setSelect({ label: '내 폴더', value: 0 });
-		setTag({ inputValue: '', value: [] });
 		folderModalClose();
 	};
 
 	const onCancel = (e: any) => {
 		e.preventDefault();
 		editDone();
-		setName('');
-		setSelect({ label: '내 폴더', value: 0 });
-		setTag({ inputValue: '', value: [] });
-
 		folderModalClose();
 	};
 
@@ -125,13 +107,9 @@ const AddFolderModal = ({
 				<form>
 					<div className='folderName'>
 						<label>폴더 이름</label>
-						<input value={name} onChange={(e) => setName(e.target.value)} />
+						<input value={name} onChange={onChangeName} />
 					</div>
-					<Select
-						onChange={(option: any) => setSelect(option)}
-						options={options}
-						value={select}
-					/>
+					<FolderSelect selectHandler={selectHandler} select={selectFolder} />
 					<CreatableSelect
 						inputValue={tag.inputValue}
 						isClearable

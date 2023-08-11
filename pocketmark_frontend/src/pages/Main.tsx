@@ -12,13 +12,14 @@ import './Main.css';
 
 import { getCookis, removeCookie, setCookie } from '../lib/cookie';
 import { getAllFolder, getFolderData } from '../apis/datas';
+import useCurrentFolder from '../hooks/useCurrentFolder';
 
 const Main = () => {
-	const [selectFolderId, setSelectFolderId] = useState(0); //선택된 폴더 아이디
-
+	const { currentFolder } = useCurrentFolder();
 	const { data: folder } = useQuery('folder', () => getAllFolder());
-	const { data: folderData } = useQuery(['folderData', selectFolderId], () =>
-		getFolderData(selectFolderId)
+	const { data: folderData } = useQuery(
+		['folderData', currentFolder.itemId],
+		() => getFolderData(currentFolder.itemId)
 	);
 
 	const folders = folder?.data?.folders ?? [];
@@ -27,8 +28,6 @@ const Main = () => {
 	//modal
 	const [folderModal, setFolderModal] = useState(false); //폴더 모달
 	const [addModal, setAddModal] = useState(false); //북마크 모달
-
-	const [editFolder, setEditFolder] = useState(null);
 
 	const navigate = useNavigate();
 
@@ -51,7 +50,6 @@ const Main = () => {
 	// 폴더 모달 닫기
 	const folderModalClose = () => {
 		setFolderModal(false);
-		setEditFolder(null);
 	};
 
 	//북마크 모달 열기
@@ -116,27 +114,18 @@ const Main = () => {
 
 				<main>
 					{/* 폴더 네비게이션 */}
-					<FolderList
-						folders={folders}
-						folderModalOpen={folderModalOpen}
-						folderSelect={(folderId: any) => setSelectFolderId(folderId)}
-						selectFolder={selectFolderId}
-					/>
+					<FolderList folders={folders} folderModalOpen={folderModalOpen} />
 
 					<section className='bookmark'>
 						<FolderRoute
-							route={getRoute(selectFolderId)}
+							route={getRoute(currentFolder.itemId)}
 							folders={folders}
-							selectFolderId={selectFolderId}
+							selectFolderId={currentFolder.itemId}
 							editFolderModalOpen={editFolderModalOpen}
 						/>
 
 						{/* 북마크 리스트 */}
-						<BookmarkList
-							bookmarks={bookmarks}
-							editModalOpen={editModalOpen}
-							selectFolder={selectFolderId}
-						/>
+						<BookmarkList bookmarks={bookmarks} editModalOpen={editModalOpen} />
 					</section>
 				</main>
 			</div>
@@ -145,8 +134,6 @@ const Main = () => {
 			<AddFolderModal
 				folderModalClose={folderModalClose}
 				open={folderModal}
-				folders={folders}
-				editFolder={editFolder}
 				itemId={itemId.current}
 				handleId={handleId}
 			/>
@@ -157,7 +144,6 @@ const Main = () => {
 				open={addModal}
 				itemId={itemId.current}
 				handleId={handleId}
-				selectFolder={selectFolderId}
 			/>
 		</>
 	);

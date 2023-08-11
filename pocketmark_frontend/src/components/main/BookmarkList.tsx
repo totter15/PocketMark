@@ -2,8 +2,7 @@ import React from 'react';
 import BookmarkListItem from './BookmarkListItem';
 import './BookmarkList.css';
 
-const BookmarkList = ({ bookmarks, editModalOpen, deleteBookmarks }: any) => {
-	console.log(bookmarks);
+const BookmarkList = ({ bookmarks, editModalOpen }: any) => {
 	return (
 		<div className='bookmarkList'>
 			<div className='contents'>
@@ -13,7 +12,6 @@ const BookmarkList = ({ bookmarks, editModalOpen, deleteBookmarks }: any) => {
 							key={`${index}_${bookmark.name}`}
 							bookmark={bookmark}
 							editModalOpen={editModalOpen}
-							deleteBookmarks={deleteBookmarks}
 						/>
 					))}
 			</div>
