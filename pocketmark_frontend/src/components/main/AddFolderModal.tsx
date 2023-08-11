@@ -2,16 +2,21 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import './AddFolderModal.css';
+import useFolder from '../../hooks/useFolder';
+import useEdit from '../../hooks/useEdit';
+import { editDone } from '../../slices/editData';
 
 const AddFolderModal = ({
-	makeFolder,
 	open,
 	folderModalClose,
 	folders,
 	edit,
-	editFolders,
-	editFolder,
+	itemId,
+	handleId,
 }: any) => {
+	const { addFolder, editFolder } = useFolder();
+	const { isEditFolder, editData } = useEdit();
+
 	const [name, setName] = useState('');
 	const [select, setSelect] = useState({ label: '내 폴더', value: 0 });
 	const [options, setOptions] = useState<any>([]);
@@ -38,26 +43,38 @@ const AddFolderModal = ({
 
 	// 폴더 수정시 원래이름을 기본값으로
 	useEffect(() => {
-		if (editFolder) {
-			setName(editFolder[0].name);
-			setSelect(options.find((o: any) => o.value === editFolder[0].parentId));
-			editFolder[0].tags &&
+		if (isEditFolder && editData) {
+			setName(editData.name);
+			setSelect(options.find((o: any) => o.value === editData.parentId));
+			editData.tags &&
 				setTag({
 					inputValue: '',
-					value: editFolder[0].tags.map((b: any) => ({
+					value: editData.tags.map((b: any) => ({
 						label: b.name,
 						value: b.name,
 					})),
 				});
 		}
-	}, [editFolder]);
+	}, [editData]);
 
 	const onMake = (e: any) => {
 		e.preventDefault();
-		!edit
-			? makeFolder(name, select ? select.value : 0, tag.value) //폴더 만들기
-			: editFolders(name, select.value, tag.value); //폴더 수정하기
+
+		const folderData = {
+			name,
+			itemId: isEditFolder ? editData.itemId : itemId,
+			parentId: select ? select.value : 0,
+		};
+
+		if (isEditFolder) {
+			editFolder.mutate(folderData);
+		}
+		if (!isEditFolder) {
+			addFolder.mutate(folderData);
+			handleId();
+		}
 		setName('');
+		editDone();
 		setSelect({ label: '내 폴더', value: 0 });
 		setTag({ inputValue: '', value: [] });
 		folderModalClose();
@@ -65,6 +82,7 @@ const AddFolderModal = ({
 
 	const onCancel = (e: any) => {
 		e.preventDefault();
+		editDone();
 		setName('');
 		setSelect({ label: '내 폴더', value: 0 });
 		setTag({ inputValue: '', value: [] });
@@ -128,7 +146,9 @@ const AddFolderModal = ({
 					/>
 					<div className='buttonContainer'>
 						<button onClick={onCancel}>취소</button>
-						<button onClick={onMake}>{!edit ? '만들기' : '수정하기'}</button>
+						<button onClick={onMake}>
+							{!isEditFolder ? '만들기' : '수정하기'}
+						</button>
 					</div>
 				</form>
 			</div>

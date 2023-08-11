@@ -16,12 +16,12 @@ import { getAllFolder, getFolderData } from '../apis/datas';
 const Main = () => {
 	const [selectFolderId, setSelectFolderId] = useState(0); //선택된 폴더 아이디
 
-	const { data } = useQuery('folder', () => getAllFolder());
+	const { data: folder } = useQuery('folder', () => getAllFolder());
 	const { data: folderData } = useQuery(['folderData', selectFolderId], () =>
 		getFolderData(selectFolderId)
 	);
 
-	const folders = data?.data?.folders ?? [];
+	const folders = folder?.data?.folders ?? [];
 	const bookmarks = folderData?.data?.bookmarks ?? [];
 
 	//modal
@@ -30,10 +30,7 @@ const Main = () => {
 
 	const [editFolder, setEditFolder] = useState(null);
 
-	const [refresh, setRefresh] = useState(false);
-
 	const navigate = useNavigate();
-	const location = useLocation();
 
 	const itemId = useRef(Number(getCookis('lastId')) + 1);
 	function handleId() {
@@ -47,8 +44,7 @@ const Main = () => {
 	};
 
 	//폴더 수정 모달 열기
-	const editFolderModalOpen = (itemId: any) => {
-		// setEditFolder(folders.filter((f) => f.itemId === itemId));
+	const editFolderModalOpen = () => {
 		setFolderModal(true);
 	};
 
@@ -151,6 +147,8 @@ const Main = () => {
 				open={folderModal}
 				folders={folders}
 				editFolder={editFolder}
+				itemId={itemId.current}
+				handleId={handleId}
 			/>
 
 			{/* 북마크 추가/수정 */}

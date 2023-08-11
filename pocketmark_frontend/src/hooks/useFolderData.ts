@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { createData, deleteData, editData, getFolderData } from '../apis/datas';
+import { createData, deleteData, editData } from '../apis/datas';
 import { DeleteDataType, FolderDataType } from '../interfaces/data';
 
 function useFolderData(folderId: number) {
