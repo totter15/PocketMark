@@ -20,7 +20,7 @@ function FolderSelect({
 	const folders = data?.data.folders ?? [];
 
 	const parentFolders = folders.filter(
-		(folder: FolderType) => folder.parentId === 0
+		(folder: FolderType) => folder.parentId === 0 || folder.parentId === null
 	);
 	const folderOptions = parentFolders.map((folder: FolderType) => {
 		const option: any = {};
