@@ -46,12 +46,29 @@ const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 		};
 
 		const tagData = () =>
-			tag.value.map((item) => ({ itemId: id, name: item.value }));
-		const deleteTagData = () => {};
+			tag?.value?.map((item) => ({ itemId: id, name: item.value })) ?? [];
+		const currentTag = () =>
+			editData?.tags?.map((tag: { name: string }) => ({
+				itemId: id,
+				name: tag.name,
+			})) ?? [];
 
 		if (isEditBookmark) {
 			await editFolderData.mutateAsync({ bookmarks: [addData], folders: [] });
-			//만들어진 태그 확인, 삭제될 태그 확인
+			const deleteTag = currentTag().filter(
+				(current: { name: string }) =>
+					!tagData().some((tag) => tag.name === current.name)
+			);
+			const createTag = tagData().filter(
+				(tag) =>
+					!currentTag().some(
+						(current: { name: string }) => tag.name === current.name
+					)
+			);
+			!!createTag.length &&
+				(await addBookmarkTagHandler.mutateAsync(createTag));
+			!!deleteTag.length &&
+				(await deleteBookmarkTagHandler.mutateAsync(deleteTag));
 		}
 		if (!isEditBookmark) {
 			await addFolderData.mutateAsync({ bookmarks: [addData], folders: [] });

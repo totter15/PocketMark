@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import { TagSelectPropsType } from '../../interfaces/data';
+import useEdit from '../../hooks/useEdit';
 
 function TagSelect({ tag, handleTag }: TagSelectPropsType) {
+	const { editData } = useEdit();
+
 	function handleChange(value: any) {
 		handleTag({ ...tag, value: value });
 	}
@@ -29,6 +32,17 @@ function TagSelect({ tag, handleTag }: TagSelectPropsType) {
 				event.preventDefault();
 		}
 	};
+
+	useEffect(() => {
+		if (editData) {
+			const currentTag =
+				editData?.tags?.map((tag: { name: string }) => ({
+					value: tag.name,
+					label: tag.name,
+				})) ?? [];
+			handleTag({ inputValue: '', value: currentTag });
+		}
+	}, [editData]);
 
 	return (
 		<CreatableSelect
