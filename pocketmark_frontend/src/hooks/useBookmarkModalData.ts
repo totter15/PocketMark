@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react';
 import useEdit from './useEdit';
 
-function useBookmarkModalData() {
-	const { isEditBookmark, editData } = useEdit();
+interface FormDataType {
+	name: string;
+	url: string;
+	comment: string;
+}
 
-	const [formData, setFormData] = useState<{
-		name: string;
-		url: string;
-		comment: string;
-	}>({
+function useBookmarkModalData() {
+	const initialData = {
 		name: '',
 		url: '',
 		comment: '',
-	});
+	};
+
+	const { isEditBookmark, editData } = useEdit();
+	const [formData, setFormData] = useState<FormDataType>(initialData);
 
 	function resetFormData() {
-		setFormData({
-			name: '',
-			url: '',
-			comment: '',
-		});
+		setFormData(initialData);
 	}
 
 	const formDataHandler = (e: any) => {
