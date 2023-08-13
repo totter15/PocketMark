@@ -39,13 +39,11 @@ const FolderRoute = ({ editFolderModalOpen }: any) => {
 			<div>
 				{route()}
 				<div className='folderTags'>
-					{/* {selectFolder &&
-						selectFolder.tags &&
-						selectFolder.tags.map((t: any) => (
-							<div key={`${t.name}`} className='tag'>
-								#{t.name}
-							</div>
-						))} */}
+					{currentFolder?.tags?.map((t: any) => (
+						<div key={`${t.name}`} className='tag'>
+							#{t.name}
+						</div>
+					))}
 				</div>
 			</div>
 			{currentFolder.itemId !== 0 && (

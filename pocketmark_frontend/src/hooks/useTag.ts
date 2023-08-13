@@ -5,15 +5,14 @@ import useCurrentFolder from './useCurrentFolder';
 
 function useTag() {
 	const queryClient = useQueryClient();
-	const { currentFolder, selectCurrentFolder } = useCurrentFolder();
+	const { currentFolder } = useCurrentFolder();
 
 	function onSuccess() {
 		queryClient.invalidateQueries(['folderData', currentFolder.itemId]);
 	}
 
 	function onSuccessFolder() {
-		queryClient.invalidateQueries(['folder']);
-		//TODO : currentFolder 수정하기
+		queryClient.invalidateQueries('folder');
 	}
 
 	const addBookmarkTagHandler = useMutation(

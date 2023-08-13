@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../slices';
 import { editBookmark, editDone, editFolder } from '../slices/editData';
-import { BookmarkType, FolderDataType, FolderType } from '../interfaces/data';
+import { BookmarkType, FolderType } from '../interfaces/data';
 
 function useEdit() {
 	const isEditBookmark = useSelector(

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import useBookmarkModalData from '../../hooks/useBookmarkModalData';
 import useEdit from '../../hooks/useEdit';
 import useFolderData from '../../hooks/useFolderData';
