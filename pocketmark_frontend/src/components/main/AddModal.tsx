@@ -9,10 +9,12 @@ import useCurrentFolder from '../../hooks/useCurrentFolder';
 import TagSelect from './TagSelect';
 import useTagSelect from '../../hooks/useTagSelect';
 import useTag from '../../hooks/useTag';
+import { BookmarkType } from '../../interfaces/data';
 
 const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 	const { currentFolder } = useCurrentFolder();
 	const { isEditBookmark, editData, editDoneHandler } = useEdit();
+
 	const { editFolderData, addFolderData } = useFolderData();
 	const { addBookmarkTagHandler, deleteBookmarkTagHandler } = useTag();
 
@@ -35,8 +37,7 @@ const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 		e.preventDefault();
 		const { name, url, comment } = formData ?? {};
 		const id = isEditBookmark ? editData.itemId : itemId;
-
-		const addData = {
+		const data = {
 			comment,
 			itemId: id,
 			name,
@@ -45,41 +46,43 @@ const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 			visitCount: 0,
 		};
 
-		const tagData = () =>
-			tag?.value?.map((item) => ({ itemId: id, name: item.value })) ?? [];
-		const currentTag = () =>
-			editData?.tags?.map((tag: { name: string }) => ({
-				itemId: id,
-				name: tag.name,
-			})) ?? [];
-
-		if (isEditBookmark) {
-			await editFolderData.mutateAsync({ bookmarks: [addData], folders: [] });
-			const deleteTag = currentTag().filter(
-				(current: { name: string }) =>
-					!tagData().some((tag) => tag.name === current.name)
-			);
-			const createTag = tagData().filter(
-				(tag) =>
-					!currentTag().some(
-						(current: { name: string }) => tag.name === current.name
-					)
-			);
-			!!createTag.length &&
-				(await addBookmarkTagHandler.mutateAsync(createTag));
-			!!deleteTag.length &&
-				(await deleteBookmarkTagHandler.mutateAsync(deleteTag));
-		}
-		if (!isEditBookmark) {
-			await addFolderData.mutateAsync({ bookmarks: [addData], folders: [] });
-			await addBookmarkTagHandler.mutateAsync(tagData());
-
-			handleId();
-		}
-
-		editDoneHandler();
+		isEditBookmark ? editBookmarkHandler(data) : makeBookmarkHandler(data);
 		modalClose();
 	};
+
+	async function makeBookmarkHandler(data: BookmarkType) {
+		const tagData =
+			tag?.value?.map((item) => ({ itemId, name: item.value })) ?? [];
+		const isTagData = tagData.length > 0;
+
+		await addFolderData.mutateAsync({ bookmarks: [data], folders: [] });
+		isTagData && (await addBookmarkTagHandler.mutateAsync(tagData));
+		handleId();
+	}
+
+	async function editBookmarkHandler(data: BookmarkType) {
+		const currentTag = editData?.tags?.flatMap(
+			(tag: { name: string }) => tag.name
+		);
+		const tagData = tag?.value?.flatMap((tag) => tag.value);
+
+		const deleteTag =
+			currentTag
+				.filter((current: string) => !tagData.includes(current))
+				.map((item: string) => ({ itemId: editData.itemId, name: item })) ?? [];
+		const createTag =
+			tagData
+				.filter((tag: string) => !currentTag.includes(tag))
+				.map((item: string) => ({ itemId: editData.itemId, name: item })) ?? [];
+
+		const isDeleteTag = deleteTag.length > 0;
+		const isCreateTag = createTag.length > 0;
+
+		await editFolderData.mutateAsync({ bookmarks: [data], folders: [] });
+		isCreateTag && (await addBookmarkTagHandler.mutateAsync(createTag));
+		isDeleteTag && (await deleteBookmarkTagHandler.mutateAsync(deleteTag));
+		editDoneHandler();
+	}
 
 	const onCancel = (e: any) => {
 		e.preventDefault();
