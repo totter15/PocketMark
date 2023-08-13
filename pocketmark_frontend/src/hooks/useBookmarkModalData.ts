@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useEdit from './useEdit';
 
 function useBookmarkModalData() {
-	const { isEditBookmark, editData, editDoneHandler } = useEdit();
+	const { isEditBookmark, editData } = useEdit();
 
 	const [formData, setFormData] = useState<{
 		name: string;

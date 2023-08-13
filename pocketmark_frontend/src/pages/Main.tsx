@@ -15,10 +15,10 @@ import useCurrentFolder from '../hooks/useCurrentFolder';
 
 const Main = () => {
 	const { currentFolder } = useCurrentFolder();
-	const { data: folder } = useQuery('folder', () => getAllFolder());
+	const { data: folder } = useQuery('folder', async () => await getAllFolder());
 	const { data: folderData } = useQuery(
 		['folderData', currentFolder.itemId],
-		() => getFolderData(currentFolder.itemId)
+		async () => await getFolderData(currentFolder.itemId)
 	);
 
 	const folders = folder?.data?.folders ?? [];

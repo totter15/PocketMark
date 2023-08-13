@@ -1,49 +1,62 @@
-import React, { useEffect } from 'react';
-import CreatableSelect from 'react-select/creatable';
+import React, { useEffect, useState } from 'react';
 import useBookmarkModalData from '../../hooks/useBookmarkModalData';
-import useBookmarkModalTag from '../../hooks/useBookmarkModalTag';
 import useEdit from '../../hooks/useEdit';
 import useFolderData from '../../hooks/useFolderData';
 import './AddModal.css';
 import FolderSelect from './FolderSelect';
 import useFolderSelect from '../../hooks/useFolderSelect';
 import useCurrentFolder from '../../hooks/useCurrentFolder';
+import TagSelect from './TagSelect';
+import useTagSelect from '../../hooks/useTagSelect';
+import useTag from '../../hooks/useTag';
 
 const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 	const { currentFolder } = useCurrentFolder();
 	const { isEditBookmark, editData, editDoneHandler } = useEdit();
-	const { editFolderData, addFolderData } = useFolderData(currentFolder.itemId);
+	const { editFolderData, addFolderData } = useFolderData();
+	const { addBookmarkTagHandler, deleteBookmarkTagHandler } = useTag();
 
 	const { formData, formDataHandler, resetFormData } = useBookmarkModalData();
 	const { selectFolder, selectHandler } = useFolderSelect();
-	const { tag, handleChange, handleInputChange, handleKeyDown, resetTag } =
-		useBookmarkModalTag();
+	const { tag, tagHandler, resetTag } = useTagSelect();
 
 	useEffect(() => {
 		if (open && !isEditBookmark) {
 			resetFormData();
 			resetTag();
-			selectHandler({ label: currentFolder.name, value: currentFolder.itemId });
+			selectHandler({
+				label: currentFolder.name,
+				value: currentFolder.itemId,
+			});
 		}
-	}, [open, currentFolder]);
+	}, [open, isEditBookmark, currentFolder]);
 
-	const onMake = (e: any) => {
+	const onMake = async (e: any) => {
 		e.preventDefault();
 		const { name, url, comment } = formData ?? {};
+		const id = isEditBookmark ? editData.itemId : itemId;
+
 		const addData = {
 			comment,
-			itemId: isEditBookmark ? editData.itemId : itemId,
+			itemId: id,
 			name,
 			parentId: selectFolder.value,
 			url,
 			visitCount: 0,
 		};
 
+		const tagData = () =>
+			tag.value.map((item) => ({ itemId: id, name: item.value }));
+		const deleteTagData = () => {};
+
 		if (isEditBookmark) {
-			editFolderData.mutate({ bookmarks: [addData], folders: [] });
+			await editFolderData.mutateAsync({ bookmarks: [addData], folders: [] });
+			//만들어진 태그 확인, 삭제될 태그 확인
 		}
 		if (!isEditBookmark) {
-			addFolderData.mutate({ bookmarks: [addData], folders: [] });
+			await addFolderData.mutateAsync({ bookmarks: [addData], folders: [] });
+			await addBookmarkTagHandler.mutateAsync(tagData());
+
 			handleId();
 		}
 
@@ -84,17 +97,7 @@ const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 					</div>
 
 					<FolderSelect select={selectFolder} selectHandler={selectHandler} />
-					<CreatableSelect
-						inputValue={tag.inputValue}
-						isClearable
-						isMulti
-						menuIsOpen={false}
-						onChange={handleChange}
-						onInputChange={handleInputChange}
-						onKeyDown={handleKeyDown}
-						placeholder='태그 입력'
-						value={tag.value}
-					/>
+					<TagSelect tag={tag} handleTag={tagHandler} />
 				</form>
 				<div className='buttonContainer'>
 					<button onClick={onCancel}>취소</button>

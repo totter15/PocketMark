@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { createData, deleteData, editData } from '../apis/datas';
 import { DeleteDataType, FolderDataType } from '../interfaces/data';
+import useCurrentFolder from './useCurrentFolder';
 
-function useFolderData(folderId: number) {
+function useFolderData() {
 	const queryClient = useQueryClient();
+	const { currentFolder } = useCurrentFolder();
 
 	function onSuccess() {
-		queryClient.invalidateQueries(['folderData', folderId]);
+		queryClient.invalidateQueries(['folderData', currentFolder.itemId]);
 	}
 
 	const addFolderData = useMutation(
