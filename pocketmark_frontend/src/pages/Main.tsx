@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import './Main.css';
 
-import { getCookis, removeCookie, setCookie } from '../lib/cookie';
+import { getCookis, removeCookie, setCookie } from '../utils/cookie';
 import { getAllFolder, getFolderData } from '../apis/datas';
 import useCurrentFolder from '../hooks/useCurrentFolder';
 

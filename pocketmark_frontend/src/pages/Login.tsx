@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
-import { setCookie, getCookis } from '../lib/cookie';
+import { setCookie, getCookis } from '../utils/cookie';
 import { login } from '../apis/user';
 import client from '../apis/client';
 
