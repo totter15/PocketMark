@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { getCookis } from '../lib/cookie';
+import { getCookis } from '../utils/cookie';
 import { getToken } from './user';
 
 const client = axios.create({

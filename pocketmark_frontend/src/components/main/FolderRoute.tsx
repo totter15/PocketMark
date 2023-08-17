@@ -19,12 +19,17 @@ const FolderRoute = ({ editFolderModalOpen }: any) => {
 	const { deleteFolder } = useFolder();
 
 	const route = () => {
-		const route: string[] = [];
+		const route: string[] = ['Root'];
 		const parentFolder = folders.find(
 			(folder) => folder.itemId === currentFolder.parentId
 		);
-		route.unshift(currentFolder.name);
-		parentFolder && route.unshift(parentFolder.name);
+
+		if (currentFolder.itemId !== 0) {
+			parentFolder &&
+				parentFolder.itemId !== 0 &&
+				route.push(parentFolder.name);
+			route.push(currentFolder.name);
+		}
 
 		return route.join(' / ');
 	};
@@ -34,13 +39,11 @@ const FolderRoute = ({ editFolderModalOpen }: any) => {
 			<div>
 				{route()}
 				<div className='folderTags'>
-					{/* {selectFolder &&
-						selectFolder.tags &&
-						selectFolder.tags.map((t: any) => (
-							<div key={`${t.name}`} className='tag'>
-								#{t.name}
-							</div>
-						))} */}
+					{currentFolder?.tags?.map((t: any) => (
+						<div key={`${t.name}`} className='tag'>
+							#{t.name}
+						</div>
+					))}
 				</div>
 			</div>
 			{currentFolder.itemId !== 0 && (

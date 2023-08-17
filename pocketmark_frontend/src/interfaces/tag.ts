@@ -2,7 +2,7 @@ export interface TagResponseType {
 	tags: TagType[];
 }
 
-interface TagType {
+export interface TagType {
 	itemId: number;
 	name: string;
 }

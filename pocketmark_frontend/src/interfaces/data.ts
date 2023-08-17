@@ -51,3 +51,18 @@ export interface DeleteDataType {
 	bookmarkIdList: number[];
 	folderIdList: number[];
 }
+
+export interface TagSelectPropsType {
+	tag: TagSelectDataType;
+	handleTag: (tag: TagSelectDataType) => void;
+}
+
+export interface TagSelectDataType {
+	inputValue: string;
+	value: TagSelectValueType[] | [];
+}
+
+export interface TagSelectValueType {
+	label: string;
+	value: string;
+}

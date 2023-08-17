@@ -1,5 +1,5 @@
 import { EmailCodeCheckRequest, SignUpRequest } from '../interfaces/user';
-import { getCookis } from '../lib/cookie';
+import { getCookis } from '../utils/cookie';
 import client, { noAuthClient } from './client';
 
 export async function getRefreshToken(refreshToken: string) {

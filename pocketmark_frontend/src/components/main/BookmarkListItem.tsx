@@ -7,7 +7,7 @@ import useFolderData from '../../hooks/useFolderData';
 
 const BookmarkListItem = ({ bookmark, editModalOpen }: any) => {
 	const { editBookmarkHandler } = useEdit();
-	const { deleteFolderData } = useFolderData(bookmark.parentId);
+	const { deleteFolderData } = useFolderData();
 
 	function editHandler() {
 		editBookmarkHandler(bookmark);

@@ -9,16 +9,16 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import './Main.css';
 
-import { getCookis, removeCookie, setCookie } from '../lib/cookie';
+import { getCookis, removeCookie, setCookie } from '../utils/cookie';
 import { getAllFolder, getFolderData } from '../apis/datas';
 import useCurrentFolder from '../hooks/useCurrentFolder';
 
 const Main = () => {
 	const { currentFolder } = useCurrentFolder();
-	const { data: folder } = useQuery('folder', () => getAllFolder());
+	const { data: folder } = useQuery('folder', async () => await getAllFolder());
 	const { data: folderData } = useQuery(
 		['folderData', currentFolder.itemId],
-		() => getFolderData(currentFolder.itemId)
+		async () => await getFolderData(currentFolder.itemId)
 	);
 
 	const folders = folder?.data?.folders ?? [];

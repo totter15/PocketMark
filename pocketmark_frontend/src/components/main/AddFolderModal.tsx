@@ -1,24 +1,25 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import CreatableSelect from 'react-select/creatable';
 import './AddFolderModal.css';
 import useFolder from '../../hooks/useFolder';
 import useEdit from '../../hooks/useEdit';
-import { editDone } from '../../slices/editData';
 import FolderSelect from './FolderSelect';
 import useFolderSelect from '../../hooks/useFolderSelect';
 import useCurrentFolder from '../../hooks/useCurrentFolder';
+import TagSelect from './TagSelect';
+import useTagSelect from '../../hooks/useTagSelect';
+import useTag from '../../hooks/useTag';
+import { FolderType } from '../../interfaces/data';
 
 const AddFolderModal = ({ open, folderModalClose, itemId, handleId }: any) => {
+	const { currentFolder, selectCurrentFolder } = useCurrentFolder();
+	const { isEditFolder, editData, editDoneHandler } = useEdit();
+
 	const { addFolder, editFolder } = useFolder();
-	const { isEditFolder, editData } = useEdit();
-	const { selectFolder, selectHandler } = useFolderSelect();
-	const { selectCurrentFolder } = useCurrentFolder();
+	const { addFolderTagHandler, deleteFolderTagHandler } = useTag();
 
 	const [name, setName] = useState('');
-	const [tag, setTag] = useState({
-		inputValue: '',
-		value: [],
-	});
+	const { selectFolder, selectHandler } = useFolderSelect();
+	const { tag, tagHandler, resetTag } = useTagSelect();
 
 	function onChangeName(e: ChangeEvent<HTMLInputElement>) {
 		setName(e.target.value);
@@ -26,81 +27,74 @@ const AddFolderModal = ({ open, folderModalClose, itemId, handleId }: any) => {
 
 	useEffect(() => {
 		if (open) {
-			selectHandler({ label: 'Root', value: 0 });
-			setName('');
-			setTag({ inputValue: '', value: [] });
+			if (!isEditFolder) {
+				setName('');
+				resetTag();
+				selectHandler({
+					label: currentFolder.name,
+					value: currentFolder.itemId,
+				});
+			}
+			if (isEditFolder) {
+				setName(editData.name);
+			}
 		}
-	}, [open]);
+	}, [open, editData, isEditFolder, currentFolder]);
 
-	// 폴더 수정시 원래이름을 기본값으로
-	useEffect(() => {
-		if (isEditFolder && editData) {
-			setName(editData.name);
-			// editData.tags &&
-			// 	setTag({
-			// 		inputValue: '',
-			// 		value: editData.tags.map((b: any) => ({
-			// 			label: b.name,
-			// 			value: b.name,
-			// 		})),
-			// 	});
-		}
-	}, [editData]);
-
-	const onMake = (e: any) => {
+	const onMake = async (e: any) => {
 		e.preventDefault();
-
-		const folderData = {
+		const id = isEditFolder ? editData.itemId : itemId;
+		const data = {
 			name,
-			itemId: isEditFolder ? editData.itemId : itemId,
+			itemId: id,
 			parentId: selectFolder ? selectFolder.value : 0,
 		};
+		const tagData =
+			tag?.value?.map((item) => ({ itemId, name: item.value })) ?? [];
 
-		if (isEditFolder) {
-			editFolder.mutate(folderData);
-		}
-		if (!isEditFolder) {
-			addFolder.mutate(folderData);
-			handleId();
-		}
-		selectCurrentFolder(folderData);
-		editDone();
+		isEditFolder ? editFolderHandler(data) : makeFolderHandler(data);
+		selectCurrentFolder({ ...data, tags: tagData });
 		folderModalClose();
 	};
+
+	async function makeFolderHandler(data: FolderType) {
+		const tagData =
+			tag?.value?.map((item) => ({ itemId, name: item.value })) ?? [];
+		const isTagData = tagData.length > 0;
+
+		await addFolder.mutateAsync(data);
+		isTagData && (await addFolderTagHandler.mutateAsync(tagData));
+		handleId();
+	}
+
+	async function editFolderHandler(data: FolderType) {
+		const currentTag = editData?.tags?.flatMap(
+			(tag: { name: string }) => tag.name
+		);
+		const tagData = tag?.value?.flatMap((tag) => tag.value);
+
+		const deleteTag =
+			currentTag
+				.filter((current: string) => !tagData.includes(current))
+				.map((item: string) => ({ itemId: editData.itemId, name: item })) ?? [];
+		const createTag =
+			tagData
+				.filter((tag: string) => !currentTag.includes(tag))
+				.map((item: string) => ({ itemId: editData.itemId, name: item })) ?? [];
+
+		const isDeleteTag = deleteTag.length > 0;
+		const isCreateTag = createTag.length > 0;
+
+		await editFolder.mutateAsync(data);
+		isCreateTag && (await addFolderTagHandler.mutateAsync(createTag));
+		isDeleteTag && (await deleteFolderTagHandler.mutateAsync(deleteTag));
+		editDoneHandler();
+	}
 
 	const onCancel = (e: any) => {
 		e.preventDefault();
-		editDone();
+		editDoneHandler();
 		folderModalClose();
-	};
-
-	const createOption = (label: any) => {
-		return {
-			label,
-			value: label,
-		};
-	};
-
-	const handleChange = (value: any) => {
-		setTag({ ...tag, value: value });
-	};
-	const handleInputChange = (inputValue: any) => {
-		setTag({ ...tag, inputValue: inputValue });
-	};
-
-	const handleKeyDown = (event: any) => {
-		const { inputValue, value } = tag;
-		if (!inputValue) return;
-		switch (event.key) {
-			case 'Enter':
-			case 'Tab':
-				!event.nativeEvent.isComposing &&
-					// setTag({
-					// 	inputValue: '',
-					// 	value: [...value, createOption(inputValue)],
-					// });
-					event.preventDefault();
-		}
 	};
 
 	return (
@@ -113,17 +107,7 @@ const AddFolderModal = ({ open, folderModalClose, itemId, handleId }: any) => {
 						<input value={name} onChange={onChangeName} />
 					</div>
 					<FolderSelect selectHandler={selectHandler} select={selectFolder} />
-					<CreatableSelect
-						inputValue={tag.inputValue}
-						isClearable
-						isMulti
-						menuIsOpen={false}
-						onChange={handleChange}
-						onInputChange={handleInputChange}
-						onKeyDown={handleKeyDown}
-						placeholder='태그 입력'
-						value={tag.value}
-					/>
+					<TagSelect tag={tag} handleTag={tagHandler} />
 					<div className='buttonContainer'>
 						<button onClick={onCancel}>취소</button>
 						<button onClick={onMake}>

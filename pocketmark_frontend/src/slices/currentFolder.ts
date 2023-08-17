@@ -15,6 +15,7 @@ export const currentFolderSlice = createSlice({
 			state.itemId = payload.itemId;
 			state.name = payload.name;
 			state.parentId = payload.parentId;
+			state.tags = payload.tags;
 		},
 	},
 });
