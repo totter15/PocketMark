@@ -61,9 +61,8 @@ const AddModal = ({ open, modalClose, itemId, handleId }: any) => {
 	}
 
 	async function editBookmarkHandler(data: BookmarkType) {
-		const currentTag = editData?.tags?.flatMap(
-			(tag: { name: string }) => tag.name
-		);
+		const currentTag =
+			editData?.tags?.flatMap((tag: { name: string }) => tag.name) ?? [];
 		const tagData = tag?.value?.flatMap((tag) => tag.value);
 
 		const deleteTag =
