@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
-import { setCookie, getCookis } from '../utils/cookie';
 import { login } from '../apis/user';
 import client from '../apis/client';
 
@@ -15,7 +14,7 @@ const Login = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		getCookis('autoLogin') && navigate('/main');
+		localStorage.getItem('autoLogin') === 'true' && navigate('/main');
 	}, []);
 
 	const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +34,7 @@ const Login = () => {
 		};
 
 		if (checked) {
-			setCookie('autoLogin', true);
+			localStorage.setItem('autoLogin', 'true');
 		}
 
 		try {
@@ -44,8 +43,10 @@ const Login = () => {
 			const { accessToken, refreshToken } = tokenBox;
 
 			if (response.success && accessToken) {
-				setCookie('refreshToken', refreshToken); //refresh token 저장
-				setCookie('lastId', itemId); //lastId 저장
+				localStorage.setItem('refreshToken', refreshToken);
+				localStorage.setItem('lastId', itemId);
+				localStorage.setItem('token', accessToken);
+
 				client.defaults.headers.common[
 					'Authorization'
 				] = `Bearer ${accessToken}`;

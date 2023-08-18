@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import './Main.css';
 
-import { getCookis, removeCookie, setCookie } from '../utils/cookie';
 import { getAllFolder, getFolderData } from '../apis/datas';
 import useCurrentFolder from '../hooks/useCurrentFolder';
 
@@ -30,10 +29,11 @@ const Main = () => {
 
 	const navigate = useNavigate();
 
-	const itemId = useRef(Number(getCookis('lastId')) + 1);
+	const itemId = useRef(Number(localStorage.getItem('lastId')) + 1);
 	function handleId() {
-		setCookie('itemId', itemId.current + 1);
-		itemId.current = itemId.current + 1;
+		const id = itemId.current + 1;
+		localStorage.setItem('itemId', id.toString());
+		itemId.current = id;
 	}
 
 	useEffect(() => {
@@ -64,7 +64,7 @@ const Main = () => {
 	};
 
 	const onLogout = () => {
-		removeCookie('autoLogin');
+		localStorage.removeItem('autoLogin');
 
 		setTimeout(() => {
 			navigate('/');

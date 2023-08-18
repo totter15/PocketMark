@@ -10,15 +10,15 @@ export const noAuthClient = axios.create({
 	baseURL: 'http://localhost:9090/',
 });
 
-// client.interceptors.request.use(function (
-// 	config: InternalAxiosRequestConfig
-// ): InternalAxiosRequestConfig {
-// 	const token = getCookis('refresh-token');
-// 	if (token) {
-// 		config.headers.Authorization = `Bearer ${token}`;
-// 	}
-// 	return config;
-// });
+client.interceptors.request.use(function (
+	config: InternalAxiosRequestConfig
+): InternalAxiosRequestConfig {
+	const token = localStorage.getItem('token');
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+	return config;
+});
 
 client.interceptors.response.use(
 	function (response: AxiosResponse): AxiosResponse {
