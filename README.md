@@ -136,7 +136,7 @@ function App() {
 
 <img width="757" alt="스크린샷 2023-08-18 오후 10 54 16" src="https://github.com/TOO-IT/Tooit-frontend/assets/71440070/608f0548-795e-490b-9758-496a1565748b">
 
-#### 05-02 react-icons 라이브러리 최적화
+#### 05-02 Reduce unused Javascript 개선
 
 <img width="687" alt="스크린샷 2023-08-18 오후 10 38 21" src="https://github.com/TOO-IT/Tooit-frontend/assets/71440070/cef991a2-ff6d-4e12-9082-1fe0b3e51da3">
 
