@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IoAddCircleOutline } from 'react-icons/io5';
+import { FiPlusCircle } from 'react-icons/fi';
 import AddFolderModal from '../components/main/AddFolderModal';
 import AddModal from '../components/main/AddModal';
 import FolderList from '../components/main/FolderList';
@@ -78,8 +78,8 @@ const Main = () => {
 					<div className='search'>
 						<h2>PocketMark</h2>
 
-						<button onClick={modalOpen}>
-							<IoAddCircleOutline />
+						<button aria-label='addBookmarkButton' onClick={modalOpen}>
+							<FiPlusCircle />
 						</button>
 					</div>
 

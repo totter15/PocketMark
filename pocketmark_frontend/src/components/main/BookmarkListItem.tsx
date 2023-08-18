@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiEdit3 } from 'react-icons/fi';
-import { RiDeleteBin6Line } from 'react-icons/ri';
+import { FiTrash2 } from 'react-icons/fi';
 import './BookmarkListItem.css';
 import useEdit from '../../hooks/useEdit';
 import useFolderData from '../../hooks/useFolderData';
@@ -24,7 +24,7 @@ const BookmarkListItem = ({ bookmark, editModalOpen }: any) => {
 	return (
 		<div className='bookmarkListItem'>
 			<div className='edit' onClick={deleteHandler}>
-				<RiDeleteBin6Line
+				<FiTrash2
 					style={{
 						position: 'absolute',
 						right: 20,
