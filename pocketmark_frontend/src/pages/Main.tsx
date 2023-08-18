@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import AddFolderModal from '../components/main/AddFolderModal';
 import AddModal from '../components/main/AddModal';
@@ -36,13 +36,15 @@ const Main = () => {
 		itemId.current = itemId.current + 1;
 	}
 
+	useEffect(() => {
+		if (folderModal || addModal) document.body.style.overflow = `hidden`;
+		return () => {
+			document.body.style.overflow = `unset`;
+		};
+	}, [folderModal, addModal]);
+
 	// 폴더 모달 열기
 	const folderModalOpen = () => {
-		setFolderModal(true);
-	};
-
-	//폴더 수정 모달 열기
-	const editFolderModalOpen = () => {
 		setFolderModal(true);
 	};
 
@@ -53,11 +55,6 @@ const Main = () => {
 
 	//북마크 모달 열기
 	const modalOpen = () => {
-		setAddModal(true);
-	};
-
-	// 북마크 수정 모달 열기
-	const editModalOpen = () => {
 		setAddModal(true);
 	};
 
@@ -101,11 +98,11 @@ const Main = () => {
 						<FolderRoute
 							folders={folders}
 							selectFolderId={currentFolder.itemId}
-							editFolderModalOpen={editFolderModalOpen}
+							editFolderModalOpen={folderModalOpen}
 						/>
 
 						{/* 북마크 리스트 */}
-						<BookmarkList bookmarks={bookmarks} editModalOpen={editModalOpen} />
+						<BookmarkList bookmarks={bookmarks} editModalOpen={modalOpen} />
 					</section>
 				</main>
 			</div>
