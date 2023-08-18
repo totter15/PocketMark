@@ -1,20 +1,22 @@
 .folderListItem {
-  padding: 18px 15px;
-  border-radius: 10px;
-  /* border: 1px solid black; */
+	padding: 18px 15px;
+	border-radius: 10px;
+	/* border: 1px solid black; */
 }
 
 .folderListItem:hover {
-  background-color: rgb(247, 251, 252);
-  cursor: pointer;
+	background-color: rgb(247, 251, 252);
+	cursor: pointer;
 }
 
 .folderListItem.select {
-  background-color: rgb(241, 245, 248);
+	background-color: rgb(241, 245, 248);
+	font-weight: 600;
 }
 
 @media screen and (max-width: 768px) {
-  .folderListItem {
-    padding: 14px 10px;
-  }
+	.folderListItem {
+		padding: 14px 10px;
+		text-align: center;
+	}
 }

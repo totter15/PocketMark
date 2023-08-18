@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { IoAddCircleOutline } from 'react-icons/io5';
+import React, { useState, useRef, useEffect } from 'react';
+import { FiPlusCircle } from 'react-icons/fi';
 import AddFolderModal from '../components/main/AddFolderModal';
 import AddModal from '../components/main/AddModal';
 import FolderList from '../components/main/FolderList';
@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import './Main.css';
 
-import { getCookis, removeCookie, setCookie } from '../utils/cookie';
 import { getAllFolder, getFolderData } from '../apis/datas';
 import useCurrentFolder from '../hooks/useCurrentFolder';
 
@@ -30,19 +29,22 @@ const Main = () => {
 
 	const navigate = useNavigate();
 
-	const itemId = useRef(Number(getCookis('lastId')) + 1);
+	const itemId = useRef(Number(localStorage.getItem('lastId')) + 1);
 	function handleId() {
-		setCookie('itemId', itemId.current + 1);
-		itemId.current = itemId.current + 1;
+		const id = itemId.current + 1;
+		localStorage.setItem('itemId', id.toString());
+		itemId.current = id;
 	}
+
+	useEffect(() => {
+		if (folderModal || addModal) document.body.style.overflow = `hidden`;
+		return () => {
+			document.body.style.overflow = `unset`;
+		};
+	}, [folderModal, addModal]);
 
 	// 폴더 모달 열기
 	const folderModalOpen = () => {
-		setFolderModal(true);
-	};
-
-	//폴더 수정 모달 열기
-	const editFolderModalOpen = () => {
 		setFolderModal(true);
 	};
 
@@ -56,18 +58,13 @@ const Main = () => {
 		setAddModal(true);
 	};
 
-	// 북마크 수정 모달 열기
-	const editModalOpen = () => {
-		setAddModal(true);
-	};
-
 	// 북마크 모달 닫기
 	const modalClose = () => {
 		setAddModal(false);
 	};
 
 	const onLogout = () => {
-		removeCookie('autoLogin');
+		localStorage.removeItem('autoLogin');
 
 		setTimeout(() => {
 			navigate('/');
@@ -81,8 +78,8 @@ const Main = () => {
 					<div className='search'>
 						<h2>PocketMark</h2>
 
-						<button onClick={modalOpen}>
-							<IoAddCircleOutline />
+						<button aria-label='addBookmarkButton' onClick={modalOpen}>
+							<FiPlusCircle />
 						</button>
 					</div>
 
@@ -101,11 +98,11 @@ const Main = () => {
 						<FolderRoute
 							folders={folders}
 							selectFolderId={currentFolder.itemId}
-							editFolderModalOpen={editFolderModalOpen}
+							editFolderModalOpen={folderModalOpen}
 						/>
 
 						{/* 북마크 리스트 */}
-						<BookmarkList bookmarks={bookmarks} editModalOpen={editModalOpen} />
+						<BookmarkList bookmarks={bookmarks} editModalOpen={modalOpen} />
 					</section>
 				</main>
 			</div>

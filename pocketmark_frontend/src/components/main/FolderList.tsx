@@ -1,8 +1,7 @@
 import React from 'react';
 import FolderListItem from './FolderListItem';
 import FolderChildList from './FolderChildList';
-import { BsFillFolderFill } from 'react-icons/bs';
-import { AiOutlinePlus } from 'react-icons/ai';
+import { FiPlus } from 'react-icons/fi';
 import './FolderList.css';
 import useCurrentFolder from '../../hooks/useCurrentFolder';
 import { FolderType } from '../../interfaces/data';
@@ -18,11 +17,9 @@ const FolderList = ({ folders, folderModalOpen }: any) => {
 				}
 				onClick={() => selectCurrentFolder(folders[0])}
 			>
-				<div>
-					<BsFillFolderFill />내 폴더
-				</div>
-				<button onClick={folderModalOpen}>
-					<AiOutlinePlus />
+				<div>Root</div>
+				<button aria-label='addFolderButton' onClick={folderModalOpen}>
+					<FiPlus />
 				</button>
 			</div>
 

@@ -1,5 +1,4 @@
 import { EmailCodeCheckRequest, SignUpRequest } from '../interfaces/user';
-import { getCookis } from '../utils/cookie';
 import client, { noAuthClient } from './client';
 
 export async function getRefreshToken(refreshToken: string) {
@@ -49,7 +48,7 @@ export async function login({ email, pw }: { email: string; pw: string }) {
 }
 
 export async function getToken() {
-	const refreshToken = getCookis('refreshToken');
+	const refreshToken = localStorage.getI('refreshToken');
 	const { data } = await noAuthClient.post('api/v1/refresh-token', {
 		refreshToken,
 	});

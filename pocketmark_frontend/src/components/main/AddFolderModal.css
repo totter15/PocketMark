@@ -1,94 +1,103 @@
 .addFolderModal {
-  display: none;
-  width: 100vw;
-  height: 100vh;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
+	display: none;
+	width: 100vw;
+	height: 100vh;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 0;
 }
 
 .background {
-  width: 100vw;
-  height: 100vh;
-  background-color: black;
-  opacity: 0.7;
-  position: absolute;
-  top: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: black;
+	opacity: 0.7;
+	position: absolute;
+	top: 0;
 }
 
 .addFolderModal .components {
-  width: 300px;
-  background-color: white;
-  position: absolute;
-  border-radius: 20px;
-  padding: 30px;
-  animation: modal-show 0.3s;
+	width: 300px;
+	background-color: white;
+	position: absolute;
+	border-radius: 20px;
+	padding: 30px;
+	animation: modal-show 0.3s;
 }
 
 .addFolderModal label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 5px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	margin-bottom: 5px;
 }
 
 .addFolderModal .folderName {
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .addFolderModal form > div:nth-child(2) {
-  margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .buttonContainer {
-  display: flex;
-  flex-direction: "row";
-  justify-content: flex-end;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	margin-top: 12px;
 }
 
 .buttonContainer button {
-  width: auto;
-  background-color: "white";
+	width: auto;
+	background-color: rgb(236, 241, 243);
+	padding: 14px 22px;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+}
+
+.buttonContainer button:hover {
+	background-color: rgb(221, 228, 231);
 }
 
 .buttonContainer button:first-child {
-  margin-right: 10px;
+	margin-right: 10px;
 }
 
 .addFolderModal.open {
-  display: flex;
-  animation: modal-bg-show 0.3s;
+	display: flex;
+	animation: modal-bg-show 0.3s;
 }
 
 .addFolderModal input {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid rgb(226, 226, 226);
-  border-radius: 10px;
-  box-sizing: border-box;
-  outline: none;
-  flex: 1;
+	width: 100%;
+	padding: 12px 20px;
+	margin: 8px 0;
+	display: inline-block;
+	border: 1px solid rgb(226, 226, 226);
+	border-radius: 10px;
+	box-sizing: border-box;
+	outline: none;
+	flex: 1;
 }
 
 @keyframes modal-show {
-  from {
-    opacity: 0;
-    margin-top: -20px;
-  }
-  to {
-    opacity: 1;
-    margin-top: 0;
-  }
+	from {
+		opacity: 0;
+		margin-top: -20px;
+	}
+	to {
+		opacity: 1;
+		margin-top: 0;
+	}
 }
 
 @keyframes modal-bg-show {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }

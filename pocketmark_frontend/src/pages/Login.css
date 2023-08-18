@@ -1,87 +1,98 @@
-@import url("https://fonts.googleapis.com/css2?family=Abel&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Abel&display=swap');
 
 .login {
-  max-width: 400px;
-  margin: auto;
-  margin-top: 5rem;
-  border-radius: 15px;
-  padding: 3rem 3rem 4rem 3rem;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+	max-width: 400px;
+	margin: auto;
+	margin-top: 5rem;
+	border-radius: 15px;
+	padding: 3rem 3rem 4rem 3rem;
+	background: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 .login .title {
-  font-family: "Abel", sans-serif;
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 4rem;
-  font-size: 3rem;
+	font-family: 'Abel', sans-serif;
+	text-align: center;
+	margin-top: 0;
+	margin-bottom: 4rem;
+	font-size: 3rem;
 }
 .login input {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid rgb(226, 226, 226);
-  border-radius: 10px;
-  box-sizing: border-box;
-  outline: none;
-  flex: 1;
+	width: 100%;
+	padding: 12px 20px;
+	margin: 8px 0;
+	display: inline-block;
+	border: 1px solid rgb(226, 226, 226);
+	border-radius: 10px;
+	box-sizing: border-box;
+	outline: none;
+	flex: 1;
 }
 .login input:nth-child(1):focus,
 .login input:nth-child(2):focus {
-  border: 1px solid #8e9cad;
+	border: 1px solid #8e9cad;
 }
 .login > form > .autoLogin {
-  display: flex;
-  width: 100%;
-  /* justify-content: center; */
-  align-items: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 8px;
-  color: rgb(87, 92, 128);
-  cursor: pointer;
+	display: flex;
+	width: 100%;
+	/* justify-content: center; */
+	align-items: center;
+	font-size: 0.8rem;
+	font-weight: 600;
+	margin-top: 8px;
+	color: rgb(87, 92, 128);
+	cursor: pointer;
 }
 .login > form > .autoLogin > input {
-  width: auto;
-  flex: none;
-  margin-right: 8px;
+	width: auto;
+	flex: none;
+	margin-right: 8px;
 }
 
 .login button {
-  margin-bottom: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	width: 100%;
+	padding: 12px;
+	border-radius: 10px;
+	transition: 0.1s background ease-in;
+	border: none;
+	cursor: pointer;
+}
+
+.login button:hover {
+	background: #e7ebf0;
 }
 
 .login a:-webkit-any-link {
-  text-decoration: none;
-  margin: auto;
-  margin-top: 3rem;
+	text-decoration: none;
+	margin: auto;
+	margin-top: 3rem;
 }
 
 .regist {
-  margin-top: 2rem;
-  padding: 0;
-  border-radius: 0;
-  text-align: center;
-  font-size: 0.8rem;
-  color: rgb(83, 83, 83);
+	margin-top: 2rem;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+	font-size: 0.8rem;
+	color: rgb(83, 83, 83);
 }
 
 .link {
-  color: rgb(87, 92, 128);
-  font-weight: bold;
-  padding-left: 10px;
+	color: rgb(87, 92, 128);
+	font-weight: bold;
+	padding-left: 10px;
 }
 
 .link:hover {
-  color: rgb(54, 58, 83);
+	color: rgb(54, 58, 83);
 }
 
 .login form div {
-  width: 100%;
+	width: 100%;
 }
 .login form {
-  width: 100%;
+	width: 100%;
 }
